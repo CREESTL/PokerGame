@@ -8,7 +8,7 @@ contract BestHandFinder{
 
     uint[] HandType = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-    uint8[] public data;
+    uint8[] public arrayForSorting;
     
     struct Strongest {
         uint8 hand;
@@ -24,7 +24,17 @@ contract BestHandFinder{
     uint8[]rankArray;
 
     function set(uint8[] memory _data) public { 
-        data = _data; 
+        arrayForSorting = _data; 
+    }
+
+    function get() public view returns(uint8[] memory){ 
+        return arrayForSorting;
+    }
+
+    function quick() public {
+        if (arrayForSorting.length > 1) {
+            quickPart(arrayForSorting, 0, arrayForSorting.length - 1);
+        }
     }
 
     function setCards(uint8[] memory _cardsArray, uint8[] memory _rankArray) public {
@@ -91,12 +101,8 @@ contract BestHandFinder{
         }
     }
 
-    function quick(uint8[] memory data) internal pure {
-        if (data.length > 1) {
-            quickPart(data, 0, data.length - 1);
-        }
-    }
-    function quickPart(uint8[] memory data, uint low, uint high) internal pure {
+    
+    function quickPart(uint8[] storage data, uint low, uint high) internal {
         if (low < high) {
             uint pivotVal = data[(low + high) / 2];
         
