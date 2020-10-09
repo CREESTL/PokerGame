@@ -109,8 +109,8 @@ contract BestHandFinder{
             uint low1 = low;
             uint high1 = high;
             for (;;) {
-                while (data[low1] < pivotVal) low1++;
-                while (data[high1] > pivotVal) high1--;
+                while (data[low1] > pivotVal) low1++;
+                while (data[high1] < pivotVal) high1--;
                 if (low1 >= high1) break;
                 (data[low1], data[high1]) = (data[high1], data[low1]);
                 low1++;
