@@ -30,7 +30,7 @@ contract('BestHandFinder test', async ([owner, alice, bob]) => {
   it('checking the BESTHAND ', async () => {
    await this.bestHandFinder.set(sortedHand);
    console.log(await this.bestHandFinder.get());
-   await this.bestHandFinder.sort();
+   await this.bestHandFinder.quick();
    console.log(await this.bestHandFinder.get());
 
   });
