@@ -10,7 +10,7 @@ interface IPool {
 
 interface IGame {
     function supportsIGame() external view returns (bool);
-    function __callback(uint256 randomNumber, uint256 requestId) external; // TODO: add "bytes memory _proof" arg
+    function __callback(uint8[] calldata cards, uint256 requestId) external; // TODO: add "bytes memory _proof" arg
 }
 
 interface IInternalToken {

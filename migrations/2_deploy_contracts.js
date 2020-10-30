@@ -9,15 +9,11 @@ let BestHandFinder = artifacts.require("../contracts/BestHandFinder.sol");
 module.exports = function(deployer, network, owner) {
 
   deployer.then(async () => {    
-    // const xETH = await deployer.deploy(XETHToken);
-    // const oracle = await deployer.deploy(Oracle, owner);
-    // await deployer.deploy(FakeGameController, oracle.address)
-    // await deployer.deploy(PoolController, xETH.address);
-    await deployer.deploy(BestHandFinder);
+    const xETH = await deployer.deploy(XETHToken);
+    const oracle = await deployer.deploy(Oracle, owner);
+    await deployer.deploy(FakeGameController, oracle.address)
+    await deployer.deploy(PoolController, xETH.address);
+    await deployer.deploy(BestHandFinder, oracle.address);
     // await deployer.deploy(GameController, oracle.address);
   });
-
-  // deployer.deploy(ConvertLib);
-  // deployer.link(ConvertLib, MetaCoin);
-  // deployer.deploy(MetaCoin, 10000);
 }; 

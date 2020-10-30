@@ -10,28 +10,21 @@ require('chai')
   .use(require('chai-as-promised'))
   .should();
 
-
 const BestHandFinder = artifacts.require('BestHandFinder');
+const FakeGameController = artifacts.require('FakeGameController');
+const Oracle = artifacts.require('Oracle');
 
-const sortedHand = [1, 3, 2 , 26, 6, 4, 8];
-
-// const generateRandom = (на) => {
-//     return Math.floor(
-//         Math.random() * (0 - 51 + 1) + 0;
-//     )
-// }
+const randomCards = [1, 14, 27, 40, 3, 16, 29, 42, 22];
 
 contract('BestHandFinder test', async ([owner, alice, bob]) => {
 
   beforeEach(async () => {
     this.bestHandFinder = await BestHandFinder.deployed();
+    this.fakeGameController = await FakeGameController.deployed();
+    this.oracle = await Oracle.deployed();
   });
 
   it('checking the BESTHAND ', async () => {
-   await this.bestHandFinder.set(sortedHand);
-   console.log(await this.bestHandFinder.get());
-   await this.bestHandFinder.quick();
-   console.log(await this.bestHandFinder.get());
-
+    console.log(await this.oracle.publishRandomNumber(randomCards, this.oracle.address, 0, { from: owner }));
   });
 });
