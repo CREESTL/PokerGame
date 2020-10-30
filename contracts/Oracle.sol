@@ -14,7 +14,7 @@ contract Oracle is IOracle, Ownable {
     mapping(uint256 => bool) internal _pendingRequests;
 
     event RandomNumberRequestEvent(address indexed callerAddress, uint256 indexed requestId);
-    event RandomNumberEvent(uint256 randomNumber, address indexed callerAddress, uint256 indexed requestId);
+    event RandomNumberEvent(uint8[] cards, address indexed callerAddress, uint256 indexed requestId);
 
     modifier onlyGame(address sender) {
         bool senderIsAGame = false;
@@ -72,12 +72,12 @@ contract Oracle is IOracle, Ownable {
         emit RandomNumberRequestEvent(_msgSender(), requestId);
     }
 
-    function publishRandomNumber(uint256 randomNumber, address callerAddress, uint256 requestId) external onlyGame(callerAddress) onlyOperator {
+    function publishRandomNumber(uint8[] calldata cards, address callerAddress, uint256 requestId) external onlyGame(callerAddress) onlyOperator {
         require(_pendingRequests[requestId], "request isn't in pending list");
         delete _pendingRequests[requestId];
 
-        IGame(callerAddress).__callback(randomNumber, requestId);
-        emit RandomNumberEvent(randomNumber, callerAddress, requestId);
+        IGame(callerAddress).__callback(cards, requestId);
+        emit RandomNumberEvent(cards, callerAddress, requestId);
     }
 
     function _setOperatorAddress(address operatorAddress) internal {

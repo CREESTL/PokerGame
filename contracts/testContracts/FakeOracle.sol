@@ -20,7 +20,7 @@ contract FakeOracle is IOracle {
     function acceptRandomNumberRequest(uint256 requestId) external {
     }
 
-    function publishRandomNumber(uint256 randomNumber, address callerAddress, uint256 requestId) external {
-        IGame(callerAddress).__callback(randomNumber, requestId);
+    function publishRandomNumber(uint8[] calldata cards, address callerAddress, uint256 requestId) external {
+        IGame(callerAddress).__callback(cards, requestId);
     }
 }

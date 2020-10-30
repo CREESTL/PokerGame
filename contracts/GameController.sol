@@ -10,7 +10,7 @@ contract GameController is IGame, Ownable{
     enum Status { Unknown, Pending, Result }
 
     struct Numbers {
-        uint256 result;
+        uint8[] result;
         uint64 timestamp;
         Status status;
     }
@@ -46,13 +46,13 @@ contract GameController is IGame, Ownable{
         return _lastRequestId;
     }
 
-    function __callback(uint256 randomNumber, uint256 requestId) onlyOracle external {
+    function __callback(uint8[] calldata cards, uint256 requestId) onlyOracle external {
         Numbers storage number = _randomNumbers[requestId];
         number.timestamp = uint64(block.timestamp);
         require(number.status == Status.Pending, "request already closed");
         number.status = Status.Result;
-        number.result = randomNumber;
-        _publishResults(randomNumber, requestId);
+        number.result = cards;
+        _publishResults(cards, requestId);
     }
 
     function _updateRandomNumber() internal {
@@ -69,5 +69,6 @@ contract GameController is IGame, Ownable{
         _oracle = iOracleCandidate;
     }
 
-    function _publishResults(uint256 randomNumber, uint256 requestId) internal {}
+    function _publishResults(uint8[] memory cards, uint256 requestId) view internal returns(uint8, uint8[] memory) {
+    }
 }
