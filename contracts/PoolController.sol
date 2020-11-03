@@ -12,6 +12,9 @@ contract PoolController is IPool, Context, Ownable {
 
     uint256 public constant PERCENT100 = 10 ** 18; // 100 %
 
+    uint256 public jackpot;
+    uint256 internal jackpotLimit = 1000000000;
+
     struct Pool {
         IInternalToken internalToken; // internal token (xEth or xWgr)
         uint256 amount;
@@ -67,6 +70,10 @@ contract PoolController is IPool, Context, Ownable {
     //     require(_pools[tokenAddress].active, "already deactivated");
     //     _pools[tokenAddress].active = false;
     // }
+
+    function updateJackpot(uint256 amount) public {
+        jackpot = jackpot.add(amount);
+    }
 
     function setOracleGasFee(uint256 oracleGasFee) external onlyOwner {
         pool.oracleGasFee = oracleGasFee;
@@ -145,7 +152,8 @@ contract PoolController is IPool, Context, Ownable {
 
     function addBetToPool(uint256 betAmount) external onlyGame activePool() payable {
         uint256 oracleFeeAmount = pool.oracleGasFee;
-        pool.amount = pool.amount.add(betAmount).sub(oracleFeeAmount);
+        pool.amount = pool.amount.add(betAmount);
+            // .sub(oracleFeeAmount);
         pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleFeeAmount);
     }
 
@@ -155,6 +163,16 @@ contract PoolController is IPool, Context, Ownable {
         }
         _tokens.transfer(player, prize);
         pool.amount = pool.amount.sub(prize);
+        return true;
+    }
+
+    function jackpotDistribution(address payable player) external onlyGame activePool() returns (bool) {
+        if(jackpot > jackpotLimit) {
+            _tokens.transfer(player, jackpotLimit);
+            jackpot = jackpot.sub(jackpotLimit);
+            return true;
+        }
+        _tokens.transfer(player, jackpot);
         return true;
     }
 
