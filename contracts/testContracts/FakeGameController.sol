@@ -16,6 +16,6 @@ contract FakeGameController is GameController {
         _oracle.acceptRandomNumberRequest(requestId);
     }
 
-    function _publishResults(uint8[] memory cards, uint256 requestId) view internal returns(uint8, uint8[] memory) {
+    function _publishResults(uint8[] memory cards, uint256 gameId) internal {
     }
 }

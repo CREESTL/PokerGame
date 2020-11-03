@@ -73,8 +73,8 @@ contract Oracle is IOracle, Ownable {
     }
 
     function publishRandomNumber(uint8[] calldata cards, address callerAddress, uint256 requestId) external onlyGame(callerAddress) onlyOperator {
-        require(_pendingRequests[requestId], "request isn't in pending list");
-        delete _pendingRequests[requestId];
+        // require(_pendingRequests[requestId], "request isn't in pending list");
+        // delete _pendingRequests[requestId];
 
         IGame(callerAddress).__callback(cards, requestId);
         emit RandomNumberEvent(cards, callerAddress, requestId);
