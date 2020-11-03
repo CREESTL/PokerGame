@@ -157,11 +157,11 @@ contract PoolController is IPool, Context, Ownable {
         pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleFeeAmount);
     }
 
-    function rewardDisribution(address payable player, uint256 prize) external onlyGame activePool() returns (bool) {
-        if (_tokens.balanceOf(address(this)) < prize) {
+    function rewardDisribution(address payable player, uint256 prize) external returns (bool) {
+        if (address(this).balance < prize) {
             return false;
         }
-        _tokens.transfer(player, prize);
+        player.transfer(prize);
         pool.amount = pool.amount.sub(prize);
         return true;
     }
@@ -175,7 +175,7 @@ contract PoolController is IPool, Context, Ownable {
         _tokens.transfer(player, jackpot);
         return true;
     }
-
+    // TODO: redesign
     function maxBet(uint256 maxPercent) external view returns (uint256) {
         if (maxPercent > PERCENT100)
             return 0;

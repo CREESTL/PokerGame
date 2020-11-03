@@ -46,7 +46,7 @@ contract GameController is IGame, Ownable{
         return _lastRequestId;
     }
 
-    function __callback(uint8[] calldata cards, uint256 requestId) external {
+    function __callback(uint8[] calldata cards, uint256 requestId) onlyOracle external {
         Numbers storage number = _randomNumbers[requestId];
         number.timestamp = uint64(block.timestamp);
         require(number.status == Status.Pending, "request already closed");

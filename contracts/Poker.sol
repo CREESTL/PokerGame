@@ -57,7 +57,7 @@ contract Poker is GameController, Pausable{
         unpause();
     }
 
-    function play(uint gameId, uint betColor, uint chosenColor) external payable {
+    function play(uint betColor, uint chosenColor) external payable {
         // uint gasFee = _poolController.getOracleGasFee();
 
         // // TODO: maxWin adn maxBet
@@ -69,7 +69,7 @@ contract Poker is GameController, Pausable{
         if (_randomNumbers[_lastRequestId].status != Status.Pending) {
             super._updateRandomNumber();
         }
-        games[gameId] = Game(betColor, uint(msg.value - betColor), chosenColor, msg.sender);
+        games[_lastRequestId] = Game(betColor, uint(msg.value - betColor), chosenColor, msg.sender);
     }
 
     function setCards(uint8[] memory _cardsArray) public pure returns(uint8) {
@@ -320,10 +320,10 @@ contract Poker is GameController, Pausable{
         }
         return (strongestHand, retOrder);
     }
-    function _publishResults(uint8[] memory cards, uint256 gameId) internal {
+    function _publishResults(uint8[] memory cards, uint256 requestId) internal {
         uint winAmount = 0;
-        uint jackPotAdder = games[gameId].betPoker.div(1000).mul(2);
-        if(games[gameId].betColor > 0) {
+        uint jackPotAdder = games[requestId].betPoker.div(1000).mul(2);
+        if(games[requestId].betColor > 0) {
             bool winColor;
             uint8 cnt = 0;
             uint8[] memory colorCards = new uint8[](3);
@@ -331,22 +331,23 @@ contract Poker is GameController, Pausable{
                 colorCards[cnt] = cards[i];
                 cnt++;
             }
-            winColor = determineWinnerColor(colorCards, games[gameId].chosenColor);
-            if (winColor) winAmount = games[gameId].betColor.mul(2).sub(games[gameId].betColor.div(1000).mul(15));
+            winColor = determineWinnerColor(colorCards, games[requestId].chosenColor);
+            if (winColor) winAmount = games[requestId].betColor.mul(2).sub(games[requestId].betColor.div(1000).mul(15));
         }
         uint8 winPoker = setCards(cards);
         if (winPoker == 1) {
-            winAmount = winAmount.add(games[gameId].betPoker.sub(games[gameId].betColor.div(1000).mul(15) + jackPotAdder));
+            winAmount = winAmount.add(games[requestId].betPoker.sub(games[requestId].betColor.div(1000).mul(15) + jackPotAdder));
         }
         if (winPoker == 2) {
-            winAmount = winAmount.add(games[gameId].betPoker.mul(2).sub(games[gameId].betPoker.div(1000).mul(15) + jackPotAdder));
+            winAmount = winAmount.add(games[requestId].betPoker.mul(2).sub(games[requestId].betPoker.div(1000).mul(15) + jackPotAdder));
         }
         if (winPoker == 3) {
             // _poolController.jackpotDistribution(games[gameId].player);
         }
         if(winAmount > 0) {
-            _poolController.rewardDisribution(games[gameId].player, winAmount);
+            _poolController.rewardDisribution(games[requestId].player, winAmount);
         }
+        // _poolController.rewardDisribution(games[gameId].player, 100);
     }
 
     function _setPoolController(address poolAddress) internal {

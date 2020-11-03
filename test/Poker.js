@@ -12,13 +12,13 @@ require('chai')
 
 const XETHToken = artifacts.require('XETHToken');
 const PoolController = artifacts.require('PoolController');
-const FakeGameController = artifacts.require('FakeGameController');
+const GameController = artifacts.require('GameController');
 const Oracle = artifacts.require('Oracle');
 const Poker = artifacts.require('Poker');
 
 
 
-const randomCards = [11, 10, 9, 8, 7, 16, 29, 42, 22];
+const randomCards = [11, 10, 22, 47, 7, 5, 2, 1, 3];
 const colorCards = [1, 3, 13];
 
 contract('Poker test', async ([owner, alice, bob]) => {
@@ -26,15 +26,15 @@ contract('Poker test', async ([owner, alice, bob]) => {
   beforeEach(async () => {
     this.xETH = await XETHToken.deployed();
     this.poolController = await PoolController.deployed();
-    // this.fakeGameController = await FakeGameController.deployed();
+    // this.gameController = await GameController.deployed();
     this.oracle = await Oracle.deployed();
     this.poker = await Poker.deployed();
     
     
     await this.xETH.setPoolController(this.poolController.address, { from: owner });
     assert.equal(await this.xETH.getPoolController({ from: owner }),(this.poolController.address));
-    await this.poolController.setGame(this.poker.address);
-    await this.oracle.setGame(this.poker.address);
+    await this.poolController.setGame(this.poker.address, { from: owner });
+    await this.oracle.setGame(this.poker.address, { from: owner });
   });
 
   it('checking Poker results', async () => {
@@ -45,13 +45,15 @@ contract('Poker test', async ([owner, alice, bob]) => {
     assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 0);
     await this.poolController.deposit(owner, { from: owner, callValue: 1000000 });
     assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 1000000);
-    const poolInfo1 = await this.poolController.getPoolInfo();
-    assert.equal(poolInfo1[1].toString(), 1000000)
-    await this.poker.play(0, 10000, 0, { from: owner, callValue: 20000 });
-    const poolInfo2 = await this.poolController.getPoolInfo();
-    assert.equal(poolInfo2[1].toString(), 1020000);
-    console.log(await this.oracle.publishRandomNumber(randomCards, this.poker.address, 0, { from: owner }));
-    const poolInfo3 = await this.poolController.getPoolInfo();
-    console.log(poolInfo3[1].toString());
+    let poolInfo = await this.poolController.getPoolInfo();
+    assert.equal(poolInfo[1].toString(), 1000000)
+    await this.poker.play(10000, 0, { from: owner, callValue: 20000 });
+    poolInfo = await this.poolController.getPoolInfo();
+    assert.equal(poolInfo[1].toString(), 1020000);
+    const requestId = await this.poker.getLastRequestId();
+    console.log(await this.oracle.publishRandomNumber(randomCards, this.poker.address, requestId, { from: owner }));
+    poolInfo = await this.poolController.getPoolInfo();
+    console.log(poolInfo[1].toString());
+    // console.log((await balance.current(owner)).toString());
   });
 });
