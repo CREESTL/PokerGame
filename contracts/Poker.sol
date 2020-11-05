@@ -349,7 +349,7 @@ contract Poker is GameController, Pausable{
         if(winAmount > 0) {
             _poolController.rewardDisribution(games[requestId].player, winAmount);
             _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount);
-            _poolController.updateReferralEarningsBalance(games[requestId].player, betColorEdge.add(betPokerEdge).div(100));
+            _poolController.updateReferralEarningsBalance(games[requestId].player, (betColorEdge.add(betPokerEdge)).div(100));
         }
     }
 
