@@ -11,7 +11,7 @@ contract PoolController is IPool, Context, Ownable {
     using SafeMath for uint256;
 
     // enum BonusRank { Bronze, Silver, Gold, Platinum, Diamond, Emerald, Saphire }
-    uint[7] totalWinningsMilestones =  [0, 20000, 60000, 100000, 140000, 180000, 220000];
+    uint[7] totalWinningsMilestones =  [0, 2000000, 6000000, 10000000, 14000000, 18000000, 22000000];
     uint[7] bonusPercentMilestones = [1, 2, 4, 6, 8, 10 ,12];
 
     uint256 public constant PERCENT100 = 10 ** 18; // 100 %
@@ -27,7 +27,7 @@ contract PoolController is IPool, Context, Ownable {
         bool active;
     }
 
-    struct SonAccount {
+    struct RefAccount {
         address parent;
         // uint256 bonusRank;
         uint256 bonusPercent;
@@ -38,7 +38,7 @@ contract PoolController is IPool, Context, Ownable {
 
     event RegisteredReferer(address referee, address referral);
 
-    mapping (address => SonAccount) sonAccounts;
+    mapping (address => RefAccount) refAccounts;
 
     address _oracleOperator;
     IGame internal _games;
@@ -134,44 +134,46 @@ contract PoolController is IPool, Context, Ownable {
     /// referral programm ///
 
     function updateReferralTotalWinnings(address son, uint amount) external onlyGame activePool() {
-        sonAccounts[sonAccounts[son].parent].totalWinnings = sonAccounts[sonAccounts[son].parent].totalWinnings.add(amount);
-        updateReferralBonusRank(sonAccounts[son].parent);
+        refAccounts[refAccounts[son].parent].totalWinnings = refAccounts[refAccounts[son].parent].totalWinnings.add(amount);
+        updateReferralBonusRank(refAccounts[son].parent);
     }
 
     function updateReferralEarningsBalance(address son, uint amount) external onlyGame activePool() {
-        sonAccounts[sonAccounts[son].parent].referralEarningsBalance = sonAccounts[sonAccounts[son].parent].referralEarningsBalance.add(amount);
+        address parent = refAccounts[son].parent;
+        // updateReferralBonusRank(refAccounts[son].parent);
+        refAccounts[parent].referralEarningsBalance = refAccounts[parent].referralEarningsBalance.add(amount.mul(refAccounts[parent].bonusPercent));
     }
 
     function updateReferralBonusRank(address parent) internal {
-        uint totalWinnings = sonAccounts[parent].totalWinnings;
+        uint totalWinnings = refAccounts[parent].totalWinnings;
         uint currentBonus;
         for (uint i = 0; i < totalWinningsMilestones.length; i++) {
-            if(totalWinnings < totalWinningsMilestones[i]) {
+            if(totalWinnings > totalWinningsMilestones[i]) {
                 currentBonus = bonusPercentMilestones[i];
             }
         }
-        sonAccounts[parent].bonusPercent = currentBonus;
+        refAccounts[parent].bonusPercent = currentBonus;
     }
 
     function addSon(address parent, address son) public {
-        sonAccounts[son].parent = parent;
-        sonAccounts[parent].sonCounter = sonAccounts[parent].sonCounter.add(1);
+        refAccounts[son].parent = parent;
+        refAccounts[parent].sonCounter = refAccounts[parent].sonCounter.add(1);
     }
 
     function getMyReferralStats(address referee) public view returns (address, uint, uint, uint, uint) {
         return 
             (
-            sonAccounts[referee].parent,
-            sonAccounts[referee].bonusPercent,
-            sonAccounts[referee].totalWinnings,
-            sonAccounts[referee].referralEarningsBalance,
-            sonAccounts[referee].sonCounter
+            refAccounts[referee].parent,
+            refAccounts[referee].bonusPercent,
+            refAccounts[referee].totalWinnings,
+            refAccounts[referee].referralEarningsBalance,
+            refAccounts[referee].sonCounter
             );
     }
 
     function withdrawReferralEarnings(address payable son) external {
-        rewardDisribution(son, sonAccounts[son].referralEarningsBalance);
-        sonAccounts[son].referralEarningsBalance = 0;
+        rewardDisribution(son, refAccounts[son].referralEarningsBalance);
+        refAccounts[son].referralEarningsBalance = 0;
     }
 
     //                      Deposit/Withdraw functions                      //
