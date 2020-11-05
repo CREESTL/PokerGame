@@ -10,6 +10,10 @@ import "./Interfaces.sol";
 contract PoolController is IPool, Context, Ownable {
     using SafeMath for uint256;
 
+    // enum BonusRank { Bronze, Silver, Gold, Platinum, Diamond, Emerald, Saphire }
+    uint[7] totalWinningsMilestones =  [0, 20000, 60000, 100000, 140000, 180000, 220000];
+    uint[7] bonusPercentMilestones = [1, 2, 4, 6, 8, 10 ,12];
+
     uint256 public constant PERCENT100 = 10 ** 18; // 100 %
 
     uint256 public jackpot;
@@ -22,6 +26,19 @@ contract PoolController is IPool, Context, Ownable {
         uint256 oracleFeeAmount;
         bool active;
     }
+
+    struct SonAccount {
+        address parent;
+        // uint256 bonusRank;
+        uint256 bonusPercent;
+        uint256 totalWinnings;
+        uint256 referralEarningsBalance;
+        uint256 sonCounter;
+    }
+
+    event RegisteredReferer(address referee, address referral);
+
+    mapping (address => SonAccount) sonAccounts;
 
     address _oracleOperator;
     IGame internal _games;
@@ -69,7 +86,7 @@ contract PoolController is IPool, Context, Ownable {
     // function deactivateToken(address tokenAddress) external onlyOwner {
     //     require(_pools[tokenAddress].active, "already deactivated");
     //     _pools[tokenAddress].active = false;
-    // }
+    // }   
 
     function updateJackpot(uint256 amount) public {
         jackpot = jackpot.add(amount);
@@ -112,6 +129,49 @@ contract PoolController is IPool, Context, Ownable {
 
     function getOracleFeeAmount() external view returns (uint256) {
         return pool.oracleFeeAmount;
+    }
+
+    /// referral programm ///
+
+    function updateReferralTotalWinnings(address son, uint amount) external onlyGame activePool() {
+        sonAccounts[sonAccounts[son].parent].totalWinnings = sonAccounts[sonAccounts[son].parent].totalWinnings.add(amount);
+        updateReferralBonusRank(sonAccounts[son].parent);
+    }
+
+    function updateReferralEarningsBalance(address son, uint amount) external onlyGame activePool() {
+        sonAccounts[sonAccounts[son].parent].referralEarningsBalance = sonAccounts[sonAccounts[son].parent].referralEarningsBalance.add(amount);
+    }
+
+    function updateReferralBonusRank(address parent) internal {
+        uint totalWinnings = sonAccounts[parent].totalWinnings;
+        uint currentBonus;
+        for (uint i = 0; i < totalWinningsMilestones.length; i++) {
+            if(totalWinnings < totalWinningsMilestones[i]) {
+                currentBonus = bonusPercentMilestones[i];
+            }
+        }
+        sonAccounts[parent].bonusPercent = currentBonus;
+    }
+
+    function addSon(address parent, address son) public {
+        sonAccounts[son].parent = parent;
+        sonAccounts[parent].sonCounter = sonAccounts[parent].sonCounter.add(1);
+    }
+
+    function getMyReferralStats(address referee) public view returns (address, uint, uint, uint, uint) {
+        return 
+            (
+            sonAccounts[referee].parent,
+            sonAccounts[referee].bonusPercent,
+            sonAccounts[referee].totalWinnings,
+            sonAccounts[referee].referralEarningsBalance,
+            sonAccounts[referee].sonCounter
+            );
+    }
+
+    function withdrawReferralEarnings(address payable son) external {
+        rewardDisribution(son, sonAccounts[son].referralEarningsBalance);
+        sonAccounts[son].referralEarningsBalance = 0;
     }
 
     //                      Deposit/Withdraw functions                      //
@@ -157,22 +217,17 @@ contract PoolController is IPool, Context, Ownable {
         pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleFeeAmount);
     }
 
-    function rewardDisribution(address payable player, uint256 prize) external returns (bool) {
-        if (address(this).balance < prize) {
-            return false;
-        }
-        player.transfer(prize);
-        pool.amount = pool.amount.sub(prize);
-        return true;
+    function rewardDisribution(address payable player, uint256 prize) public returns (bool) {
+        _rewardDistribution(player, prize);
     }
 
     function jackpotDistribution(address payable player) external onlyGame activePool() returns (bool) {
         if(jackpot > jackpotLimit) {
-            _tokens.transfer(player, jackpotLimit);
+            player.transfer(jackpotLimit);
             jackpot = jackpot.sub(jackpotLimit);
             return true;
         }
-        _tokens.transfer(player, jackpot);
+        player.transfer(jackpot);
         return true;
     }
     // TODO: redesign
@@ -203,5 +258,14 @@ contract PoolController is IPool, Context, Ownable {
         if (pool.internalToken.totalSupply() == 0)
             return PERCENT100;
         return (pool.amount).mul(PERCENT100).div(pool.internalToken.totalSupply());
+    }
+
+    function _rewardDistribution(address payable player, uint256 prize) internal onlyGame activePool() returns (bool) {
+         if (address(this).balance < prize) {
+            return false;
+        }
+        player.transfer(prize);
+        pool.amount = pool.amount.sub(prize);
+        return true;
     }
 }
