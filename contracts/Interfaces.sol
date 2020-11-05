@@ -6,6 +6,8 @@ interface IPool {
     function rewardDisribution(address payable player, uint256 prize) external returns (bool);
     function maxBet(uint256 maxPercent) external view returns (uint256);
     function getOracleGasFee() external view returns (uint256);
+    function updateReferralTotalWinnings(address player, uint amount) external;
+    function updateReferralEarningsBalance(address player, uint amount) external;
 }
 
 interface IGame {

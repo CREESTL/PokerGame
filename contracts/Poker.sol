@@ -323,6 +323,8 @@ contract Poker is GameController, Pausable{
     function _publishResults(uint8[] memory cards, uint256 requestId) internal {
         uint winAmount = 0;
         uint jackPotAdder = games[requestId].betPoker.div(1000).mul(2);
+        uint betColorEdge = games[requestId].betColor.div(1000).mul(15);
+        uint betPokerEdge = games[requestId].betColor.div(1000).mul(15);
         if(games[requestId].betColor > 0) {
             bool winColor;
             uint8 cnt = 0;
@@ -332,22 +334,23 @@ contract Poker is GameController, Pausable{
                 cnt++;
             }
             winColor = determineWinnerColor(colorCards, games[requestId].chosenColor);
-            if (winColor) winAmount = games[requestId].betColor.mul(2).sub(games[requestId].betColor.div(1000).mul(15));
+            if (winColor) winAmount = games[requestId].betColor.mul(2).sub(betColorEdge);
         }
         uint8 winPoker = setCards(cards);
         if (winPoker == 1) {
-            winAmount = winAmount.add(games[requestId].betPoker.sub(games[requestId].betColor.div(1000).mul(15) + jackPotAdder));
+            winAmount = winAmount.add(games[requestId].betPoker.sub(betPokerEdge + jackPotAdder));
         }
         if (winPoker == 2) {
-            winAmount = winAmount.add(games[requestId].betPoker.mul(2).sub(games[requestId].betPoker.div(1000).mul(15) + jackPotAdder));
+            winAmount = winAmount.add(games[requestId].betPoker.mul(2).sub(betPokerEdge + jackPotAdder));
         }
         if (winPoker == 3) {
             // _poolController.jackpotDistribution(games[gameId].player);
         }
         if(winAmount > 0) {
             _poolController.rewardDisribution(games[requestId].player, winAmount);
+            _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount);
+            _poolController.updateReferralEarningsBalance(games[requestId].player, betColorEdge.add(betPokerEdge).div(100));
         }
-        // _poolController.rewardDisribution(games[gameId].player, 100);
     }
 
     function _setPoolController(address poolAddress) internal {
