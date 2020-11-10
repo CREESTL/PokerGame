@@ -5958,6 +5958,11 @@ lodash.flatten@^4.4.0:
   resolved "https://registry.yarnpkg.com/lodash.flatten/-/lodash.flatten-4.4.0.tgz#f31c22225a9632d2bbf8e4addbef240aa765a61f"
   integrity sha1-8xwiIlqWMtK7+OSt2+8kCqdlph8=
 
+lodash.isequal@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
+  integrity sha1-QVxEePK8wwEgwizhDtMib30+GOA=
+
 lodash.isfinite@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/lodash.isfinite/-/lodash.isfinite-3.3.2.tgz#fb89b65a9a80281833f0b7478b3a5104f898ebb3"
@@ -8957,6 +8962,14 @@ tronweb@^3.1.0:
     semver "^5.6.0"
     validator "^10.7.1"
 
+truffle-assertions@^0.9.2:
+  version "0.9.2"
+  resolved "https://registry.yarnpkg.com/truffle-assertions/-/truffle-assertions-0.9.2.tgz#0f8360f53ad92b6d8fdb8ceb5dce54c1fc392e23"
+  integrity sha512-9g2RhaxU2F8DeWhqoGQvL/bV8QVoSnQ6PY+ZPvYRP5eF7+/8LExb4mjLx/FeliLTjc3Tv1SABG05Gu5qQ/ErmA==
+  dependencies:
+    assertion-error "^1.1.0"
+    lodash.isequal "^4.5.0"
+
 truffle-blockchain-utils@^0.0.10:
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/truffle-blockchain-utils/-/truffle-blockchain-utils-0.0.10.tgz#18b772673635a95a893f7083f7be6bd62227462b"
@@ -8992,7 +9005,7 @@ truffle-error@^0.0.5:
   resolved "https://registry.yarnpkg.com/truffle-error/-/truffle-error-0.0.5.tgz#6b5740c9f3aac74f47b85d654fff7fe2c1fc5e0e"
   integrity sha512-JpzPLMPSCE0vaZ3vH5NO5u42GpMj/Y1SRBkQ6b69PSw3xMSH1umApN32cEcg1nnh8q5FNYc5FnKu0m4tiBffyQ==
 
-truffle-flattener@^1.4.4:
+truffle-flattener@^1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/truffle-flattener/-/truffle-flattener-1.5.0.tgz#c358fa3e5cb0a663429f7912a58c4f0879414e64"
   integrity sha512-vmzWG/L5OXoNruMV6u2l2IaheI091e+t+fFCOR9sl46EE3epkSRIwGCmIP/EYDtPsFBIG7e6exttC9/GlfmxEQ==
@@ -9013,10 +9026,10 @@ truffle-interface-adapter@^0.2.4:
     lodash "^4.17.13"
     web3 "1.2.1"
 
-truffle@^5.1.36:
-  version "5.1.46"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.1.46.tgz#85a9d71d791433539e556a539a17d18b8ee5aa1b"
-  integrity sha512-lhd8pfO5bOIwmiZf0+RyLcdWtrmeoA9JkdH9o0uQxZabisa6IxfoACRBpBez3r3w+LGPnl9/K1stE3Z9aBNK0A==
+truffle@^5.1.51:
+  version "5.1.51"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.1.51.tgz#5d10b27a79c1e7dd4d61df09eee0ef4d6b70120e"
+  integrity sha512-Sbw+FF2AfEvkcL/iOFm8UQPfuAfQ695UgxRliBE5sb7WoIN1IwRS0l0Cw+n8XOhkLTxOpoFtVEmrbdqWkZTz7g==
   dependencies:
     app-module-path "^2.2.0"
     mocha "8.1.2"

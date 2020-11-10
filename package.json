@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "lite-server -c ./bs-config.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "setup-dapp": "bash scripts/migrate-and-setup.sh"
+    "setup-dapp": "bash scripts/migrate-and-setup.sh",
+    "flatten": "truffle-flattener contracts/ForFlattened.sol  >> contracts/Flattened.sol"
   },
   "originalAuthors": "truffle-box",
   "author": {
@@ -39,8 +40,8 @@
     "lodash": "^4.17.19",
     "openzeppelin-test-helpers": "^0.5.1",
     "solidity-coverage": "^0.7.9",
-    "truffle": "^5.1.36",
-    "truffle-flattener": "^1.4.4",
+    "truffle": "^5.1.51",
+    "truffle-flattener": "^1.5.0",
     "web3-utils": "^1.2.11"
   },
   "dependencies": {

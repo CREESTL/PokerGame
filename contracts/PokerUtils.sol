@@ -26,12 +26,12 @@ library PokerUtils {
         return maxBet;
     }
 
-    function computeBet(uint256[] calldata bets) external pure returns(uint256 bet) {
-        bet = bets[0];
-        for (uint256 i = 1; i < bets.length; ++i) {
-            bet = bet + bets[i];
-            require(bet >= bets[i], "addition overflow");
-        }
-        return bet;
-    }
+    // function computeBet(uint256[] calldata bets) external pure returns(uint256 bet) {
+    //     bet = bets[0];
+    //     for (uint256 i = 1; i < bets.length; ++i) {
+    //         bet = bet + bets[i];
+    //         require(bet >= bets[i], "addition overflow");
+    //     }
+    //     return bet;
+    // }
 }

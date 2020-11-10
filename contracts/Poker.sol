@@ -26,7 +26,7 @@ contract Poker is GameController, Pausable{
 
     mapping(uint => Game) internal games;
 
-    event PokerResult(uint id, uint player, bool win, uint requestId);
+    event PokerResult(uint8[] cards, address player, bool win, uint requestId);
 
     IPool internal _poolController;
 
@@ -39,13 +39,16 @@ contract Poker is GameController, Pausable{
         _setPoolController(poolControllerAddress);
     }
 
-    function getGameInfo(uint gameId) external view returns (uint, uint, uint, address) {
+    function getPoolController() public view returns(address) {
+        return address(_poolController);
+    }
+
+    function getGameInfo(uint requestId) external view returns (uint, uint, uint, address) {
         return (
-            // game.id,
-            games[gameId].betColor,
-            games[gameId].betPoker,
-            games[gameId].chosenColor,
-            games[gameId].player
+            games[requestId].betColor,
+            games[requestId].betPoker,
+            games[requestId].chosenColor,
+            games[requestId].player
         );
     }
 
@@ -230,6 +233,7 @@ contract Poker is GameController, Pausable{
                         for (i = 0; i < 7; i++) {
                             if (cardsArray[i] / 13 == flushWinSuit) {
                                 streetFlushCards[cnt] = int8(ranksArray[i]);
+                                retOrder[cnt] = int8(ranksArray[i]);
                                 cnt++;
                             }
                             if (i >= 5) {
@@ -325,6 +329,7 @@ contract Poker is GameController, Pausable{
         uint jackPotAdder = games[requestId].betPoker.div(1000).mul(2);
         uint betColorEdge = games[requestId].betColor.div(1000).mul(15);
         uint betPokerEdge = games[requestId].betColor.div(1000).mul(15);
+        _poolController.updateJackpot(jackPotAdder);
         if(games[requestId].betColor > 0) {
             bool winColor;
             uint8 cnt = 0;
@@ -344,13 +349,15 @@ contract Poker is GameController, Pausable{
             winAmount = winAmount.add(games[requestId].betPoker.mul(2).sub(betPokerEdge + jackPotAdder));
         }
         if (winPoker == 3) {
-            // _poolController.jackpotDistribution(games[gameId].player);
+            _poolController.jackpotDistribution(games[requestId].player);
         }
         if(winAmount > 0) {
+            emit PokerResult(cards, games[requestId].player, true, requestId); 
             _poolController.rewardDisribution(games[requestId].player, winAmount);
             _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount);
             _poolController.updateReferralEarningsBalance(games[requestId].player, (betColorEdge.add(betPokerEdge)).div(100));
         }
+        emit PokerResult(cards, games[requestId].player, false, requestId);
     }
 
     function _setPoolController(address poolAddress) internal {
