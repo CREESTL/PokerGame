@@ -25,15 +25,13 @@ Then, run the migration with:
       fullHost: "http://127.0.0.1:9090",
       network_id: "9"
     },
-    nile: {
-      privateKey: process.env.PRIVATE_KEY_NILE,
-      userFeePercentage: 50,
-      feeLimit: 1e8,
-      fullNode: 'https://httpapi.nileex.io/wallet',
-      solidityNode: 'https://httpapi.nileex.io/walletsolidity',
-      eventServer: 'https://eventtest.nileex.io',
-      network_id: '3'
-    },
+    // development: {
+    //   privateKey: '4E7FECCB71207B867C495B51A9758B104B1D4422088A87F4978BE64636656243',
+    //   // userFeePercentage: 50,
+    //   // feeLimit: 1e8,
+    //   fullHost: 'https://api.shasta.trongrid.io',
+    //   network_id: '3'
+    // },
     compilers: {
       solc: {
         version: '0.5.4'
