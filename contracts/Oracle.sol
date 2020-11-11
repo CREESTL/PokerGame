@@ -14,7 +14,7 @@ contract Oracle is IOracle, Ownable {
     mapping(uint256 => bool) internal _pendingRequests;
 
     event RandomNumberRequestEvent(address indexed callerAddress, uint256 indexed requestId);
-    event RandomNumberEvent(uint8[] cards, address indexed callerAddress, uint256 indexed requestId);
+    event RandomNumberEvent(uint bitCards, address indexed callerAddress, uint256 indexed requestId);
 
     modifier onlyGame(address sender) {
         bool senderIsAGame = false;
@@ -76,12 +76,23 @@ contract Oracle is IOracle, Ownable {
         require(_pendingRequests[requestId], "request isn't in pending list");
         delete _pendingRequests[requestId];
 
-        IGame(callerAddress).__callback(cards, requestId);
-        emit RandomNumberEvent(cards, callerAddress, requestId);
+        uint bitCards = toBit(cards);
+        IGame(callerAddress).__callback(cards, requestId, bitCards);
+        emit RandomNumberEvent(bitCards, callerAddress, requestId);
     }
 
     function _setOperatorAddress(address operatorAddress) internal {
         require(operatorAddress != address(0), "invalid operator address");
         _operator = operatorAddress;
+    }
+
+    function toBit(uint8[] memory cards) public pure returns(uint) {
+        uint bitCards;
+        uint checkingInt = 1;
+        for(uint i = 0; i < cards.length; i++) {
+        // eslint-disable-next-line no-bitwise,no-undef
+            bitCards |= checkingInt << cards[i];
+        }
+        return bitCards;
     }
 }

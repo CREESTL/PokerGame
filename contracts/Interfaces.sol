@@ -5,7 +5,7 @@ interface IPool {
     function addBetToPool(uint256 betAmount) external payable;
     function jackpotDistribution(address payable player) external returns (bool);
     function rewardDisribution(address payable player, uint256 prize) external returns (bool);
-    function maxBet(uint256 maxPercent) external view returns (uint256);
+    function maxBetCalc(uint256 pokerBet, uint256 colorBet) external;
     function getOracleGasFee() external view returns (uint256);
     function updateJackpot(uint amount) external;
     function updateReferralTotalWinnings(address player, uint amount) external;
@@ -14,7 +14,7 @@ interface IPool {
 
 interface IGame {
     function supportsIGame() external view returns (bool);
-    function __callback(uint8[] calldata cards, uint256 requestId) external; // TODO: add "bytes memory _proof" arg
+    function __callback(uint8[] calldata cards, uint256 requestId, uint256 bitCards) external; // TODO: add "bytes memory _proof" arg
 }
 
 interface IInternalToken {

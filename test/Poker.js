@@ -21,6 +21,7 @@ const userWinsCards = [11, 10, 22, 47, 7, 5, 2, 1, 3];
 const drawCards = [0, 1, 12, 25, 38, 51, 13, 14, 26];
 const computerWinsCards = [1, 2, 4, 6, 8, 9, 10, 11, 12];
 const userWinsJackpotCards = [12, 11, 10, 9, 8, 5, 2, 1, 3];
+const array = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 const evenWinColorCards = [27, 1, 42]; // returns 2, 0, 3 even wins
 const oddWinColorCards = [22, 47, 7]; // retruns 1, 3, 0 odd wins
@@ -38,6 +39,37 @@ contract('Poker test', async ([owner, alice, bob]) => {
     await this.poolController.setGame(this.poker.address, { from: owner });
     await this.oracle.setGame(this.poker.address, { from: owner });
   });
+
+  // it('checking maxBetCalc', async () => {
+  //   assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 0);
+  //   await this.poolController.deposit(owner, { from: owner, callValue: 1000000 });
+  //   assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 1000000);
+  //   // assert.equal((await this.poolController.getMaxBet({ from: owner })).toString(), 0);
+  //   // await this.poolController.maxBetCalc(10000, 10000);
+  //   console.log((await this.poolController.getMaxBet({ from: owner })).toString());
+  //   await this.poolController.deposit(owner, { from: owner, callValue: 10000000 });
+  //   await this.poolController.deposit(owner, { from: owner, callValue: 10000000 });
+  //   await this.poolController.deposit(owner, { from: owner, callValue: 10000000 });
+  //   await this.poolController.maxBetCalc(10000, 10000);
+  //   console.log(await this.poolController.getMaxBet({ from: owner }));
+  //   await this.poolController.maxBetCalc(5000, 5000);
+  //   console.log(await this.poolController.getMaxBet({ from: owner }));
+  //   await this.poolController.maxBetCalc(3000, 3000);
+  //   console.log(await this.poolController.getMaxBet({ from: owner }));
+  //   await this.poolController.maxBetCalc(1000, 1000);
+  //   console.log(await this.poolController.getMaxBet({ from: owner }));
+  //   await this.poolController.maxBetCalc(10000, 10000);
+  //   console.log(await this.poolController.getMaxBet({ from: owner }));
+  //   await this.poolController.maxBetCalc(10000, 10000);
+  //   console.log(await this.poolController.getMaxBet({ from: owner }));
+  //   await this.poolController.maxBetCalc(10000, 10000);
+  //   console.log(await this.poolController.getMaxBet({ from: owner }));
+  // })
+
+  it('checkingToBit', async () => {
+    console.log((await this.oracle.toBit(array)).toString());
+  })
+
 
   describe('checking setters and getters:', async () => {
     describe('GameController functions', async () => {
@@ -102,7 +134,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
     it('checking Play workflow', async () => {
       assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 0);
       await this.poolController.deposit(owner, { from: owner, callValue: 1000000 });
-      assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 1000000);
+      assert.equal((await this.xETH.balanceOf(owner, { from: owner })).toString(), 1000000);
       let poolInfo = await this.poolController.getPoolInfo();
       assert.equal(poolInfo[1].toString(), 1000000)
       await this.poker.play(10000, 1, { from: owner, callValue: 20000 });

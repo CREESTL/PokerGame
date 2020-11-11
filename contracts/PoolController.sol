@@ -10,12 +10,26 @@ import "./Interfaces.sol";
 contract PoolController is IPool, Context, Ownable {
     using SafeMath for uint256;
 
-    // enum BonusRank { Bronze, Silver, Gold, Platinum, Diamond, Emerald, Saphire }
+    // referral system 
     uint[7] totalWinningsMilestones =  [0, 400000, 6000000, 10000000, 14000000, 18000000, 22000000];
     uint[7] bonusPercentMilestones = [1, 2, 4, 6, 8, 10 ,12];
 
     uint256 public constant PERCENT100 = 10 ** 18; // 100 %
+    // maxbet calc
+    uint256 _gamesCounter;
+    uint256 _betFlip;
+    uint256 _betColor;
+    uint256 _betFlipSquare;
+    uint256 _betColorSquare;
+    uint256 _betFlipVariance;
+    uint256 _betColorVariance;
 
+    uint256 public maxBet;
+
+    function getMaxBet() public view returns(uint) {
+        return (maxBet);
+    }
+    // jackpot
     uint256 public jackpot = 500000;
     uint256 internal jackpotLimit = 1000000;
 
@@ -29,7 +43,6 @@ contract PoolController is IPool, Context, Ownable {
 
     struct RefAccount {
         address parent;
-        // uint256 bonusRank;
         uint256 bonusPercent;
         uint256 totalWinnings;
         uint256 referralEarningsBalance;
@@ -44,6 +57,7 @@ contract PoolController is IPool, Context, Ownable {
     IGame internal _games;
     ERC20 internal _tokens;
     Pool internal pool;
+    
 
     modifier onlyGame() {
         bool senderIsAGame = false;
@@ -91,6 +105,8 @@ contract PoolController is IPool, Context, Ownable {
     function getJackpot() public view returns(uint) {
         return jackpot;
     }
+
+    
 
     function setOracleGasFee(uint256 oracleGasFee) external onlyOwner {
         pool.oracleGasFee = oracleGasFee;
@@ -181,8 +197,50 @@ contract PoolController is IPool, Context, Ownable {
             );
     }
 
+    // max bet
+    function maxBetCalc(uint pokerB, uint colorB) public {
+        _gamesCounter = _gamesCounter.add(1);
+        if (_gamesCounter == 1) {
+            if (maxBet == 0) maxBet = pool.amount.div(230);
+            _betFlip = pokerB;
+            _betColor = colorB;
+            _betFlipSquare = pokerB.mul(pokerB);
+            _betColorSquare = colorB.mul(colorB);
+        }
+        if (_gamesCounter > 1) {
+            _betFlip = ((_gamesCounter - 1).mul(_betFlip).add(pokerB)).div(_gamesCounter);
+            _betColor = ((_gamesCounter - 1).mul(_betColor).add(colorB)).div(_gamesCounter);
+            _betFlipSquare = ((_gamesCounter - 1).mul(_betFlipSquare ).add(pokerB.mul(pokerB))).div(_gamesCounter);
+            _betColorSquare = ((_gamesCounter - 1).mul(_betColorSquare ).add(colorB.mul(colorB))).div(_gamesCounter);
+            _betFlipVariance = _betFlipSquare - _betFlip.mul(_betFlip);
+            _betColorVariance = _betColorSquare - _betColor.mul(_betColor);
+            uint Fn = _betFlip.add(sqrt(_betFlipVariance).mul(10));
+            uint Cn = _betColor.add(sqrt(_betColorVariance).mul(10));
+            if (_gamesCounter > 100 && Fn < pool.amount.div(230) && Cn < pool.amount.div(230)) {
+                if (Fn > Cn) {
+                    maxBet = maxBet.mul(maxBet).div(Fn);
+                } else {
+                    maxBet = maxBet.mul(maxBet).div(Cn);
+                }
+                _gamesCounter = 0;
+                if (maxBet > pool.amount.div(109)) maxBet = pool.amount.div(109);
+                else if (maxBet < pool.amount.div(230)) maxBet = pool.amount.div(230);
+            }
+        }
+        
+    }
+
+    function sqrt(uint x) internal pure returns (uint y) {
+        uint z = (x + 1) / 2;
+        y = x;
+        while (z < y) {
+            y = z;
+            z = (x / z + z) / 2;
+        }
+    }
+
     //                      Deposit/Withdraw functions                      //
-    function deposit(address _to) external activePool() payable {
+    function deposit(address _to) external payable {
         // require(msg.value > 0, 'REVERT');
         _deposit(_to, msg.value);
     }
@@ -235,15 +293,6 @@ contract PoolController is IPool, Context, Ownable {
         }
         _rewardDistribution(player, jackpot);
         jackpot = 0;
-    }
-    // TODO: redesign
-    function maxBet(uint256 maxPercent) external view returns (uint256) {
-        if (maxPercent > PERCENT100)
-            return 0;
-        if (!pool.active) {
-            return 0;
-        }
-        return pool.amount.mul(maxPercent).div(PERCENT100);
     }
 
     //                      Oracle functions                                //

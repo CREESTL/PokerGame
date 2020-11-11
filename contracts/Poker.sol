@@ -26,7 +26,7 @@ contract Poker is GameController, Pausable{
 
     mapping(uint => Game) internal games;
 
-    event PokerResult(uint8[] cards, address player, bool win, uint requestId);
+    event PokerResult(bool win, uint requestId, uint256 cards, address player);
 
     IPool internal _poolController;
 
@@ -324,12 +324,13 @@ contract Poker is GameController, Pausable{
         }
         return (strongestHand, retOrder);
     }
-    function _publishResults(uint8[] memory cards, uint256 requestId) internal {
+    function _publishResults(uint8[] memory cards, uint256 requestId, uint256 bitCards) internal {
         uint winAmount = 0;
         uint jackPotAdder = games[requestId].betPoker.div(1000).mul(2);
         uint betColorEdge = games[requestId].betColor.div(1000).mul(15);
         uint betPokerEdge = games[requestId].betColor.div(1000).mul(15);
         _poolController.updateJackpot(jackPotAdder);
+        _poolController.maxBetCalc(games[requestId].betPoker, games[requestId].betColor);
         if(games[requestId].betColor > 0) {
             bool winColor;
             uint8 cnt = 0;
@@ -352,12 +353,13 @@ contract Poker is GameController, Pausable{
             _poolController.jackpotDistribution(games[requestId].player);
         }
         if(winAmount > 0) {
-            emit PokerResult(cards, games[requestId].player, true, requestId); 
+            emit PokerResult(true, requestId, bitCards, games[requestId].player); 
             _poolController.rewardDisribution(games[requestId].player, winAmount);
             _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount);
             _poolController.updateReferralEarningsBalance(games[requestId].player, (betColorEdge.add(betPokerEdge)).div(100));
+        } else {
+            emit PokerResult(false, requestId, bitCards, games[requestId].player);
         }
-        emit PokerResult(cards, games[requestId].player, false, requestId);
     }
 
     function _setPoolController(address poolAddress) internal {
