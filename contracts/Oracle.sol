@@ -72,7 +72,7 @@ contract Oracle is IOracle, Ownable {
         emit RandomNumberRequestEvent(_msgSender(), requestId);
     }
 
-    function publishRandomNumber(uint8[] calldata cards, address callerAddress, uint256 requestId) external onlyGame(callerAddress) onlyOperator {
+    function publishRandomNumber(uint8[] calldata cards, address callerAddress, uint256 requestId) external onlyOperator {
         require(_pendingRequests[requestId], "request isn't in pending list");
         delete _pendingRequests[requestId];
 
@@ -88,10 +88,8 @@ contract Oracle is IOracle, Ownable {
 
     function toBit(uint8[] memory cards) public pure returns(uint) {
         uint bitCards;
-        uint checkingInt = 1;
         for(uint i = 0; i < cards.length; i++) {
-        // eslint-disable-next-line no-bitwise,no-undef
-            bitCards |= checkingInt << cards[i];
+            bitCards |= (uint256(cards[i]) << (6 * i));
         }
         return bitCards;
     }

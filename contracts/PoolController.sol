@@ -29,6 +29,9 @@ contract PoolController is IPool, Context, Ownable {
     function getMaxBet() public view returns(uint) {
         return (maxBet);
     }
+    function setMaxBet(uint256 _maxBet) public {
+        maxBet = _maxBet;
+    }
     // jackpot
     uint256 public jackpot = 500000;
     uint256 internal jackpotLimit = 1000000;

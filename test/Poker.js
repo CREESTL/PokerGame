@@ -22,6 +22,7 @@ const drawCards = [0, 1, 12, 25, 38, 51, 13, 14, 26];
 const computerWinsCards = [1, 2, 4, 6, 8, 9, 10, 11, 12];
 const userWinsJackpotCards = [12, 11, 10, 9, 8, 5, 2, 1, 3];
 const array = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+ficonst array2 = [16, 1, 2, 3, 4, 5, 6, 7, 8];
 
 const evenWinColorCards = [27, 1, 42]; // returns 2, 0, 3 even wins
 const oddWinColorCards = [22, 47, 7]; // retruns 1, 3, 0 odd wins
@@ -228,6 +229,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
         poolBalance = poolInfo[1];
         assert.equal(referralEarningsBalance, 0);
         assert.equal(poolBalance, 483710);
+
       })
     });
   })

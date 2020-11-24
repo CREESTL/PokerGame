@@ -26,7 +26,7 @@ contract Poker is GameController, Pausable{
 
     mapping(uint => Game) internal games;
 
-    event PokerResult(bool win, uint requestId, uint256 cards, address player);
+    event PokerResult(bool winColor, uint8 winPoker, uint256 requestId, uint256 cards, address player);
 
     IPool internal _poolController;
 
@@ -184,7 +184,6 @@ contract Poker is GameController, Pausable{
                     if (streetChecker == 5) {
                         strongestHand = 4;
                         retOrder[0] = int8(ranksArray[i + 1]) + 4;
-                        // return (strongest.hand, retOrder);
                     }
                 }
                 if(ranksArray[i] > ranksArray[i + 1] + 1) {
@@ -239,6 +238,7 @@ contract Poker is GameController, Pausable{
                             if (i >= 5) {
                                 if (streetFlushCards[i - 5] - streetFlushCards[i - 1] == 4) {
                                     strongestHand = 8;
+                                    retOrder = [-1, -1, -1, -1, -1, -1, -1];
                                     retOrder[0] = int8(streetFlushCards[i - 5]);
                                     if (streetFlushCards[i - 5] == 12) {
                                         strongestHand = 9;
@@ -329,10 +329,11 @@ contract Poker is GameController, Pausable{
         uint jackPotAdder = games[requestId].betPoker.div(1000).mul(2);
         uint betColorEdge = games[requestId].betColor.div(1000).mul(15);
         uint betPokerEdge = games[requestId].betColor.div(1000).mul(15);
+        bool colorWin;
         _poolController.updateJackpot(jackPotAdder);
         _poolController.maxBetCalc(games[requestId].betPoker, games[requestId].betColor);
         if(games[requestId].betColor > 0) {
-            bool winColor;
+            bool winColor = false;
             uint8 cnt = 0;
             uint8[] memory colorCards = new uint8[](3);
             for(uint8 i = 2; i < 5; i++) {
@@ -340,7 +341,10 @@ contract Poker is GameController, Pausable{
                 cnt++;
             }
             winColor = determineWinnerColor(colorCards, games[requestId].chosenColor);
-            if (winColor) winAmount = games[requestId].betColor.mul(2).sub(betColorEdge);
+            if (winColor) {
+                winAmount = games[requestId].betColor.mul(2).sub(betColorEdge);
+                colorWin = true;
+            }
         }
         uint8 winPoker = setCards(cards);
         if (winPoker == 1) {
@@ -353,12 +357,12 @@ contract Poker is GameController, Pausable{
             _poolController.jackpotDistribution(games[requestId].player);
         }
         if(winAmount > 0) {
-            emit PokerResult(true, requestId, bitCards, games[requestId].player); 
+            emit PokerResult(colorWin, winPoker, requestId, bitCards, games[requestId].player); 
             _poolController.rewardDisribution(games[requestId].player, winAmount);
             _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount);
             _poolController.updateReferralEarningsBalance(games[requestId].player, (betColorEdge.add(betPokerEdge)).div(100));
         } else {
-            emit PokerResult(false, requestId, bitCards, games[requestId].player);
+            emit PokerResult(colorWin, winPoker, requestId, bitCards, games[requestId].player);
         }
     }
 
