@@ -4,7 +4,8 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "./Interfaces.sol";
 
-contract GameController is IGame, Ownable{
+
+contract GameController is IGame, Ownable {
     using SafeMath for uint256;
 
     enum Status { Unknown, Pending, Result }
@@ -46,7 +47,7 @@ contract GameController is IGame, Ownable{
         return _lastRequestId;
     }
 
-    function __callback(uint8[] calldata cards, uint256 requestId, uint256 bitCards) onlyOracle external {
+    function __callback(uint8[] calldata cards, uint256 requestId, uint256 bitCards) external onlyOracle {
         Numbers storage number = _randomNumbers[requestId];
         number.timestamp = uint64(block.timestamp);
         require(number.status == Status.Pending, "request already closed");
@@ -69,6 +70,5 @@ contract GameController is IGame, Ownable{
         _oracle = iOracleCandidate;
     }
 
-    function _publishResults(uint8[] memory cards, uint256 gameId, uint256 bitCards) internal {
-    }
+    function _publishResults(uint8[] memory cards, uint256 gameId, uint256 bitCards) internal {}
 }

@@ -17,7 +17,6 @@ contract Oracle is IOracle, Ownable {
     event RandomNumberEvent(uint bitCards, address indexed callerAddress, uint256 indexed requestId);
 
     modifier onlyGame(address sender) {
-        bool senderIsAGame = false;
         require(sender == address(_games), "caller is not allowed to do some");
         _;
     }
@@ -42,11 +41,6 @@ contract Oracle is IOracle, Ownable {
 
     function setOperatorAddress(address operatorAddress) external onlyOwner {
         _setOperatorAddress(operatorAddress);
-    }
-    
-
-    function getGame() public view returns (address) {
-        return address(_games);
     }
 
     function setGame(address gameAddress) external onlyOwner {
@@ -81,16 +75,20 @@ contract Oracle is IOracle, Ownable {
         emit RandomNumberEvent(bitCards, callerAddress, requestId);
     }
 
-    function _setOperatorAddress(address operatorAddress) internal {
-        require(operatorAddress != address(0), "invalid operator address");
-        _operator = operatorAddress;
+    function getGame() public view returns (address) {
+        return address(_games);
     }
 
     function toBit(uint8[] memory cards) public pure returns(uint) {
         uint bitCards;
-        for(uint i = 0; i < cards.length; i++) {
+        for (uint i = 0; i < cards.length; i++) {
             bitCards |= (uint256(cards[i]) << (6 * i));
         }
         return bitCards;
+    }
+
+    function _setOperatorAddress(address operatorAddress) internal {
+        require(operatorAddress != address(0), "invalid operator address");
+        _operator = operatorAddress;
     }
 }

@@ -1,5 +1,6 @@
 pragma solidity >0.4.18 < 0.6.0;
 
+
 library PokerUtils {
     address public constant ETH_ADDRESS = 0x0000000000000000000000000000000000000001;
     uint256 public constant PERCENT100 = 10 ** 18; // 100 %
@@ -11,11 +12,6 @@ library PokerUtils {
     function getPercent100() external pure returns(uint256) {
         return PERCENT100;
     }
-
-    function checkSquare(uint256 square) external pure returns(bool) {
-        return (square > 0) && (square < (1 << 37));
-    }
-
 
     function maximumBet(uint256[] calldata bets) external pure returns(uint256 maxBet) {
         maxBet = bets[0];

@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "lite-server -c ./bs-config.js",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "solium": "solium --dir contracts",
     "setup-dapp": "bash scripts/migrate-and-setup.sh",
     "flatten": "truffle-flattener contracts/ForFlattened.sol  >> contracts/Flattened.sol"
   },
@@ -47,6 +48,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^2.5.1",
     "base-58": "0.0.1",
+    "solium": "^1.2.5",
     "tronbox": "^2.7.13",
     "tronweb": "^3.1.0",
     "truffle-assertions": "^0.9.2"
