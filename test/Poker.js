@@ -1,9 +1,4 @@
-const {
-  BN,
-  expectRevert,
-} = require('openzeppelin-test-helpers');
-const { expect } = require('chai');
-const { getHexAddress, trxSender, simpleExpectRevert, tronweb } = require('../utils/tronBSHelpers');
+const { getHexAddress, simpleExpectRevert } = require('./utils/tronBSHelpers');
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -22,7 +17,7 @@ const drawCards = [0, 1, 12, 25, 38, 51, 13, 14, 26];
 const computerWinsCards = [1, 2, 4, 6, 8, 9, 10, 11, 12];
 const userWinsJackpotCards = [12, 11, 10, 9, 8, 5, 2, 1, 3];
 const array = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-ficonst array2 = [16, 1, 2, 3, 4, 5, 6, 7, 8];
+const array2 = [16, 1, 2, 3, 4, 5, 6, 7, 8];
 
 const evenWinColorCards = [27, 1, 42]; // returns 2, 0, 3 even wins
 const oddWinColorCards = [22, 47, 7]; // retruns 1, 3, 0 odd wins
@@ -34,7 +29,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
     this.poolController = await PoolController.deployed();
     this.oracle = await Oracle.deployed();
     this.poker = await Poker.deployed();
-    
+
     await this.xETH.setPoolController(this.poolController.address, { from: owner });
     assert.equal(await this.xETH.getPoolController({ from: owner }),(this.poolController.address));
     await this.poolController.setGame(this.poker.address, { from: owner });
@@ -100,7 +95,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
       })
     })
   })
-  
+
   describe('checking poker results:', async () => {
     it('user should win', async () => {
       assert.equal(await this.poker.setCards(userWinsCards), 2);
@@ -115,7 +110,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
       assert.equal(await this.poker.setCards(userWinsJackpotCards), 3);
     });
   });
-  
+
   describe('checking color results:', async () => {
     it('odd should win, player wins', async () => {
       assert.equal(await this.poker.determineWinnerColor(oddWinColorCards, 1), true);

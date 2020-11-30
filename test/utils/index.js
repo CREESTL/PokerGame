@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-import BN from 'openzeppelin-test-helpers';
+const { BN } = require('openzeppelin-test-helpers');
 
 function getBigNumber(modulus) {
   return (num) => {
