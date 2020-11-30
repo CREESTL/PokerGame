@@ -141,6 +141,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
       poolInfo = await this.poolController.getPoolInfo();
       assert.equal(poolInfo[1].toString(), 980320);
     });
+
     it('checking getGameInfo', async () => {
       await this.poker.play(10000, 1, { from: owner, callValue: 20000 });
       const requestId = await this.poker.getLastRequestId();
@@ -152,6 +153,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
       const poolInfo = await this.poolController.getPoolInfo();
       assert.equal(poolInfo[1].toString(), 1000320);
     });
+
     it('checking jackpot payout', async () => {
       /// finishing game started above
       const requestId = await this.poker.getLastRequestId();
@@ -159,13 +161,14 @@ contract('Poker test', async ([owner, alice, bob]) => {
       const poolInfo = await this.poolController.getPoolInfo();
       assert.equal(poolInfo[1].toString(), 500280);
       assert.equal((await this.poolController.getJackpot()).toString(), 0);
-    })
+    });
+
     it('checking jackpot increasing', async () => {
       await this.poker.play(10000, 1, { from: owner, callValue: 20000 });
       const requestId = await this.poker.getLastRequestId();
       await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, requestId, { from: owner });
       assert.equal((await this.poolController.getJackpot()).toString(), 20);
-    })
+    });
 
     describe('checking referral program', async () => {
       it('checking referral program adding referrals', async () => {
@@ -177,8 +180,8 @@ contract('Poker test', async ([owner, alice, bob]) => {
         assert.equal(refsCounter, 2);
         assert.equal((await this.poolController.getMyReferralStats(alice))[0], getHexAddress(owner));
         assert.equal((await this.poolController.getMyReferralStats(bob))[0], getHexAddress(owner));
+      });
 
-      })
       it('checking referral program adding referral bonus', async () => {
         let refStats = (await this.poolController.getMyReferralStats(owner)).map(item => item.toString());
         let bonusPercent = refStats[1];
@@ -209,7 +212,8 @@ contract('Poker test', async ([owner, alice, bob]) => {
         assert.equal(bonusPercent, 2);
         assert.equal(totalWinnings, 793600);
         assert.equal(referralEarningsBalance, 90);
-      })
+      });
+
       it('checking referralBonus withdraw', async () => {
         let refStats = (await this.poolController.getMyReferralStats(owner)).map(item => item.toString());
         let poolInfo = (await this.poolController.getPoolInfo()).map(item => item.toString());
@@ -224,8 +228,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
         poolBalance = poolInfo[1];
         assert.equal(referralEarningsBalance, 0);
         assert.equal(poolBalance, 483710);
-
-      })
+      });
     });
   })
 });

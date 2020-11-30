@@ -21,6 +21,7 @@ module.exports = {
 //       network_id: '1'
 //     },
     development: {
+      feeLimit: 1e8,
       privateKey: 'da146374a75310b9666e834ee4ad0866d6f4035967bfc76217c5a495fff9f0d0',
       fullHost: "http://127.0.0.1:9090",
       network_id: "9"
