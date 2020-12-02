@@ -11,13 +11,13 @@ import "./Interfaces.sol";
 contract XETHToken is ERC20Detailed, IInternalToken, ERC20Burnable, Ownable {
     using SafeMath for uint256;
 
-    mapping (address => bool) internal _burnerAddresses;
+//    mapping (address => bool) internal _burnerAddresses; // TODO: remove all unused code
     address internal _poolController;
 
-    modifier isBurner() {
-        require(_burnerAddresses[_msgSender()], "Caller is not burner");
-        _;
-    }
+//    modifier isBurner() {
+//        require(_burnerAddresses[_msgSender()], "Caller is not burner");
+//        _;
+//    }
 
     modifier onlyPoolController() {
         require(_msgSender() == _poolController, "Caller is not pool controller");
@@ -25,7 +25,7 @@ contract XETHToken is ERC20Detailed, IInternalToken, ERC20Burnable, Ownable {
     }
 
     constructor() ERC20Detailed("xEthereum", "xETH", 18) public {
-        _burnerAddresses[_msgSender()] = true;
+//        _burnerAddresses[_msgSender()] = true;
     }
 
     function supportsIInternalToken() external view returns (bool) {
@@ -42,34 +42,34 @@ contract XETHToken is ERC20Detailed, IInternalToken, ERC20Burnable, Ownable {
         _poolController = poolControllerAddress;
     }
 
-    function isBurnAllowed(address account) external view returns(bool) {
-        return _burnerAddresses[account];
-    }
+//    function isBurnAllowed(address account) external view returns(bool) {
+//        return _burnerAddresses[account];
+//    }
+//
+//    function addBurner(address account) external onlyOwner {
+//        require(!_burnerAddresses[account], "Already burner");
+//        require(account != address(0), "Cant add zero address");
+//        _burnerAddresses[account] = true;
+//    }
+//
+//    function removeBurner(address account) external onlyOwner {
+//        require(_burnerAddresses[account], "Isnt burner");
+//        delete  _burnerAddresses[account];
+//    }
 
-    function addBurner(address account) external onlyOwner {
-        require(!_burnerAddresses[account], "Already burner");
-        require(account != address(0), "Cant add zero address");
-        _burnerAddresses[account] = true;
-    }
-
-    function removeBurner(address account) external onlyOwner {
-        // require(_burnerAddresses[account], "Isnt burner");
-        _burnerAddresses[account] = false;
-    }
-
-    function mint(address recipient, uint256 amount) public onlyPoolController {
+    function mint(address recipient, uint256 amount) external onlyPoolController {
         _mint(recipient, amount);
     }
 
-    function burn(uint256 amount) public isBurner {
-        _burn(_msgSender(), amount);
-    }
+//    function burn(uint256 amount) external isBurner {
+//        _burn(_msgSender(), amount);
+//    }
+//
+//    function burnFrom(address account, uint256 amount) external isBurner {
+//        super.burnFrom(account, amount);
+//    }
 
-    function burnFrom(address account, uint256 amount) public isBurner {
-        super.burnFrom(account, amount);
-    }
-
-    function burnTokenFrom(address account, uint256 amount) public onlyPoolController {
+    function burnTokenFrom(address account, uint256 amount) external onlyPoolController {
         _burn(account, amount);
     }
 }
