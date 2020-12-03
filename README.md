@@ -1,24 +1,34 @@
-yarn install
+Poker Contract
+=================
+
+**Installation**
+
+`yarn install`
 
 
-To run your node with 10 address in TRON
-Install docker
+**To run your node with 10 address in TRON
+Install docker**
+
+- `docker pull trontools/quickstart`
+
+- `docker run -it -p 9090:9090 --rm --name tron trontools/quickstart`
 
 
-docker pull trontools/quickstart
+**To compile contracts**
 
+`tronbox compile`
 
-docker run -it \
-  -p 9090:9090 \
-  --rm \
-  --name tron \
-  trontools/quickstart
+**To deploy contracts**
 
+`tronbox migrate`
 
+**To compile and deploy contracts**
+`yarn rebuild`
 
+**To run tests**
 
-tronbox compile
-tronbox migrate
+`tronbox test <filename>`
 
-To run tests 
-tronbox test
+or
+
+`yarn test <filename>`
