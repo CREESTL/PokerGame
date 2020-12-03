@@ -158,8 +158,7 @@ contract PoolController is IPool, Context, Ownable {
 
     function addBetToPool(uint256 betAmount) external onlyGame payable {
         uint256 oracleFeeAmount = pool.oracleGasFee;
-        pool.amount = pool.amount.add(betAmount);
-            // .sub(oracleFeeAmount);
+        pool.amount = pool.amount.add(betAmount).sub(oracleFeeAmount);
         pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleFeeAmount);
     }
 

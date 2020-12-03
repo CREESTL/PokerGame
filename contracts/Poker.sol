@@ -27,7 +27,7 @@ contract Poker is GameController, Pausable {
         address payable player;
     }
 
-    event PokerResult(bool winColor, uint8 winPoker, uint256 requestId, uint256 cards, address player);
+    event PokerResult(bool winColor, GameResults winPoker, uint256 requestId, uint256 cards, address player);
     // TODO: need StartGame event
 
     IPool private _poolController;
@@ -76,7 +76,7 @@ contract Poker is GameController, Pausable {
         }
         games[_lastRequestId] = Game(
             betColor,
-            uint(msg.value - betColor),
+            uint256(msg.value.sub(betColor)),
             chosenColor,
             msg.sender);
     }
@@ -86,41 +86,35 @@ contract Poker is GameController, Pausable {
         uint256 jackPotAdder = games[requestId].betPoker.div(1000).mul(2);
         uint256 betColorEdge = games[requestId].betColor.div(1000).mul(15);
         uint256 betPokerEdge = games[requestId].betColor.div(1000).mul(15);
-        bool colorWin;
+        bool colorWin = false;
         _poolController.updateJackpot(jackPotAdder);
         _poolController.maxBetCalc(games[requestId].betPoker, games[requestId].betColor);
         if (games[requestId].betColor > 0) {
-            bool winColor = false;
-            uint8 cnt = 0;
             uint8[] memory colorCards = new uint8[](3);
-            for (uint8 i = 2; i < 5; i++) {
-                colorCards[cnt] = cards[i];
-                cnt++;
+            for (uint256 i = 2; i < 5; i++) {
+                colorCards[i - 2] = cards[i];
             }
-            winColor = _determineWinnerColor(colorCards, games[requestId].chosenColor);
-            if (winColor) {
+            if (_determineWinnerColor(colorCards, games[requestId].chosenColor)) {
                 winAmount = games[requestId].betColor.mul(2).sub(betColorEdge);
                 colorWin = true;
             }
         }
-        uint8 winPoker = _setCards(cards);
-        if (winPoker == 1) {
+        GameResults winPoker = _setCards(cards);
+
+        if (winPoker == GameResults.Draw) {
             winAmount = winAmount.add(games[requestId].betPoker.sub(betPokerEdge + jackPotAdder));
-        }
-        if (winPoker == 2) {
+        } else if (winPoker == GameResults.Win) {
             winAmount = winAmount.add(games[requestId].betPoker.mul(2).sub(betPokerEdge + jackPotAdder));
-        }
-        if (winPoker == 3) {
+        } else if (winPoker == GameResults.Jackpot) {
             _poolController.jackpotDistribution(games[requestId].player);
         }
+
         if (winAmount > 0) {
-            emit PokerResult(colorWin, winPoker, requestId, bitCards, games[requestId].player);
             _poolController.rewardDisribution(games[requestId].player, winAmount);
-            _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount);
+            _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount); // TODO: refactor updateReferralTotalWinnings and updateReferralEarningsBalance to one function
             _poolController.updateReferralEarningsBalance(games[requestId].player, (betColorEdge.add(betPokerEdge)).div(100));
-        } else {
-            emit PokerResult(colorWin, winPoker, requestId, bitCards, games[requestId].player);
         }
+        emit PokerResult(colorWin, winPoker, requestId, bitCards, games[requestId].player);
     }
 
     function _setPoolController(address poolAddress) internal {
@@ -129,34 +123,28 @@ contract Poker is GameController, Pausable {
         _poolController = poolCandidate;
     }
 
-    function _setCards(uint8[] memory _cardsArray) private pure returns(uint8) {
+    function _setCards(uint8[] memory _cardsArray) private pure returns(GameResults) {
         Hand memory player;
         Hand memory computer;
-        uint8 win;
-        uint8 playerCnt = 0;
-        uint8 computerCnt = 0;
-        for ( uint8 i = 0; i < _cardsArray.length; i++) {
-            if (i < 7) {
-                player.cards[playerCnt] = _cardsArray[i];
-                player.ranks[playerCnt] = _cardsArray[i] % 13;
-                playerCnt++;
+        for (uint256 i = 0; i < _cardsArray.length; i++) {
+            if (i < 7) { // player cards 0 - 6
+                player.cards[i] = _cardsArray[i];
+                player.ranks[i] = _cardsArray[i] % 13;
             }
-            if (i > 1) {
-                computer.cards[computerCnt] = _cardsArray[i];
-                computer.ranks[computerCnt] = _cardsArray[i] % 13;
-                computerCnt++;
+            if (i > 1) { // computer cards 2 - 8
+                computer.cards[i - 2] = _cardsArray[i];
+                computer.ranks[i - 2] = _cardsArray[i] % 13;
             }
         }
         _sort(player.ranks, player.cards, 0, 6);
         _sort(computer.ranks, computer.cards, 0, 6);
         (player.hand, player.kickers) = _evaluateHand(player.cards, player.ranks);
         (computer.hand, computer.kickers) = _evaluateHand(computer.cards, computer.ranks);
-        win = _determineWinnerPoker(
+        return _determineWinnerPoker(
             player.hand,
             player.kickers,
             computer.hand,
             computer.kickers);
-        return win;
     }
 
     function _sort(
@@ -189,15 +177,14 @@ contract Poker is GameController, Pausable {
         int8[7] memory playerKickers,
         uint8 computerHand,
         int8[7] memory computerKickers
-    ) private pure returns (uint8)
+    ) private pure returns (GameResults)
     {
-        uint8 i;
         if (playerHand > computerHand) {
             if (playerHand == 9) return GameResults.Jackpot;
             return GameResults.Win;
         }
         if (playerHand == computerHand) {
-            for (i = 0; i < 7; i++) {
+            for (uint256 i = 0; i < 7; i++) {
                 if (playerKickers[i] > computerKickers[i]) return GameResults.Win;
                 if (playerKickers[i] < computerKickers[i]) return GameResults.Lose;
             }
@@ -207,8 +194,8 @@ contract Poker is GameController, Pausable {
     }
 
     function _determineWinnerColor(uint8[] memory colorCards, uint256 chosenColor) private pure returns (bool) {
-        uint8 colorCounter = 0;
-        for (uint8 i = 0; i < colorCards.length; i++) {
+        uint256 colorCounter = 0;
+        for (uint256 i = 0; i < colorCards.length; i++) {
             if ((colorCards[i] / 13) % 2 == chosenColor) {
                 colorCounter++;
             }
