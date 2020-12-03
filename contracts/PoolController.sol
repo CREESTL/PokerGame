@@ -27,7 +27,7 @@ contract PoolController is IPool, Context, Ownable {
         uint256 sonCounter; // TODO: rename
     }
 
-    event RegisteredReferer(address referee, address referral);
+    event RegisteredReferer(address referee, address referral); // TODO: need call that
 
     // referral system
     uint[7] totalWinningsMilestones = [0, 400000, 6000000, 10000000, 14000000, 18000000, 22000000];
