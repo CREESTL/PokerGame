@@ -98,31 +98,31 @@ contract('Poker test', async ([owner, alice, bob]) => {
 
   describe('checking poker results:', async () => {
     it('user should win', async () => {
-      assert.equal(await this.poker.setCards(userWinsCards), 2);
+      assert.equal(await this.poker.setCards(userWinsCards), 2); // TODO: create Mock contract
     });
     it('user should lose', async () => {
-      assert.equal(await this.poker.setCards(computerWinsCards), 0);
+      assert.equal(await this.poker.setCards(computerWinsCards), 0); // TODO: create Mock contract
     });
     it('should be draw', async () => {
-      assert.equal(await this.poker.setCards(drawCards), 1);
+      assert.equal(await this.poker.setCards(drawCards), 1); // TODO: create Mock contract
     });
     it('user should win jackpot', async () => {
-      assert.equal(await this.poker.setCards(userWinsJackpotCards), 3);
+      assert.equal(await this.poker.setCards(userWinsJackpotCards), 3); // TODO: create Mock contract
     });
   });
 
   describe('checking color results:', async () => {
     it('odd should win, player wins', async () => {
-      assert.equal(await this.poker.determineWinnerColor(oddWinColorCards, 1), true);
+      assert.equal(await this.poker.determineWinnerColor(oddWinColorCards, 1), true); // TODO: create Mock contract
     });
     it('odd should win, player looses', async () => {
-      assert.equal(await this.poker.determineWinnerColor(oddWinColorCards, 0), false);
+      assert.equal(await this.poker.determineWinnerColor(oddWinColorCards, 0), false); // TODO: create Mock contract
     });
      it('even should win, player wins', async () => {
-      assert.equal(await this.poker.determineWinnerColor(evenWinColorCards, 0), true);
+      assert.equal(await this.poker.determineWinnerColor(evenWinColorCards, 0), true); // TODO: create Mock contract
     });
     it('even should win, player looses', async () => {
-      assert.equal(await this.poker.determineWinnerColor(evenWinColorCards, 1), false);
+      assert.equal(await this.poker.determineWinnerColor(evenWinColorCards, 1), false); // TODO: create Mock contract
     });
   });
 
