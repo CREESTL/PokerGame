@@ -213,12 +213,12 @@ contract Poker is GameController, Pausable {
         // check for pairs, 3oaK, 4oaK
         uint8[13] memory valuesMatch = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         // for loop
-        uint8 i;
+        uint256 i;
         // write pairs and triples, triple always 1st
         int8[2] memory pairs = [-1, -1];
-        uint8 streetChecker = 1;
+        uint256 streetChecker = 1;
         // check for street flush
-        uint8 flushWinSuit;
+        uint256 flushWinSuit;
         int8[7] memory streetFlushCards = [-1, -1, -1, -1, -1, -1, -1];
 
         for (i = 0; i < 7; i++) {
