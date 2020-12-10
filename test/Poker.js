@@ -1,4 +1,6 @@
 const { getHexAddress, simpleExpectRevert } = require('./utils/tronBSHelpers');
+const wait = require('./helpers/wait')
+const chalk = require('chalk')
 
 require('chai')
   .use(require('chai-as-promised'))
@@ -9,15 +11,15 @@ const PoolController = artifacts.require('PoolController');
 const GameController = artifacts.require('GameController');
 const Oracle = artifacts.require('Oracle');
 const Poker = artifacts.require('Poker');
-
-
+const FakePoker = artifacts.require('FakePoker');
 
 const userWinsCards = [11, 10, 22, 47, 7, 5, 2, 1, 3];
 const drawCards = [0, 1, 12, 25, 38, 51, 13, 14, 26];
 const computerWinsCards = [1, 2, 4, 6, 8, 9, 10, 11, 12];
 const userWinsJackpotCards = [12, 11, 10, 9, 8, 5, 2, 1, 3];
 const array = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-const array2 = [16, 1, 2, 3, 4, 5, 6, 7, 8];
+const checkingToBitArr = [1, 6, 13, 14, 24, 27, 44, 45, 50];
+const checkingToBitInt = 14274713982914945;
 
 const evenWinColorCards = [27, 1, 42]; // returns 2, 0, 3 even wins
 const oddWinColorCards = [22, 47, 7]; // retruns 1, 3, 0 odd wins
@@ -29,6 +31,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
     this.poolController = await PoolController.deployed();
     this.oracle = await Oracle.deployed();
     this.poker = await Poker.deployed();
+    this.fakePoker = await FakePoker.deployed();
 
     await this.xETH.setPoolController(this.poolController.address, { from: owner });
     assert.equal(await this.xETH.getPoolController({ from: owner }),(this.poolController.address));
@@ -36,34 +39,8 @@ contract('Poker test', async ([owner, alice, bob]) => {
     await this.oracle.setGame(this.poker.address, { from: owner });
   });
 
-  // it('checking maxBetCalc', async () => {
-  //   assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 0);
-  //   await this.poolController.deposit(owner, { from: owner, callValue: 1000000 });
-  //   assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 1000000);
-  //   // assert.equal((await this.poolController.getMaxBet({ from: owner })).toString(), 0);
-  //   // await this.poolController.maxBetCalc(10000, 10000);
-  //   console.log((await this.poolController.getMaxBet({ from: owner })).toString());
-  //   await this.poolController.deposit(owner, { from: owner, callValue: 10000000 });
-  //   await this.poolController.deposit(owner, { from: owner, callValue: 10000000 });
-  //   await this.poolController.deposit(owner, { from: owner, callValue: 10000000 });
-  //   await this.poolController.maxBetCalc(10000, 10000);
-  //   console.log(await this.poolController.getMaxBet({ from: owner }));
-  //   await this.poolController.maxBetCalc(5000, 5000);
-  //   console.log(await this.poolController.getMaxBet({ from: owner }));
-  //   await this.poolController.maxBetCalc(3000, 3000);
-  //   console.log(await this.poolController.getMaxBet({ from: owner }));
-  //   await this.poolController.maxBetCalc(1000, 1000);
-  //   console.log(await this.poolController.getMaxBet({ from: owner }));
-  //   await this.poolController.maxBetCalc(10000, 10000);
-  //   console.log(await this.poolController.getMaxBet({ from: owner }));
-  //   await this.poolController.maxBetCalc(10000, 10000);
-  //   console.log(await this.poolController.getMaxBet({ from: owner }));
-  //   await this.poolController.maxBetCalc(10000, 10000);
-  //   console.log(await this.poolController.getMaxBet({ from: owner }));
-  // })
-
   it('checkingToBit', async () => {
-    console.log((await this.oracle.toBit(array)).toString());
+    assert.equal(await this.oracle.toBit(checkingToBitArr),checkingToBitInt);
   })
 
 
@@ -98,60 +75,62 @@ contract('Poker test', async ([owner, alice, bob]) => {
 
   describe('checking poker results:', async () => {
     it('user should win', async () => {
-      assert.equal(await this.poker.setCards(userWinsCards), 2); // TODO: create Mock contract
+      assert.equal(await this.fakePoker.setCards(userWinsCards), 2);
     });
     it('user should lose', async () => {
-      assert.equal(await this.poker.setCards(computerWinsCards), 0); // TODO: create Mock contract
+      assert.equal(await this.fakePoker.setCards(computerWinsCards), 0);
     });
     it('should be draw', async () => {
-      assert.equal(await this.poker.setCards(drawCards), 1); // TODO: create Mock contract
+      assert.equal(await this.fakePoker.setCards(drawCards), 1); 
     });
     it('user should win jackpot', async () => {
-      assert.equal(await this.poker.setCards(userWinsJackpotCards), 3); // TODO: create Mock contract
+      assert.equal(await this.fakePoker.setCards(userWinsJackpotCards), 3);
     });
   });
 
   describe('checking color results:', async () => {
     it('odd should win, player wins', async () => {
-      assert.equal(await this.poker.determineWinnerColor(oddWinColorCards, 1), true); // TODO: create Mock contract
+      assert.equal(await this.fakePoker.determineWinnerColor(oddWinColorCards, 1), true);
     });
     it('odd should win, player looses', async () => {
-      assert.equal(await this.poker.determineWinnerColor(oddWinColorCards, 0), false); // TODO: create Mock contract
+      assert.equal(await this.fakePoker.determineWinnerColor(oddWinColorCards, 0), false);
     });
      it('even should win, player wins', async () => {
-      assert.equal(await this.poker.determineWinnerColor(evenWinColorCards, 0), true); // TODO: create Mock contract
+      assert.equal(await this.fakePoker.determineWinnerColor(evenWinColorCards, 0), true);
     });
     it('even should win, player looses', async () => {
-      assert.equal(await this.poker.determineWinnerColor(evenWinColorCards, 1), false); // TODO: create Mock contract
+      assert.equal(await this.fakePoker.determineWinnerColor(evenWinColorCards, 1), false);
     });
   });
 
   describe('full workflow', async () => {
     it('checking Play workflow', async () => {
       assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 0);
-      await this.poolController.deposit(owner, { from: owner, callValue: 1000000 });
-      assert.equal((await this.xETH.balanceOf(owner, { from: owner })).toString(), 1000000);
+      await this.poolController.deposit(owner, { from: owner, callValue: 1000000000 });
+      assert.equal((await this.xETH.balanceOf(owner, { from: owner })).toString(), 1000000000);
       let poolInfo = await this.poolController.getPoolInfo();
-      assert.equal(poolInfo[1].toString(), 1000000)
-      await this.poker.play(10000, 1, { from: owner, callValue: 20000 });
+      assert.equal(poolInfo[1].toString(), 1000000000);
+      await this.poker.play(0, 0, { from: alice, callValue: 500000 });
       poolInfo = await this.poolController.getPoolInfo();
-      assert.equal(poolInfo[1].toString(), 1020000);
+      // depostited + bet - energy fee
+      assert.equal(poolInfo[1].toString(), 1000380000);
       const requestId = await this.poker.getLastRequestId();
-      await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, requestId, { from: owner });
+      await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, requestId, { from: owner,  feeLimit: 900000000 });
       poolInfo = await this.poolController.getPoolInfo();
-      assert.equal(poolInfo[1].toString(), 980320);
+      // whats left after user wins
+      assert.equal(poolInfo[1].toString(), 999381000);
     });
-
     it('checking getGameInfo', async () => {
-      await this.poker.play(10000, 1, { from: owner, callValue: 20000 });
+      await this.poker.play(100000, 1, { from: bob, callValue: 500000 });
       const requestId = await this.poker.getLastRequestId();
-      const gameInfo = await this.poker.getGameInfo(requestId, { from: owner });
-      assert.equal(gameInfo[0].toString(), 10000);
-      assert.equal(gameInfo[1].toString(), 10000);
+      const gameInfo = await this.poker.getGameInfo(requestId, { from: bob });
+      assert.equal(gameInfo[0].toString(), 100000);
+      assert.equal(gameInfo[1].toString(), 400000);
       assert.equal(gameInfo[2].toString(), 1);
-      assert.equal(gameInfo[3], getHexAddress(owner));
+      assert.equal(gameInfo[3], getHexAddress(bob));
       const poolInfo = await this.poolController.getPoolInfo();
-      assert.equal(poolInfo[1].toString(), 1000320);
+      // pool balance from previous test - energy fee + 20k bet
+      assert.equal(poolInfo[1].toString(), 999761000);
     });
 
     it('checking jackpot payout', async () => {
@@ -159,31 +138,33 @@ contract('Poker test', async ([owner, alice, bob]) => {
       const requestId = await this.poker.getLastRequestId();
       await this.oracle.publishRandomNumber(userWinsJackpotCards, this.poker.address, requestId, { from: owner });
       const poolInfo = await this.poolController.getPoolInfo();
-      assert.equal(poolInfo[1].toString(), 500280);
+
+      assert.equal(poolInfo[1].toString(), 999259200);
       assert.equal((await this.poolController.getJackpot()).toString(), 0);
+
     });
 
     it('checking jackpot increasing', async () => {
-      await this.poker.play(10000, 1, { from: owner, callValue: 20000 });
+      await this.poker.play(100000, 1, { from: owner, callValue: 200000 });
       const requestId = await this.poker.getLastRequestId();
       await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, requestId, { from: owner });
-      assert.equal((await this.poolController.getJackpot()).toString(), 20);
+      assert.equal((await this.poolController.getJackpot()).toString(), 200);
     });
 
     describe('checking referral program', async () => {
       it('checking referral program adding referrals', async () => {
-        let refsCounter = (await this.poolController.getMyReferralStats(owner))[4];
+        let refsCounter = (await this.poolController.getReferralStats(owner))[4];
         assert.equal(refsCounter, 0);
         await this.poolController.addRef(owner, alice);
         await this.poolController.addRef(owner, bob);
-        refsCounter = (await this.poolController.getMyReferralStats(owner))[4];
+        refsCounter = (await this.poolController.getReferralStats(owner))[4];
         assert.equal(refsCounter, 2);
-        assert.equal((await this.poolController.getMyReferralStats(alice))[0], getHexAddress(owner));
-        assert.equal((await this.poolController.getMyReferralStats(bob))[0], getHexAddress(owner));
+        assert.equal((await this.poolController.getReferralStats(alice))[0], getHexAddress(owner));
+        assert.equal((await this.poolController.getReferralStats(bob))[0], getHexAddress(owner));
       });
 
       it('checking referral program adding referral bonus', async () => {
-        let refStats = (await this.poolController.getMyReferralStats(owner)).map(item => item.toString());
+        let refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());
         let bonusPercent = refStats[1];
         let totalWinnings = refStats[2];
         let referralEarningsBalance = refStats[3];
@@ -193,7 +174,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
         await this.poker.play(100000, 1, { from: alice, callValue: 200000 });
         let requestId = await this.poker.getLastRequestId();
         await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, requestId, { from: owner });
-        refStats = (await this.poolController.getMyReferralStats(owner)).map(item => item.toString());
+        refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());
         bonusPercent = refStats[1];
         totalWinnings = refStats[2];
         referralEarningsBalance = refStats[3];
@@ -204,7 +185,7 @@ contract('Poker test', async ([owner, alice, bob]) => {
         await this.poker.play(100000, 1, { from: bob, callValue: 200000 });
         requestId = await this.poker.getLastRequestId();
         await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, requestId, { from: owner });
-        refStats = (await this.poolController.getMyReferralStats(owner)).map(item => item.toString());
+        refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());
         bonusPercent = refStats[1];
         totalWinnings = refStats[2];
         referralEarningsBalance = refStats[3];
@@ -215,20 +196,36 @@ contract('Poker test', async ([owner, alice, bob]) => {
       });
 
       it('checking referralBonus withdraw', async () => {
-        let refStats = (await this.poolController.getMyReferralStats(owner)).map(item => item.toString());
+        let refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());
         let poolInfo = (await this.poolController.getPoolInfo()).map(item => item.toString());
         let referralEarningsBalance = refStats[3];
         let poolBalance = poolInfo[1];
         assert.equal(referralEarningsBalance, 90);
-        assert.equal(poolBalance, 483800);
+        assert.equal(poolBalance, 998308800);
         await this.poolController.withdrawReferralEarnings(owner);
-        refStats = (await this.poolController.getMyReferralStats(owner)).map(item => item.toString());
+        refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());
         poolInfo = (await this.poolController.getPoolInfo()).map(item => item.toString());
         referralEarningsBalance = refStats[3];
         poolBalance = poolInfo[1];
         assert.equal(referralEarningsBalance, 0);
-        assert.equal(poolBalance, 483710);
+        assert.equal(poolBalance, 998308710);
       });
     });
+
+    describe('checking takeOracleFee', async () => {
+      it('takeOracleFee posititive', async () => {
+        let oracleFeeAmount = (await this.poolController.getPoolInfo())[3].toString();
+        // poker was played 5 time so, 5 * oracleFee
+        assert.equal(oracleFeeAmount, 600000);
+        await this.poolController.setOracleOperator(owner, { from: owner });
+        await this.poolController.takeOracleFee({ from: owner });
+        oracleFeeAmount = (await this.poolController.getPoolInfo())[3].toString();
+        assert.equal(oracleFeeAmount, 0);
+      })
+
+      it('takeOracleFee negative', async () => {
+        simpleExpectRevert(this.poolController.takeOracleFee({ from: alice }), 'Not operator');
+      })
+    })
   })
 });

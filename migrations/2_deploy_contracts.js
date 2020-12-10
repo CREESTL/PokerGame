@@ -2,6 +2,7 @@ const Oracle = artifacts.require("../contracts/Oracle.sol");
 const XETHToken = artifacts.require("../contracts/XETHToken.sol");
 const PoolController = artifacts.require("../contracts/PoolController.sol");
 const Poker = artifacts.require("../contracts/Poker.sol");
+const FakePoker = artifacts.require("../contracts/testContracts/FakePoker.sol");
 
 module.exports = function(deployer, network, owner) {
   deployer.then(async () => {
@@ -9,5 +10,6 @@ module.exports = function(deployer, network, owner) {
     const oracle = await deployer.deploy(Oracle, owner);
     const poolController = await deployer.deploy(PoolController, xETH.address);
     await deployer.deploy(Poker, oracle.address, poolController.address);
+    await deployer.deploy(FakePoker, oracle.address, poolController.address);
   });
 };

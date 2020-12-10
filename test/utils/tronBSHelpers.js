@@ -1,3 +1,4 @@
+const { BN } = require('openzeppelin-test-helpers');
 const TronWeb = require('tronweb');
 const tronweb = new TronWeb( {
     privateKey: 'da146374a75310b9666e834ee4ad0866d6f4035967bfc76217c5a495fff9f0d0',
@@ -7,6 +8,10 @@ const tronweb = new TronWeb( {
 
 const getHexAddress = (address) => {
   return tronweb.address.toHex(address);
+}
+
+const getSolAddress = (address) => {
+  return tronweb.address.toHex(address).replace('41', '0x');
 }
 
 const trxSender = async(to, amount, from) => {
@@ -46,6 +51,7 @@ const simpleExpectRevert = async(promise, descr) => {
 // }
 module.exports = {
     getHexAddress,
+    getSolAddress,
     trxSender,
     simpleExpectRevert,
     tronweb,

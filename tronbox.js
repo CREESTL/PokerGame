@@ -23,7 +23,10 @@ module.exports = {
     development: {
       privateKey: 'da146374a75310b9666e834ee4ad0866d6f4035967bfc76217c5a495fff9f0d0',
       fullHost: "http://127.0.0.1:9090",
-      network_id: "9"
+      network_id: "*",
+      consume_user_resource_percent: 50,
+      feeLimit: 1e9,
+      originEnergyLimit: 1e7
     },
     // development: {
     //   privateKey: '4E7FECCB71207B867C495B51A9758B104B1D4422088A87F4978BE64636656243',

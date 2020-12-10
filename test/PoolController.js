@@ -15,7 +15,6 @@ const { getHexAddress, simpleExpectRevert } = require('./utils/tronBSHelpers');
 
 
 const XETHToken = artifacts.require('XETHToken');
-// const RussianRoulette = artifacts.require('RussianRoulette');
 const Oracle = artifacts.require('Oracle');
 const PoolController = artifacts.require('PoolController');
 
@@ -44,7 +43,6 @@ contract('PoolController', async ([owner, alice, bob]) => {
 
     it('checking setOracleOperator function', async () => {
       assert.equal(await this.poolController.getOracleOperator(), ZERO_ADDRESS);
-      console.log(alice, 12312321);
       await this.poolController.setOracleOperator(alice, { from: owner });
       assert.equal(await this.poolController.getOracleOperator(), getHexAddress(alice));
       simpleExpectRevert(this.poolController.setOracleOperator(owner, { from: alice }), 'not owner');
@@ -63,7 +61,6 @@ contract('PoolController', async ([owner, alice, bob]) => {
       beforeEach(async () => {
         await this.xETH.setPoolController(this.poolController.address, { from: owner });
         await this.poolController.deposit(owner, { from: owner, callValue: 1000 });
-        console.log((await this.xETH.balanceOf(owner)).toString(), 9999)
         assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 2000);
       });
 
@@ -80,6 +77,21 @@ contract('PoolController', async ([owner, alice, bob]) => {
         await this.poolController.withdraw(1000, { from: owner });
         simpleExpectRevert(this.poolController.withdraw(1001, { from: owner }), 'not enough funds');
         assert.equal(await this.xETH.balanceOf(owner, { from: owner }), 1000);
+      });
+    });
+
+    describe('checking whitelist functions:', async () => {
+      it('checking addToWhitelist function', async () => {
+        simpleExpectRevert(this.poolController.deposit(alice, { from: alice, callValue: 1000 }), 'Deposit not allowed');
+        await this.poolController.addToWhitelist(alice, { from: owner });
+        simpleExpectRevert(this.poolController.addToWhitelist(alice, { from: owner }), 'Already added');
+        await this.poolController.deposit(alice, { from: alice, callValue: 1000 });
+      });
+
+      it('checking removeFromWhitelist function', async () => {
+        await this.poolController.deposit(alice, { from: alice, callValue: 1000 });
+        await this.poolController.removeFromWhitelist(alice, { from: owner });
+        simpleExpectRevert(this.poolController.deposit(alice, { from: alice, callValue: 1000 }), 'Deposit not allowed');
       });
     });
   });
