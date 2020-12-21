@@ -35,16 +35,6 @@ contract PoolController is IPool, Context, Ownable {
 
     uint256 public constant PERCENT100 = 10 ** 6; // 100 %
 
-    // maxbet calc
-    uint256 private _gamesCounter;
-    uint256 private _betFlip;
-    uint256 private _betColor;
-    uint256 private _betFlipSquare;
-    uint256 private _betColorSquare;
-    uint256 private _betFlipVariance;
-    uint256 private _betColorVariance;
-    uint256 private _maxBet;
-
     // jackpot
     uint256 private _jackpot = 500000; // TODO: change to 78000000000 on deploy for test/prod
     uint256 private _jackpotLimit = 1000000; // TODO: change to 1950000000000 on deploy for test/prod
@@ -82,10 +72,6 @@ contract PoolController is IPool, Context, Ownable {
 
     function getJackpotLimit() external view returns(uint) {
         return _jackpotLimit;
-    }
-
-    function getMaxBet() external view returns(uint) {
-        return (_maxBet);
     }
 
     function getGame() external view returns (address) {
@@ -178,7 +164,7 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function deposit(address _to) external payable {
-        require(whitelist[_msgSender()], 'Deposit not allowed');
+        // require(whitelist[_msgSender()], 'Deposit not allowed');
         _deposit(_to, msg.value);
     }
 
@@ -257,6 +243,4 @@ contract PoolController is IPool, Context, Ownable {
         testAddress = player;
         return true;
     }
-
-    
 }

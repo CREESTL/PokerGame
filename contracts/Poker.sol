@@ -28,17 +28,17 @@ contract Poker is GameController, Pausable {
     }
 
     // maxbet calc
-    uint256 private _gamesCounter;
-    uint256 private _betFlip;
-    uint256 private _betColor;
-    uint256 private _betFlipSquare;
-    uint256 private _betColorSquare;
-    uint256 private _betFlipVariance;
-    uint256 private _betColorVariance;
-    uint256 private _maxBet;
+    uint256 internal _gamesCounter;
+    uint256 internal _betFlip;
+    uint256 internal _betColor;
+    uint256 internal _betFlipSquare;
+    uint256 internal _betColorSquare;
+    uint256 internal _betFlipVariance;
+    uint256 internal _betColorVariance;
+    uint256 internal _maxBet;
 
     event PokerResult(bool winColor, GameResults winPoker, uint256 requestId, uint256 cards, address player);
-    event GameStart(address player);
+    event GameStart(address player, uint256 requestId, uint256 betPoker, uint256 betColor);
 
     IPool private _poolController;
     mapping(uint256 => Game) private games;
@@ -54,10 +54,6 @@ contract Poker is GameController, Pausable {
 
     function getPoolController() external view returns(address) {
         return address(_poolController);
-    }
-
-    function getMyAddress() external view returns(address) {
-        return(msg.sender);
     }
 
     function getGameInfo(uint256 requestId) external view returns (uint, uint, uint, address) {
@@ -86,19 +82,21 @@ contract Poker is GameController, Pausable {
     }
 
     function play(uint256 betColor, uint256 chosenColor) external payable {
-        _maxBetCalc(uint256(msg.value.sub(betColor)), betColor);
+        // _maxBetCalc(uint256(msg.value.sub(betColor)), betColor);
         uint256 gasFee = _poolController.getOracleGasFee();
         require(msg.value > gasFee.mul(1015).div(1000), 'Bet too small');
-        require(msg.value < _maxBet, 'Bet too big');
+        // require(msg.value < _maxBet, 'Bet too big');
         address payable player = msg.sender;
-        emit GameStart(player);
+        
+        uint256 betPoker = uint256(msg.value.sub(betColor));
         _poolController.addBetToPool(msg.value);
         if (_randomNumbers[_lastRequestId].status != Status.Pending) {
             super._updateRandomNumber();
         }
+        // emit GameStart(player, _lastRequestId, betPoker, betColor);
         games[_lastRequestId] = Game(
             betColor,
-            uint256(msg.value.sub(betColor)),
+            betPoker,
             chosenColor,
             player);
     }
