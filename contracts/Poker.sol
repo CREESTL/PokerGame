@@ -1,12 +1,12 @@
 pragma solidity >0.4.18 < 0.6.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/lifecycle/Pausable.sol";
+// import "@openzeppelin/contracts/lifecycle/Pausable.sol";
 import "./Interfaces.sol";
 import "./GameController.sol";
 
 
-contract Poker is GameController, Pausable {
+contract Poker is GameController {
     using SafeMath for uint256;
     using SafeMath for uint8;
 
@@ -45,7 +45,7 @@ contract Poker is GameController, Pausable {
 
     constructor (address oracleAddress, address poolControllerAddress) public GameController(oracleAddress){
         _setPoolController(poolControllerAddress);
-        pause();
+        // pause();
     }
 
     function getMaxBet() external view returns(uint) {
@@ -69,31 +69,30 @@ contract Poker is GameController, Pausable {
         _setPoolController(poolControllerAddress);
     }
 
-    function pauseGame() external onlyOwner {
-        pause();
-    }
+    // function pauseGame() external onlyOwner {
+    //     pause();
+    // }
 
-    function unPauseGame() external onlyOwner {
-        unpause();
-    }
+    // function unPauseGame() external onlyOwner {
+    //     unpause();
+    // }
 
     function setMaxBet(uint256 maxBet) external onlyOwner {
         _maxBet = maxBet;
     }
 
     function play(uint256 betColor, uint256 chosenColor) external payable {
-        // _maxBetCalc(uint256(msg.value.sub(betColor)), betColor);
+        _maxBetCalc(uint256(msg.value.sub(betColor)), betColor);
         uint256 gasFee = _poolController.getOracleGasFee();
         require(msg.value > gasFee.mul(1015).div(1000), 'Bet too small');
-        // require(msg.value < _maxBet, 'Bet too big');
+        require(msg.value < _maxBet, 'Bet too big');
         address payable player = msg.sender;
-        
         uint256 betPoker = uint256(msg.value.sub(betColor));
         _poolController.addBetToPool(msg.value);
         if (_randomNumbers[_lastRequestId].status != Status.Pending) {
             super._updateRandomNumber();
         }
-        // emit GameStart(player, _lastRequestId, betPoker, betColor);
+        emit GameStart(player, _lastRequestId, betPoker, betColor);
         games[_lastRequestId] = Game(
             betColor,
             betPoker,

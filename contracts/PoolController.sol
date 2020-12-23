@@ -27,6 +27,7 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     event RegisteredReferer(address referee, address referral);
+    event JackpotWin(address player, uint256 amount);
 
     // referral system
     // TODO: 0, 20000000000, 60000000000, 100000000000, 140000000000, 180000000000, 220000000000 deploy for test/prod
@@ -122,13 +123,16 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function jackpotDistribution(address payable player) external onlyGame returns (bool) {
+        uint256 jackpotAmount;
         if (_jackpot > _jackpotLimit) {
-            _rewardDistribution(player, _jackpotLimit);
+            jackpotAmount = _jackpotLimit;
             _jackpot = _jackpot.sub(_jackpotLimit);
         } else {
-            _rewardDistribution(player, _jackpot);
+            jackpotAmount = _jackpot;
             _jackpot = 0;
         }
+        _rewardDistribution(player, jackpotAmount);
+        emit JackpotWin(player, jackpotAmount);
         return true;
     }
 
