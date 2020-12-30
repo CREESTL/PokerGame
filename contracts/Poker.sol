@@ -37,7 +37,7 @@ contract Poker is GameController {
     uint256 internal _betColorVariance;
     uint256 internal _maxBet;
 
-    event PokerResult(bool winColor, GameResults winPoker, uint256 requestId, uint256 cards, address player);
+    event PokerResult(uint256 winAmount, bool winColor, GameResults winPoker, uint256 requestId, uint256 cards, address player);
     event GameStart(address player, uint256 requestId, uint256 betPoker, uint256 betColor);
 
     IPool private _poolController;
@@ -89,9 +89,9 @@ contract Poker is GameController {
         address payable player = msg.sender;
         uint256 betPoker = uint256(msg.value.sub(betColor));
         _poolController.addBetToPool(msg.value);
-        if (_randomNumbers[_lastRequestId].status != Status.Pending) {
-            super._updateRandomNumber();
-        }
+        // if (_randomNumbers[_lastRequestId].status != Status.Pending) {
+        super._updateRandomNumber();
+        // }
         emit GameStart(player, _lastRequestId, betPoker, betColor);
         games[_lastRequestId] = Game(
             betColor,
@@ -137,7 +137,7 @@ contract Poker is GameController {
             _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount); // TODO: refactor updateReferralTotalWinnings and updateReferralEarningsBalance to one function
             _poolController.updateReferralEarningsBalance(games[requestId].player, (betColorEdge.add(betPokerEdge)).div(100));
         }
-        emit PokerResult(colorWin, winPoker, requestId, bitCards, games[requestId].player);
+        emit PokerResult(winAmount, colorWin, winPoker, requestId, bitCards, games[requestId].player);
     }
 
     function _setPoolController(address poolAddress) internal {
