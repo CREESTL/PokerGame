@@ -37,14 +37,19 @@ contract Poker is GameController {
     uint256 internal _betColorVariance;
     uint256 internal _maxBet;
 
+    uint256 private _houseEdge;
+    uint256 private _jackpotFeeMultiplier;
+
     event PokerResult(uint256 winAmount, bool winColor, GameResults winPoker, uint256 requestId, uint256 cards, address player);
-    event GameStart(address player, uint256 requestId, uint256 betPoker, uint256 betColor);
+    event GameStart(address player, uint256 requestId, uint256 betPoker, uint256 betColor, uint256 chosenColor);
 
     IPool private _poolController;
     mapping(uint256 => Game) private games;
 
     constructor (address oracleAddress, address poolControllerAddress) public GameController(oracleAddress){
         _setPoolController(poolControllerAddress);
+        _houseEdge = 15;
+        _jackpotFeeMultiplier = 2;
         // pause();
     }
 
@@ -54,6 +59,13 @@ contract Poker is GameController {
 
     function getPoolController() external view returns(address) {
         return address(_poolController);
+    }
+
+    function getHouseEdge() external view returns(uint256) {
+        return _houseEdge;
+    }
+    function getJackpotFeeMultiplier() external view returns(uint256) {
+        return _jackpotFeeMultiplier;
     }
 
     function getGameInfo(uint256 requestId) external view returns (uint, uint, uint, address) {
@@ -81,18 +93,27 @@ contract Poker is GameController {
         _maxBet = maxBet;
     }
 
+    function setHouseEdge(uint256 houseEdge) external onlyOwner {
+        _houseEdge = houseEdge;
+    }
+
+    function setJackpotFeeMultiplier(uint256 jackpotFeeMultiplier) external onlyOwner {
+        _jackpotFeeMultiplier = jackpotFeeMultiplier;
+    }
+
     function play(uint256 betColor, uint256 chosenColor) external payable {
-        _maxBetCalc(uint256(msg.value.sub(betColor)), betColor);
+        uint256 betPoker = uint256(msg.value.sub(betColor));
+        _maxBetCalc(betPoker, betColor);
         uint256 gasFee = _poolController.getOracleGasFee();
         require(msg.value > gasFee.mul(1015).div(1000), 'Bet too small');
         require(msg.value < _maxBet, 'Bet too big');
         address payable player = msg.sender;
-        uint256 betPoker = uint256(msg.value.sub(betColor));
+        address(_poolController).call.value(msg.value)('');
         _poolController.addBetToPool(msg.value);
         // if (_randomNumbers[_lastRequestId].status != Status.Pending) {
         super._updateRandomNumber();
         // }
-        emit GameStart(player, _lastRequestId, betPoker, betColor);
+        emit GameStart(player, _lastRequestId, betPoker, betColor, chosenColor);
         games[_lastRequestId] = Game(
             betColor,
             betPoker,
@@ -106,19 +127,19 @@ contract Poker is GameController {
 
     function _publishResults(uint8[] memory cards, uint256 requestId, uint256 bitCards) internal {
         uint256 winAmount = 0;
-        uint256 jackPotAdder = games[requestId].betPoker.div(1000).mul(2);
-        uint256 betColorEdge = games[requestId].betColor.div(1000).mul(15);
-        uint256 betPokerEdge = games[requestId].betColor.div(1000).mul(15);
+        uint256 betColorEdge;
+        uint256 jackPotAdder = games[requestId].betPoker.mul(_jackpotFeeMultiplier).div(1000);
+        uint256 betPokerEdge = games[requestId].betPoker.mul(_houseEdge).div(1000);
         bool colorWin = false;
         _poolController.updateJackpot(jackPotAdder);
-        // _maxBetCalc(games[requestId].betPoker, games[requestId].betColor);
         if (games[requestId].betColor > 0) {
             uint8[] memory colorCards = new uint8[](3);
             for (uint256 i = 2; i < 5; i++) {
                 colorCards[i - 2] = cards[i];
             }
             if (_determineWinnerColor(colorCards, games[requestId].chosenColor)) {
-                winAmount = games[requestId].betColor.mul(2).sub(betColorEdge);
+                betColorEdge = games[requestId].betColor.mul(_houseEdge).div(1000);
+                winAmount = games[requestId].betColor.mul(_jackpotFeeMultiplier).sub(betColorEdge);
                 colorWin = true;
             }
         }
@@ -134,8 +155,9 @@ contract Poker is GameController {
 
         if (winAmount > 0) {
             _poolController.rewardDisribution(games[requestId].player, winAmount);
-            _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount); // TODO: refactor updateReferralTotalWinnings and updateReferralEarningsBalance to one function
-            _poolController.updateReferralEarningsBalance(games[requestId].player, (betColorEdge.add(betPokerEdge)).div(100));
+            if (winPoker != GameResults.Draw) {
+                _poolController.updateReferralStats(games[requestId].player, winAmount, betPokerEdge.add(betColorEdge));
+            }
         }
         emit PokerResult(winAmount, colorWin, winPoker, requestId, bitCards, games[requestId].player);
     }

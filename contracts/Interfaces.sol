@@ -8,8 +8,7 @@ interface IPool {
     function rewardDisribution(address payable player, uint256 prize) external returns (bool);
     function updateJackpot(uint amount) external;
 
-    function updateReferralTotalWinnings(address player, uint amount) external;
-    function updateReferralEarningsBalance(address player, uint amount) external;
+    function updateReferralStats(address player, uint amount, uint256 betEdge) external;
     
     function getOracleGasFee() external view returns (uint256);
     function getPoolAmount() external view returns (uint256);

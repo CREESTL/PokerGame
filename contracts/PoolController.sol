@@ -30,15 +30,14 @@ contract PoolController is IPool, Context, Ownable {
     event JackpotWin(address player, uint256 amount);
 
     // referral system
-    // TODO: 0, 20000000000, 60000000000, 100000000000, 140000000000, 180000000000, 220000000000 deploy for test/prod
-    uint[7] totalWinningsMilestones = [0, 400000, 6000000, 10000000, 14000000, 18000000, 22000000];
-    uint[7] bonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
+    uint256[7] private _totalWinningsMilestones;
+    uint256[7] private _bonusPercentMilestones;
 
-    uint256 public constant PERCENT100 = 10 ** 6; // 100 %
+    uint256 private constant PERCENT100 = 10 ** 6; // 100 %
 
     // jackpot
-    uint256 private _jackpot = 500000; // TODO: change to 78000000000 on deploy for test/prod
-    uint256 private _jackpotLimit = 1000000; // TODO: change to 1950000000000 on deploy for test/prod
+    uint256 private _jackpot;
+    uint256 private _jackpotLimit; 
 
     mapping (address => RefAccount) refAccounts;
     mapping (address => bool) private whitelist;
@@ -56,15 +55,27 @@ contract PoolController is IPool, Context, Ownable {
         require(_msgSender() == _oracleOperator, "caller is not the operator");
         _;
     }
-
+    // maybe take all of this as arguments for constructor
     constructor (
         address xEthTokenAddress
     ) public {
         IInternalToken xEthCandidate = IInternalToken(xEthTokenAddress);
         require(xEthCandidate.supportsIInternalToken(), "invalid xETH address");
         pool.internalToken = xEthCandidate;
-        pool.oracleGasFee = 120000; // TODO: update the gas fee
+        pool.oracleGasFee = 12000000;
         whitelist[_msgSender()] = true;
+        _totalWinningsMilestones = [0, 20000000000, 60000000000, 100000000000, 140000000000, 180000000000, 220000000000];
+        _bonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
+        _jackpot = 500000; // TODO: change to 78000000000 on deploy for test/prod
+        _jackpotLimit = 1000000; // TODO: change to 1950000000000 on deploy for test/prod
+    }
+
+    function getTotalWinningsMilestones() external view returns(uint[7] memory) {
+        return _totalWinningsMilestones;
+    }
+
+    function getBonusPercentMilestones() external view returns(uint[7] memory) {
+        return _bonusPercentMilestones;
     }
 
     function getJackpot() external view returns(uint) {
@@ -118,6 +129,27 @@ contract PoolController is IPool, Context, Ownable {
             );
     }
 
+    // setters
+    function setTotalWinningsMilestones(uint256[] calldata newTotalWinningMilestones) external onlyOwner {
+        for(uint256 i = 0; i < 7; i++) {
+            _totalWinningsMilestones[i] = newTotalWinningMilestones[i];
+        }
+    }
+
+    function setBonusPercentMilestones(uint256[] calldata newBonusPercent) external onlyOwner {
+        for(uint256 i = 0; i < 7; i++) {
+            _bonusPercentMilestones[i] = newBonusPercent[i];
+        }
+    }
+
+    function setJackpot(uint256 jackpot) external onlyOwner {
+        _jackpot = jackpot;
+    }
+
+    function setJackpotLimit(uint256 jackpotLimit) external onlyOwner {
+        _jackpotLimit = jackpotLimit;
+    }
+
     function updateJackpot(uint256 amount) external onlyGame {
         _jackpot = _jackpot.add(amount);
     }
@@ -136,16 +168,15 @@ contract PoolController is IPool, Context, Ownable {
         return true;
     }
 
-    function updateReferralTotalWinnings(address referral, uint amount) external onlyGame {
+    function updateReferralStats(address referral, uint256 amount, uint256 betEdge) external onlyGame {
+        // update data first for correct referralEarningsBalance distribution
         address parent = refAccounts[referral].parent;
         refAccounts[parent].totalWinnings = refAccounts[parent].totalWinnings.add(amount);
         _updateReferralBonusRank(parent);
-    }
 
-    function updateReferralEarningsBalance(address referral, uint amount) external onlyGame {
-        address parent = refAccounts[referral].parent;
-        refAccounts[parent].referralEarningsBalance = refAccounts[parent]
-            .referralEarningsBalance.add(amount.mul(refAccounts[parent].bonusPercent));
+        uint256 referralEarnings = betEdge.mul(refAccounts[parent].bonusPercent).div(100);
+        refAccounts[parent].referralEarningsBalance = refAccounts[parent].referralEarningsBalance.add(referralEarnings);
+            
     }
 
     function addBetToPool(uint256 betAmount) external onlyGame payable {
@@ -153,8 +184,6 @@ contract PoolController is IPool, Context, Ownable {
         pool.amount = pool.amount.add(betAmount).sub(oracleFeeAmount);
         pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleFeeAmount);
     }
-
-    address public testAddress;
 
     function rewardDisribution(address payable player, uint256 prize) public onlyGame returns (bool) {
         _rewardDistribution(player, prize);
@@ -209,6 +238,7 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function addRef(address parent, address son) external {
+        require(refAccounts[son].parent == address(0), "Already a referral");
         require(parent != son, "same address");
         refAccounts[son].parent = parent;
         refAccounts[parent].referralCounter = refAccounts[parent].referralCounter.add(1);
@@ -224,9 +254,9 @@ contract PoolController is IPool, Context, Ownable {
 
     function _updateReferralBonusRank(address parent) internal {
         uint currentBonus;
-        for (uint i = 0; i < totalWinningsMilestones.length; i++) {
-            if (totalWinningsMilestones[i] < refAccounts[parent].totalWinnings) {
-                currentBonus = bonusPercentMilestones[i];
+        for (uint i = 0; i < _totalWinningsMilestones.length; i++) {
+            if (_totalWinningsMilestones[i] < refAccounts[parent].totalWinnings) {
+                currentBonus = _bonusPercentMilestones[i];
             }
         }
         refAccounts[parent].bonusPercent = currentBonus;
@@ -243,8 +273,7 @@ contract PoolController is IPool, Context, Ownable {
             return false;
         }
         pool.amount = pool.amount.sub(prize);
-        player.transfer(50000000);
-        testAddress = player;
+        player.transfer(prize);
         return true;
     }
 }
