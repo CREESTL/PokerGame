@@ -223,7 +223,7 @@ contract FakePoker is GameController {
         return false;
     }
     
-    function evaluateHand(uint8[7] memory cardsArray, uint8[7] memory ranksArray) private pure returns (uint8, int8[7] memory) {
+    function evaluateHand(uint8[7] memory cardsArray, uint8[7] memory ranksArray) public pure returns (uint8, int8[7] memory) {
         uint8 strongestHand = 0;
         // get kickers
         int8[7] memory retOrder = [-1, -1, -1, -1, -1, -1, -1];

@@ -21,7 +21,7 @@ const array = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const checkingToBitArr = [1, 6, 13, 14, 24, 27, 44, 45, 50];
 const checkingToBitInt = 14274713982914945;
 
-const check = [4,24,3,5,7,9,49,1,38];
+const check = [12, 2, 21, 39, 24, 6, 35, 38, 29];
 
 const evenWinColorCards = [27, 1, 42]; // returns 2, 0, 3 even wins
 const oddWinColorCards = [22, 47, 7]; // retruns 1, 3, 0 odd wins

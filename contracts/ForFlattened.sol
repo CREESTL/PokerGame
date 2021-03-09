@@ -4,3 +4,4 @@ import "./Oracle.sol";
 import "./PoolController.sol";
 import "./Poker.sol";
 import "./XETHToken.sol";
+import "./testContracts/FakePoker.sol";

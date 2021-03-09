@@ -39,6 +39,7 @@ contract Poker is GameController {
 
     uint256 private _houseEdge;
     uint256 private _jackpotFeeMultiplier;
+    address payable private _poolControllerPayable;
 
     event PokerResult(uint256 winAmount, bool winColor, GameResults winPoker, uint256 requestId, uint256 cards, address player);
     event GameStart(address player, uint256 requestId, uint256 betPoker, uint256 betColor, uint256 chosenColor);
@@ -50,6 +51,7 @@ contract Poker is GameController {
         _setPoolController(poolControllerAddress);
         _houseEdge = 15;
         _jackpotFeeMultiplier = 2;
+        _poolControllerPayable = address(uint160(poolControllerAddress));
         // pause();
     }
 
@@ -108,8 +110,7 @@ contract Poker is GameController {
         require(msg.value > gasFee.mul(1015).div(1000), 'Bet too small');
         require(msg.value < _maxBet, 'Bet too big');
         address payable player = msg.sender;
-        address(_poolController).call.value(msg.value)('');
-        _poolController.addBetToPool(msg.value);
+        _poolController.addBetToPool.value(msg.value)(msg.value);
         // if (_randomNumbers[_lastRequestId].status != Status.Pending) {
         super._updateRandomNumber();
         // }
@@ -304,54 +305,57 @@ contract Poker is GameController {
             for (i = 0; i < 7; i++) {
                 // find kicker
                 if (int8(ranksArray[i]) != retOrder[0]) {
-                    retOrder[1] = int8(ranksArray[0]);
+                    retOrder[1] = int8(ranksArray[i]);
                     return (strongestHand, retOrder);
                 }
             }
         }
-
+    
         // check for flush
         if (strongestHand < 5) {
             for (i = 0; i < 4; i++) {
                 if (suits[i] >= 5) {
-                    if (strongestHand == 4) {
-                        if (suits[i] == 5) {
-                            flushWinSuit = i;
+                    flushWinSuit = i;
+                    uint8 cnt = 0;
+                    for (i = 0; i < 7; i++) {
+                        if (cardsArray[i] / 13 == flushWinSuit) {
+                            streetFlushCards[cnt] = int8(ranksArray[i]);
+                            retOrder[cnt] = int8(ranksArray[i]);
+                            cnt++;
+                            retOrder[6] = 50;
                         }
-                        uint8 cnt = 0;
-                        for (i = 0; i < 7; i++) {
-                            if (cardsArray[i] / 13 == flushWinSuit) {
-                                streetFlushCards[cnt] = int8(ranksArray[i]);
-                                retOrder[cnt] = int8(ranksArray[i]);
-                                cnt++;
-                            }
-                            if (i >= 5) {
-                                if (streetFlushCards[i - 5] - streetFlushCards[i - 1] == 4) {
-                                    strongestHand = 8;
-                                    retOrder = [int8(streetFlushCards[i - 5]), -1, -1, -1, -1, -1, -1];
-                                    if (streetFlushCards[i - 5] == 12) {
-                                        strongestHand = 9;
-                                    }
-                                    return (strongestHand, retOrder);
+                    }
+                    if (strongestHand == 4) {
+                        for (i = 0; i < 3; i++) {
+                            if (streetFlushCards[i] - streetFlushCards[i + 4] == 4 && streetFlushCards[i + 4] != -1) {
+                                strongestHand = 8;
+                                retOrder = [int8(streetFlushCards[i]), -1, -1, -1, -1, -1, -1];
+                                if (streetFlushCards[i] == 12) {
+                                    strongestHand = 9;
                                 }
-                            }
+                                return (strongestHand, retOrder);
+                            } 
                         }
                     }
                     strongestHand = 5;
-                    break;
+                    retOrder[5] = -1;
+                    retOrder[6] = -1;
+                    return (strongestHand, retOrder);
                 }
             }
+            
         }
+    
 
         if (strongestHand == 3) {
             // check for full house
             if (pairs[1] > -1) {
                 strongestHand = 6;
                 if (valuesMatch[uint256(pairs[0])] >= valuesMatch[uint256(pairs[1])]) {
-                    retOrder[0] = pairs[0];
+                    // retOrder[0] = pairs[0];
                     retOrder[1] = pairs[1];
                 } else {
-                    retOrder[0] = pairs[1];
+                    // retOrder[0] = pairs[1];
                     retOrder[1] = pairs[0];
                 }
                 return (strongestHand, retOrder);
@@ -360,17 +364,13 @@ contract Poker is GameController {
             for (i = 0; i < 5; i++) {
                 // find kickers
                 if (int8(ranksArray[i]) != retOrder[0]) {
-                    if (int8(ranksArray[i]) > retOrder[1]) {
-                        retOrder[2] = retOrder[1];
-                        retOrder[1] = int8(ranksArray[i]);
-                        // TODO: problem when 3oak rank is lower than kickers
-                    } else {
-                        retOrder[2] = int8(ranksArray[i]);
-                    }
+                    retOrder[i + 1] = int8(ranksArray[i]);
+                    if(retOrder[2] != -1) break;
                 }
             }
             return (strongestHand, retOrder);
         }
+
         if (strongestHand < 3) {
             // two pairs
             if (pairs[1] != -1) {
@@ -389,20 +389,25 @@ contract Poker is GameController {
                     }
                 }
                 return (strongestHand, retOrder);
-                // one pair
-            } else {
+            }
+            // one pair
+            if (pairs[0] != -1) {
                 strongestHand = 1;
                 retOrder[0] = pairs[0];
-                uint8 cnt = (pairs[0] == -1) ? 0 : 1;
+                uint8 cnt = 1;
                 for (i = 0; i < 7; i++) {
                     if (int8(ranksArray[i]) != pairs[0]) {
                         retOrder[cnt] = int8(ranksArray[i]);
                         cnt++;
                     }
+                    if (retOrder[3] != -1) {
+                        return (strongestHand, retOrder);
+                    }
                 }
-                // no pairs
-                if (pairs[0] == -1) {
-                    strongestHand = 0;
+            } else {
+                strongestHand = 0;
+                for (i = 0; i < 5; i++) {
+                    retOrder[i] = int8(ranksArray[i]);
                 }
                 return (strongestHand, retOrder);
             }
