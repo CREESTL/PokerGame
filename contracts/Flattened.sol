@@ -1210,8 +1210,8 @@ contract Poker is GameController {
         // pause();
     }
 
-    function getMaxBet() external view returns(uint) {
-        return (_maxBet);
+    function getMaxBet() external view returns(uint256) {
+        return _maxBet;
     }
 
     function getPoolController() external view returns(address) {
@@ -1225,7 +1225,7 @@ contract Poker is GameController {
         return _jackpotFeeMultiplier;
     }
 
-    function getGameInfo(uint256 requestId) external view returns (uint, uint, uint, address) {
+    function getGameInfo(uint256 requestId) external view returns (uint256, uint256, uint256, address) {
         return (
             games[requestId].betColor,
             games[requestId].betPoker,
@@ -1580,6 +1580,7 @@ contract Poker is GameController {
             _betFlipSquare = pokerB.mul(pokerB);
             _betColorSquare = colorB.mul(colorB);
         }
+
         if (_gamesCounter > 1) {
             _betFlip = ((_gamesCounter - 1).mul(_betFlip).add(pokerB)).div(_gamesCounter);
             _betColor = ((_gamesCounter - 1).mul(_betColor).add(colorB)).div(_gamesCounter);
@@ -1589,15 +1590,26 @@ contract Poker is GameController {
             _betColorVariance = _betColorSquare - _betColor.mul(_betColor);
             uint Fn = _betFlip.add(sqrt(_betFlipVariance).mul(10));
             uint Cn = _betColor.add(sqrt(_betColorVariance).mul(10));
-            if (_gamesCounter > 100 && Fn < poolAmount.div(230) && Cn < poolAmount.div(230)) {
+
+            if (_gamesCounter >= 100 && (Fn < poolAmount.div(230) || Cn < poolAmount.div(230))) {
+                _gamesCounter = 0;
+
+                if (_maxBet > poolAmount.div(109)) {
+                    _maxBet = poolAmount.div(109);
+                    return;
+                }
+
+                if (_maxBet < poolAmount.div(230)) {
+                    _maxBet = poolAmount.div(230);
+                    return;
+                }
+
                 if (Fn > Cn) {
                     _maxBet = _maxBet.mul(_maxBet).div(Fn);
                 } else {
                     _maxBet = _maxBet.mul(_maxBet).div(Cn);
                 }
-                _gamesCounter = 0;
-                if (_maxBet > poolAmount.div(109)) _maxBet = poolAmount.div(109);
-                else if (_maxBet < poolAmount.div(230)) _maxBet = poolAmount.div(230);
+                
             }
         }
     }
