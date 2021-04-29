@@ -108,18 +108,18 @@ contract Poker is GameController {
         _maxBetCalc(betPoker, betColor);
         uint256 gasFee = _poolController.getOracleGasFee();
         require(msg.value > gasFee.mul(1015).div(1000), 'Bet too small');
-        require(msg.value < _maxBet, 'Bet too big');
+        if (_maxBet != 0) {
+            require(msg.value <= _maxBet, 'Bet too big');
+        }
         address payable player = msg.sender;
         _poolController.addBetToPool.value(msg.value)(msg.value);
-        // if (_randomNumbers[_lastRequestId].status != Status.Pending) {
         super._updateRandomNumber();
-        // }
-        emit GameStart(player, _lastRequestId, betPoker, betColor, chosenColor);
         games[_lastRequestId] = Game(
             betColor,
             betPoker,
             chosenColor,
             player);
+        emit GameStart(player, _lastRequestId, betPoker, betColor, chosenColor);
     }
 
     function getLastGamePlayer() external view returns(address) {
@@ -436,7 +436,7 @@ contract Poker is GameController {
             uint Fn = _betFlip.add(sqrt(_betFlipVariance).mul(10));
             uint Cn = _betColor.add(sqrt(_betColorVariance).mul(10));
 
-            if (_gamesCounter >= 100 && (Fn < poolAmount.div(230) || Cn < poolAmount.div(230))) {
+            if (_gamesCounter >= 3 && (Fn < poolAmount.div(230) || Cn < poolAmount.div(230))) {
                 _gamesCounter = 0;
 
                 if (_maxBet > poolAmount.div(109)) {
