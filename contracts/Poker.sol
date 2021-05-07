@@ -129,8 +129,11 @@ contract Poker is GameController {
     function _publishResults(uint8[] memory cards, uint256 requestId, uint256 bitCards) internal {
         uint256 winAmount = 0;
         uint256 betColorEdge;
-        uint256 jackPotAdder = games[requestId].betPoker.mul(_jackpotFeeMultiplier).div(1000);
-        uint256 betPokerEdge = games[requestId].betPoker.mul(_houseEdge).div(1000);
+        uint256 betPoker = games[requestId].betPoker;
+        uint256 betColor = games[requestId].betColor;
+        uint256 jackPotAdder = betPoker.mul(_jackpotFeeMultiplier).div(1000);
+        uint256 betPokerEdge = betPoker.mul(_houseEdge).div(1000);
+        address payable player = games[requestId].player;
         bool colorWin = false;
         _poolController.updateJackpot(jackPotAdder);
         if (games[requestId].betColor > 0) {
@@ -139,28 +142,30 @@ contract Poker is GameController {
                 colorCards[i - 2] = cards[i];
             }
             if (_determineWinnerColor(colorCards, games[requestId].chosenColor)) {
-                betColorEdge = games[requestId].betColor.mul(_houseEdge).div(1000);
-                winAmount = games[requestId].betColor.mul(_jackpotFeeMultiplier).sub(betColorEdge);
+                betColorEdge = betColor.mul(_houseEdge).div(1000);
+                winAmount = betColor.mul(_jackpotFeeMultiplier).sub(betColorEdge);
                 colorWin = true;
             }
         }
         GameResults winPoker = _setCards(cards);
 
         if (winPoker == GameResults.Draw) {
-            winAmount = winAmount.add(games[requestId].betPoker.sub(betPokerEdge + jackPotAdder));
+            winAmount = winAmount.add(betPoker.sub(betPokerEdge + jackPotAdder));
         } else if (winPoker == GameResults.Win) {
-            winAmount = winAmount.add(games[requestId].betPoker.mul(2).sub(betPokerEdge + jackPotAdder));
+            winAmount = winAmount.add(betPoker.mul(2).sub(betPokerEdge + jackPotAdder));
         } else if (winPoker == GameResults.Jackpot) {
-            _poolController.jackpotDistribution(games[requestId].player);
+            _poolController.jackpotDistribution(player);
         }
 
         if (winAmount > 0) {
-            _poolController.rewardDisribution(games[requestId].player, winAmount);
+            _poolController.rewardDisribution(player, winAmount);
+            uint256 refBonus = betPokerEdge;
+            if (colorWin) refBonus = refBonus.add(betColorEdge);
             if (winPoker != GameResults.Draw) {
-                _poolController.updateReferralStats(games[requestId].player, winAmount, betPokerEdge.add(betColorEdge));
+                _poolController.updateReferralStats(player, winAmount, refBonus);
             }
         }
-        emit PokerResult(winAmount, colorWin, winPoker, requestId, bitCards, games[requestId].player);
+        emit PokerResult(winAmount, colorWin, winPoker, requestId, bitCards, player);
     }
 
     function _setPoolController(address poolAddress) internal {

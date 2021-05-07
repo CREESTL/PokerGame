@@ -1263,7 +1263,9 @@ contract Poker is GameController {
         _maxBetCalc(betPoker, betColor);
         uint256 gasFee = _poolController.getOracleGasFee();
         require(msg.value > gasFee.mul(1015).div(1000), 'Bet too small');
-        require(msg.value <= _maxBet, 'Bet too big');
+        if (_maxBet != 0) {
+            require(msg.value <= _maxBet, 'Bet too big');
+        }
         address payable player = msg.sender;
         _poolController.addBetToPool.value(msg.value)(msg.value);
         super._updateRandomNumber();
