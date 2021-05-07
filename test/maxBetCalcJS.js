@@ -1,5 +1,5 @@
 // testing just the formula for maxBet calculation
-const STARTING_POOL_BALANCE = 2054;
+const STARTING_POOL_BALANCE = 1000000;
 let BET = 30;
 
 // vars for maxBetCal function
@@ -61,14 +61,14 @@ const maxBetCalc = (pokerB, colorB) => {
     )
     ///////////////////////////////////////////
 
-    if (_gamesCounter >= 10 && (Fn < poolAmount / 230 || Cn < poolAmount / 230)) {
+    if (_gamesCounter >= 3 && (Fn < poolAmount / 230 || Cn < poolAmount / 230)) {
       _gamesCounter = 0;
       if (_maxBet > poolAmount / 109) {
         _maxBet = poolAmount / 109;
         return;
       }
 
-      if (_maxBet < poolAmount.div(230)) {
+      if (_maxBet < poolAmount / 230) {
         _maxBet = poolAmount / 230;
         return;
       };
