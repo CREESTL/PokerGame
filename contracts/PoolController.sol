@@ -60,7 +60,7 @@ contract PoolController is IPool, Context, Ownable {
         address xEthTokenAddress
     ) public {
         IInternalToken xEthCandidate = IInternalToken(xEthTokenAddress);
-        require(xEthCandidate.supportsIInternalToken(), "invalid xETH address");
+        require(xEthCandidate.supportsIInternalToken(), "invalid xTRX address");
         pool.internalToken = xEthCandidate;
         pool.oracleGasFee = 12000000;
         whitelist[_msgSender()] = true;
