@@ -24,6 +24,8 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface PokerInterface extends ethers.utils.Interface {
   functions: {
     "__callback(uint8[],uint256,uint256)": FunctionFragment;
+    "calculateWinAmount(uint256,uint8,bool)": FunctionFragment;
+    "getColorResult(uint256,uint8[])": FunctionFragment;
     "getGameInfo(uint256)": FunctionFragment;
     "getHouseEdge()": FunctionFragment;
     "getJackpotFeeMultiplier()": FunctionFragment;
@@ -31,6 +33,7 @@ interface PokerInterface extends ethers.utils.Interface {
     "getLastRequestId()": FunctionFragment;
     "getMaxBet()": FunctionFragment;
     "getOracle()": FunctionFragment;
+    "getPokerResult(uint8[])": FunctionFragment;
     "getPoolController()": FunctionFragment;
     "isOwner()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -48,6 +51,14 @@ interface PokerInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "__callback",
     values: [BigNumberish[], BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "calculateWinAmount",
+    values: [BigNumberish, BigNumberish, boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getColorResult",
+    values: [BigNumberish, BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "getGameInfo",
@@ -71,6 +82,10 @@ interface PokerInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "getMaxBet", values?: undefined): string;
   encodeFunctionData(functionFragment: "getOracle", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getPokerResult",
+    values: [BigNumberish[]]
+  ): string;
   encodeFunctionData(
     functionFragment: "getPoolController",
     values?: undefined
@@ -113,6 +128,14 @@ interface PokerInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(functionFragment: "__callback", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "calculateWinAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getColorResult",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getGameInfo",
     data: BytesLike
   ): Result;
@@ -134,6 +157,10 @@ interface PokerInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "getMaxBet", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getOracle", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getPokerResult",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getPoolController",
     data: BytesLike
@@ -207,6 +234,44 @@ export class Poker extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
+    calculateWinAmount(
+      requestId: BigNumberish,
+      winPoker: BigNumberish,
+      winColor: boolean,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: BigNumber;
+      1: BigNumber;
+      2: BigNumber;
+    }>;
+
+    "calculateWinAmount(uint256,uint8,bool)"(
+      requestId: BigNumberish,
+      winPoker: BigNumberish,
+      winColor: boolean,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: BigNumber;
+      1: BigNumber;
+      2: BigNumber;
+    }>;
+
+    getColorResult(
+      requestId: BigNumberish,
+      colorCards: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<{
+      0: boolean;
+    }>;
+
+    "getColorResult(uint256,uint8[])"(
+      requestId: BigNumberish,
+      colorCards: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<{
+      0: boolean;
+    }>;
+
     getGameInfo(
       requestId: BigNumberish,
       overrides?: CallOverrides
@@ -273,6 +338,20 @@ export class Poker extends Contract {
 
     "getOracle()"(overrides?: CallOverrides): Promise<{
       0: string;
+    }>;
+
+    getPokerResult(
+      _cardsArray: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<{
+      0: number;
+    }>;
+
+    "getPokerResult(uint8[])"(
+      _cardsArray: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<{
+      0: number;
     }>;
 
     getPoolController(overrides?: CallOverrides): Promise<{
@@ -398,6 +477,40 @@ export class Poker extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
+  calculateWinAmount(
+    requestId: BigNumberish,
+    winPoker: BigNumberish,
+    winColor: boolean,
+    overrides?: CallOverrides
+  ): Promise<{
+    0: BigNumber;
+    1: BigNumber;
+    2: BigNumber;
+  }>;
+
+  "calculateWinAmount(uint256,uint8,bool)"(
+    requestId: BigNumberish,
+    winPoker: BigNumberish,
+    winColor: boolean,
+    overrides?: CallOverrides
+  ): Promise<{
+    0: BigNumber;
+    1: BigNumber;
+    2: BigNumber;
+  }>;
+
+  getColorResult(
+    requestId: BigNumberish,
+    colorCards: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "getColorResult(uint256,uint8[])"(
+    requestId: BigNumberish,
+    colorCards: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   getGameInfo(
     requestId: BigNumberish,
     overrides?: CallOverrides
@@ -441,6 +554,16 @@ export class Poker extends Contract {
   getOracle(overrides?: CallOverrides): Promise<string>;
 
   "getOracle()"(overrides?: CallOverrides): Promise<string>;
+
+  getPokerResult(
+    _cardsArray: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<number>;
+
+  "getPokerResult(uint8[])"(
+    _cardsArray: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<number>;
 
   getPoolController(overrides?: CallOverrides): Promise<string>;
 
@@ -549,6 +672,40 @@ export class Poker extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    calculateWinAmount(
+      requestId: BigNumberish,
+      winPoker: BigNumberish,
+      winColor: boolean,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: BigNumber;
+      1: BigNumber;
+      2: BigNumber;
+    }>;
+
+    "calculateWinAmount(uint256,uint8,bool)"(
+      requestId: BigNumberish,
+      winPoker: BigNumberish,
+      winColor: boolean,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: BigNumber;
+      1: BigNumber;
+      2: BigNumber;
+    }>;
+
+    getColorResult(
+      requestId: BigNumberish,
+      colorCards: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "getColorResult(uint256,uint8[])"(
+      requestId: BigNumberish,
+      colorCards: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     getGameInfo(
       requestId: BigNumberish,
       overrides?: CallOverrides
@@ -592,6 +749,16 @@ export class Poker extends Contract {
     getOracle(overrides?: CallOverrides): Promise<string>;
 
     "getOracle()"(overrides?: CallOverrides): Promise<string>;
+
+    getPokerResult(
+      _cardsArray: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<number>;
+
+    "getPokerResult(uint8[])"(
+      _cardsArray: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<number>;
 
     getPoolController(overrides?: CallOverrides): Promise<string>;
 
@@ -719,6 +886,32 @@ export class Poker extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
+    calculateWinAmount(
+      requestId: BigNumberish,
+      winPoker: BigNumberish,
+      winColor: boolean,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "calculateWinAmount(uint256,uint8,bool)"(
+      requestId: BigNumberish,
+      winPoker: BigNumberish,
+      winColor: boolean,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getColorResult(
+      requestId: BigNumberish,
+      colorCards: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getColorResult(uint256,uint8[])"(
+      requestId: BigNumberish,
+      colorCards: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getGameInfo(
       requestId: BigNumberish,
       overrides?: CallOverrides
@@ -752,6 +945,16 @@ export class Poker extends Contract {
     getOracle(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getOracle()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getPokerResult(
+      _cardsArray: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getPokerResult(uint8[])"(
+      _cardsArray: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getPoolController(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -855,6 +1058,32 @@ export class Poker extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
+    calculateWinAmount(
+      requestId: BigNumberish,
+      winPoker: BigNumberish,
+      winColor: boolean,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "calculateWinAmount(uint256,uint8,bool)"(
+      requestId: BigNumberish,
+      winPoker: BigNumberish,
+      winColor: boolean,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getColorResult(
+      requestId: BigNumberish,
+      colorCards: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getColorResult(uint256,uint8[])"(
+      requestId: BigNumberish,
+      colorCards: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getGameInfo(
       requestId: BigNumberish,
       overrides?: CallOverrides
@@ -896,6 +1125,16 @@ export class Poker extends Contract {
     getOracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "getOracle()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getPokerResult(
+      _cardsArray: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getPokerResult(uint8[])"(
+      _cardsArray: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getPoolController(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

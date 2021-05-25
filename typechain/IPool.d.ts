@@ -24,6 +24,7 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface IPoolInterface extends ethers.utils.Interface {
   functions: {
     "addBetToPool(uint256)": FunctionFragment;
+    "getJackpot()": FunctionFragment;
     "getOracleGasFee()": FunctionFragment;
     "getPoolAmount()": FunctionFragment;
     "jackpotDistribution(address)": FunctionFragment;
@@ -36,6 +37,10 @@ interface IPoolInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "addBetToPool",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getJackpot",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getOracleGasFee",
@@ -70,6 +75,7 @@ interface IPoolInterface extends ethers.utils.Interface {
     functionFragment: "addBetToPool",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getJackpot", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getOracleGasFee",
     data: BytesLike
@@ -125,6 +131,14 @@ export class IPool extends Contract {
       betAmount: BigNumberish,
       overrides?: PayableOverrides
     ): Promise<ContractTransaction>;
+
+    getJackpot(overrides?: CallOverrides): Promise<{
+      0: BigNumber;
+    }>;
+
+    "getJackpot()"(overrides?: CallOverrides): Promise<{
+      0: BigNumber;
+    }>;
 
     getOracleGasFee(overrides?: CallOverrides): Promise<{
       0: BigNumber;
@@ -207,6 +221,10 @@ export class IPool extends Contract {
     overrides?: PayableOverrides
   ): Promise<ContractTransaction>;
 
+  getJackpot(overrides?: CallOverrides): Promise<BigNumber>;
+
+  "getJackpot()"(overrides?: CallOverrides): Promise<BigNumber>;
+
   getOracleGasFee(overrides?: CallOverrides): Promise<BigNumber>;
 
   "getOracleGasFee()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -275,6 +293,10 @@ export class IPool extends Contract {
       betAmount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    getJackpot(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getJackpot()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getOracleGasFee(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -348,6 +370,10 @@ export class IPool extends Contract {
       overrides?: PayableOverrides
     ): Promise<BigNumber>;
 
+    getJackpot(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getJackpot()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     getOracleGasFee(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getOracleGasFee()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -417,6 +443,10 @@ export class IPool extends Contract {
       betAmount: BigNumberish,
       overrides?: PayableOverrides
     ): Promise<PopulatedTransaction>;
+
+    getJackpot(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getJackpot()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getOracleGasFee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

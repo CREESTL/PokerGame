@@ -116,16 +116,16 @@
 
 //   describe('checking color results:', async () => {
 //     it('odd should win, player wins', async () => {
-//       assert.equal(await this.fakePoker.determineWinnerColor(oddWinColorCards, 1), true);
+//       assert.equal(await this.fakePoker.getColorResult(oddWinColorCards, 1), true);
 //     });
 //     it('odd should win, player looses', async () => {
-//       assert.equal(await this.fakePoker.determineWinnerColor(oddWinColorCards, 0), false);
+//       assert.equal(await this.fakePoker.getColorResult(oddWinColorCards, 0), false);
 //     });
 //      it('even should win, player wins', async () => {
-//       assert.equal(await this.fakePoker.determineWinnerColor(evenWinColorCards, 0), true);
+//       assert.equal(await this.fakePoker.getColorResult(evenWinColorCards, 0), true);
 //     });
 //     it('even should win, player looses', async () => {
-//       assert.equal(await this.fakePoker.determineWinnerColor(evenWinColorCards, 1), false);
+//       assert.equal(await this.fakePoker.getColorResult(evenWinColorCards, 1), false);
 //     });
 //   });
 

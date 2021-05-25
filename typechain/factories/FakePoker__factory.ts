@@ -351,7 +351,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "determineWinnerColor",
+    name: "getColorResult",
     outputs: [
       {
         internalType: "bool",

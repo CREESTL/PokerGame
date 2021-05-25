@@ -34,7 +34,7 @@ interface FakePokerInterface extends ethers.utils.Interface {
     "_maxBet()": FunctionFragment;
     "_poolController()": FunctionFragment;
     "checkCombinationResult(uint8[])": FunctionFragment;
-    "determineWinnerColor(uint8[],uint256)": FunctionFragment;
+    "getColorResult(uint8[],uint256)": FunctionFragment;
     "determineWinnerPoker(uint8,int8[7],uint8,int8[7])": FunctionFragment;
     "evaluateHand(uint8[7],uint8[7])": FunctionFragment;
     "getGameInfo(uint256)": FunctionFragment;
@@ -95,7 +95,7 @@ interface FakePokerInterface extends ethers.utils.Interface {
     values: [BigNumberish[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "determineWinnerColor",
+    functionFragment: "getColorResult",
     values: [BigNumberish[], BigNumberish]
   ): string;
   encodeFunctionData(
@@ -263,7 +263,7 @@ interface FakePokerInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "determineWinnerColor",
+    functionFragment: "getColorResult",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -455,7 +455,7 @@ export class FakePoker extends Contract {
       4: number;
     }>;
 
-    determineWinnerColor(
+    getColorResult(
       colorCards: BigNumberish[],
       chosenColor: BigNumberish,
       overrides?: CallOverrides
@@ -463,7 +463,7 @@ export class FakePoker extends Contract {
       0: boolean;
     }>;
 
-    "determineWinnerColor(uint8[],uint256)"(
+    "getColorResult(uint8[],uint256)"(
       colorCards: BigNumberish[],
       chosenColor: BigNumberish,
       overrides?: CallOverrides
@@ -888,13 +888,13 @@ export class FakePoker extends Contract {
     4: number;
   }>;
 
-  determineWinnerColor(
+  getColorResult(
     colorCards: BigNumberish[],
     chosenColor: BigNumberish,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "determineWinnerColor(uint8[],uint256)"(
+  "getColorResult(uint8[],uint256)"(
     colorCards: BigNumberish[],
     chosenColor: BigNumberish,
     overrides?: CallOverrides
@@ -1260,13 +1260,13 @@ export class FakePoker extends Contract {
       4: number;
     }>;
 
-    determineWinnerColor(
+    getColorResult(
       colorCards: BigNumberish[],
       chosenColor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "determineWinnerColor(uint8[],uint256)"(
+    "getColorResult(uint8[],uint256)"(
       colorCards: BigNumberish[],
       chosenColor: BigNumberish,
       overrides?: CallOverrides
@@ -1632,13 +1632,13 @@ export class FakePoker extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    determineWinnerColor(
+    getColorResult(
       colorCards: BigNumberish[],
       chosenColor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "determineWinnerColor(uint8[],uint256)"(
+    "getColorResult(uint8[],uint256)"(
       colorCards: BigNumberish[],
       chosenColor: BigNumberish,
       overrides?: CallOverrides
@@ -1981,13 +1981,13 @@ export class FakePoker extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    determineWinnerColor(
+    getColorResult(
       colorCards: BigNumberish[],
       chosenColor: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "determineWinnerColor(uint8[],uint256)"(
+    "getColorResult(uint8[],uint256)"(
       colorCards: BigNumberish[],
       chosenColor: BigNumberish,
       overrides?: CallOverrides

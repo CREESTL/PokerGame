@@ -12,6 +12,8 @@ interface IPool {
     
     function getOracleGasFee() external view returns (uint256);
     function getPoolAmount() external view returns (uint256);
+
+    function getJackpot() external view returns (uint256);
 }
 
 interface IGame {

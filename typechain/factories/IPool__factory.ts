@@ -32,6 +32,21 @@ const _abi = [
   {
     constant: true,
     inputs: [],
+    name: "getJackpot",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    constant: true,
+    inputs: [],
     name: "getOracleGasFee",
     outputs: [
       {
