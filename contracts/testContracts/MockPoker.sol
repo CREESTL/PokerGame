@@ -104,11 +104,7 @@ contract MockPoker is GameController {
             chosenColor,
             player);
     }
-
-    function getLastGamePlayer() public view returns(address) {
-        return games[_lastRequestId].player;
-    }
-
+    
     function _setPoolController(address poolAddress) internal {
         IPool poolCandidate = IPool(poolAddress);
         require(poolCandidate.supportsIPool(), "poolAddress must be IPool");

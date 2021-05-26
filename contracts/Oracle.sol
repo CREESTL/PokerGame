@@ -17,12 +17,12 @@ contract Oracle is IOracle, Ownable {
     event RandomNumberEvent(uint bitCards, address indexed callerAddress, uint256 indexed requestId);
 
     modifier onlyGame(address sender) {
-        require(sender == address(_games), "caller is not allowed to do some");
+        require(sender == address(_games), "O: not game");
         _;
     }
 
     modifier onlyOperator() {
-        require(_msgSender() == _operator, "caller is not the operator");
+        require(_msgSender() == _operator, "O: not operator");
         _;
     }
 
@@ -53,7 +53,7 @@ contract Oracle is IOracle, Ownable {
     }
 
     function createRandomNumberRequest() external onlyGame(_msgSender()) returns (uint256) {
-        uint256 requestId = 0;
+        uint256 requestId;
         do {
             _nonce++;
             requestId = uint256(keccak256(abi.encodePacked(block.timestamp, _msgSender(), _nonce)));
@@ -62,12 +62,8 @@ contract Oracle is IOracle, Ownable {
         return requestId;
     }
 
-    function acceptRandomNumberRequest(uint256 requestId) external onlyGame(_msgSender()) {
-        emit RandomNumberRequestEvent(_msgSender(), requestId);
-    }
-
     function publishRandomNumber(uint8[] calldata cards, address callerAddress, uint256 requestId) external onlyOperator {
-        require(_pendingRequests[requestId], "request isn't in pending list");
+        require(_pendingRequests[requestId], "not pending request");
         delete _pendingRequests[requestId];
 
         uint bitCards = toBit(cards);
@@ -79,16 +75,16 @@ contract Oracle is IOracle, Ownable {
         return address(_games);
     }
 
-    function toBit(uint8[] memory cards) public pure returns(uint) {
-        uint bitCards;
-        for (uint i = 0; i < cards.length; i++) {
+    function toBit(uint8[] memory cards) public pure returns(uint256) {
+        uint256 bitCards;
+        for (uint256 i = 0; i < cards.length; i++) {
             bitCards |= (uint256(cards[i]) << (6 * i));
         }
         return bitCards;
     }
 
     function _setOperatorAddress(address operatorAddress) internal {
-        require(operatorAddress != address(0), "invalid operator address");
+        require(operatorAddress != address(0), "invalid address");
         _operator = operatorAddress;
     }
 }

@@ -12,10 +12,6 @@
          _lastRequestId = requestId;
      }
 
-     function acceptRandomNumberRequest(uint256 requestId) external {
-         _oracle.acceptRandomNumberRequest(requestId);
-     }
-
      function _publishResults(uint8[9] memory cards, uint256 gameId) internal {
      }
  }

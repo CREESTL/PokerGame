@@ -59,7 +59,6 @@ contract GameController is IGame, Ownable {
     function _updateRandomNumber() internal {
         uint256 requestId = _oracle.createRandomNumberRequest();
         require(_randomNumbers[requestId].timestamp <= (uint64(block.timestamp) - MIN_TIME_TO_HISTORY_OF_REQUESTS), "requestId already used");
-        _oracle.acceptRandomNumberRequest(requestId);
         _randomNumbers[requestId].status = Status.Pending;
         _lastRequestId = requestId;
     }

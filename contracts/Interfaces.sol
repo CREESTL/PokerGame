@@ -12,8 +12,7 @@ interface IPool {
     
     function getOracleGasFee() external view returns (uint256);
     function getPoolAmount() external view returns (uint256);
-
-    function getJackpot() external view returns (uint256);
+    function jackpot() external view returns (uint256);
 }
 
 interface IGame {
@@ -32,6 +31,5 @@ interface IInternalToken {
 interface IOracle {
     function supportsIOracle() external view returns (bool);
     function createRandomNumberRequest() external returns (uint256);
-    function acceptRandomNumberRequest(uint256 requestId) external;
 }
 

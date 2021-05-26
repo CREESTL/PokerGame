@@ -2,6 +2,7 @@ import 'hardhat-typechain';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
+import "hardhat-gas-reporter";
 
 export default {
   networks: {

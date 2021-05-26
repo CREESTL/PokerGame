@@ -27,7 +27,7 @@ async function pokerFixture(): Promise<PokerFixture> {
   const oracle = await oracleFactory.deploy(owner.address) as Oracle;
 
   const pokerFactory = await ethers.getContractFactory('Poker');
-  const poker = (await pokerFactory.deploy(oracle.address, poolController.address)) as Poker;
+  const poker = (await pokerFactory.deploy(oracle.address, poolController.address, owner.address)) as Poker;
 
   const mockPokerFactory = await ethers.getContractFactory('MockPoker');
   const mockPoker = (await mockPokerFactory.deploy(oracle.address, poolController.address)) as MockPoker;

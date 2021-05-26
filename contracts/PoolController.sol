@@ -30,14 +30,14 @@ contract PoolController is IPool, Context, Ownable {
     event JackpotWin(address player, uint256 amount);
 
     // referral system
-    uint256[7] private _totalWinningsMilestones;
-    uint256[7] private _bonusPercentMilestones;
+    uint256[7] public totalWinningsMilestones;
+    uint256[7] public bonusPercentMilestones;
 
-    uint256 private constant PERCENT100 = 10 ** 6; // 100 %
+    uint256 internal constant PERCENT100 = 10 ** 6; // 100 %
 
     // jackpot
-    uint256 private _jackpot;
-    uint256 private _jackpotLimit; 
+    uint256 public jackpot;
+    uint256 public jackpotLimit; 
 
     mapping (address => RefAccount) refAccounts;
     mapping (address => bool) private whitelist;
@@ -64,26 +64,10 @@ contract PoolController is IPool, Context, Ownable {
         pool.internalToken = xEthCandidate;
         pool.oracleGasFee = 12000000;
         whitelist[_msgSender()] = true;
-        _totalWinningsMilestones = [0, 20000000000, 60000000000, 100000000000, 140000000000, 180000000000, 220000000000];
-        _bonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
-        _jackpot = 500000; // TODO: change to 78000000000 on deploy for test/prod
-        _jackpotLimit = 1000000; // TODO: change to 1950000000000 on deploy for test/prod
-    }
-
-    function getTotalWinningsMilestones() external view returns(uint[7] memory) {
-        return _totalWinningsMilestones;
-    }
-
-    function getBonusPercentMilestones() external view returns(uint[7] memory) {
-        return _bonusPercentMilestones;
-    }
-
-    function getJackpot() external view returns(uint) {
-        return _jackpot;
-    }
-
-    function getJackpotLimit() external view returns(uint) {
-        return _jackpotLimit;
+        totalWinningsMilestones = [0, 20000000000, 60000000000, 100000000000, 140000000000, 180000000000, 220000000000];
+        bonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
+        jackpot = 500000; // TODO: change to 78000000000 on deploy for test/prod
+        jackpotLimit = 1000000; // TODO: change to 1950000000000 on deploy for test/prod
     }
 
     function getGame() external view returns (address) {
@@ -132,36 +116,36 @@ contract PoolController is IPool, Context, Ownable {
     // setters
     function setTotalWinningsMilestones(uint256[] calldata newTotalWinningMilestones) external onlyOwner {
         for(uint256 i = 0; i < 7; i++) {
-            _totalWinningsMilestones[i] = newTotalWinningMilestones[i];
+            totalWinningsMilestones[i] = newTotalWinningMilestones[i];
         }
     }
 
     function setBonusPercentMilestones(uint256[] calldata newBonusPercent) external onlyOwner {
         for(uint256 i = 0; i < 7; i++) {
-            _bonusPercentMilestones[i] = newBonusPercent[i];
+            bonusPercentMilestones[i] = newBonusPercent[i];
         }
     }
 
-    function setJackpot(uint256 jackpot) external onlyOwner {
-        _jackpot = jackpot;
+    function setJackpot(uint256 _jackpot) external onlyOwner {
+        jackpot = _jackpot;
     }
 
-    function setJackpotLimit(uint256 jackpotLimit) external onlyOwner {
-        _jackpotLimit = jackpotLimit;
+    function setJackpotLimit(uint256 _jackpotLimit) external onlyOwner {
+        jackpotLimit = _jackpotLimit;
     }
 
     function updateJackpot(uint256 amount) external onlyGame {
-        _jackpot = _jackpot.add(amount);
+        jackpot = jackpot.add(amount);
     }
 
     function jackpotDistribution(address payable player) external onlyGame returns (bool) {
         uint256 jackpotAmount;
-        if (_jackpot > _jackpotLimit) {
-            jackpotAmount = _jackpotLimit;
-            _jackpot = _jackpot.sub(_jackpotLimit);
+        if (jackpot > jackpotLimit) {
+            jackpotAmount = jackpotLimit;
+            jackpot = jackpot.sub(jackpotLimit);
         } else {
-            jackpotAmount = _jackpot;
-            _jackpot = 0;
+            jackpotAmount = jackpot;
+            jackpot = 0;
         }
         _rewardDistribution(player, jackpotAmount);
         emit JackpotWin(player, jackpotAmount);
@@ -197,7 +181,7 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function deposit(address _to) external payable {
-        // require(whitelist[_msgSender()], 'Deposit not allowed');
+        require(whitelist[_msgSender()], 'Deposit not allowed');
         _deposit(_to, msg.value);
     }
 
@@ -254,9 +238,9 @@ contract PoolController is IPool, Context, Ownable {
 
     function _updateReferralBonusRank(address parent) internal {
         uint currentBonus;
-        for (uint i = 0; i < _totalWinningsMilestones.length; i++) {
-            if (_totalWinningsMilestones[i] < refAccounts[parent].totalWinnings) {
-                currentBonus = _bonusPercentMilestones[i];
+        for (uint i = 0; i < totalWinningsMilestones.length; i++) {
+            if (totalWinningsMilestones[i] < refAccounts[parent].totalWinnings) {
+                currentBonus = bonusPercentMilestones[i];
             }
         }
         refAccounts[parent].bonusPercent = currentBonus;
