@@ -6,7 +6,7 @@ import "./Interfaces.sol";
 
 
 contract Oracle is IOracle, Ownable {
-    IGame internal _games;
+    IGame internal _game;
     address internal _operator;
     string internal _owner;
     uint256 internal _nonce;
@@ -17,12 +17,7 @@ contract Oracle is IOracle, Ownable {
     event RandomNumberEvent(uint bitCards, address indexed callerAddress, uint256 indexed requestId);
 
     modifier onlyGame(address sender) {
-        require(sender == address(_games), "O: not game");
-        _;
-    }
-
-    modifier onlyOperator() {
-        require(_msgSender() == _operator, "O: not operator");
+        require(sender == address(_game), "O: not game");
         _;
     }
 
@@ -45,7 +40,7 @@ contract Oracle is IOracle, Ownable {
 
     function setGame(address gameAddress) external onlyOwner {
         IGame game = IGame(gameAddress);
-        _games = game;
+        _game = game;
     }
 
     function getPendingRequests(uint256 requestId) external view onlyOwner returns (bool) {
@@ -62,17 +57,8 @@ contract Oracle is IOracle, Ownable {
         return requestId;
     }
 
-    function publishRandomNumber(uint8[] calldata cards, address callerAddress, uint256 requestId) external onlyOperator {
-        require(_pendingRequests[requestId], "not pending request");
-        delete _pendingRequests[requestId];
-
-        uint bitCards = toBit(cards);
-        IGame(callerAddress).__callback(cards, requestId, bitCards);
-        emit RandomNumberEvent(bitCards, callerAddress, requestId);
-    }
-
     function getGame() public view returns (address) {
-        return address(_games);
+        return address(_game);
     }
 
     function toBit(uint8[] memory cards) public pure returns(uint256) {

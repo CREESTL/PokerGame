@@ -1,8 +1,10 @@
 import 'hardhat-typechain';
+import "hardhat-gas-reporter";
+import "@nomiclabs/hardhat-solhint";
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
-import "hardhat-gas-reporter";
+import "solidity-coverage";
 
 export default {
   networks: {
@@ -21,7 +23,7 @@ export default {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 800,
+        runs: 999999,
       },
     },
   },

@@ -9,12 +9,13 @@ import "./libraries/CheapMath.sol";
 
 contract Poker is GameController {
     using SafeMath for uint256;
+    using SafeMath for uint128;
     using SafeMath for uint8;
 
     enum GameResults { Lose, Draw, Win, Jackpot }
     
     uint256 public _maxBet;
-    address internal _operator;
+    address public _operator;
 
     struct Hand {
         uint8[7] ranks;
@@ -24,9 +25,10 @@ contract Poker is GameController {
     }
 
     struct Game {
-        uint256 betColor;
-        uint256 betPoker;
-        uint256 winAmount;
+        uint128 betColor;
+        uint128 betPoker;
+        uint128 winAmount;
+        uint128 refAmount;
         address payable player;
         uint8 chosenColor;
         bool isWinAmountClaimed;
@@ -34,19 +36,23 @@ contract Poker is GameController {
 
     uint256 public houseEdge;
     uint256 public jackpotFeeMultiplier;
-    address payable private _poolControllerPayable;
 
     event PokerResult(uint256 winAmount, bool winColor, GameResults winPoker, uint256 requestId, uint256 cards, address player);
-    event GameStart(address player, uint256 requestId, uint256 betPoker, uint256 betColor, uint8 chosenColor);
+    event GameStart(uint256 requestId);
+    event WinAmountClaimed(uint256 requestId);
 
     IPool private _poolController;
     mapping(uint256 => Game) public games;
+
+    modifier onlyOperator() {
+        require(msg.sender == _operator, "p: not operator");
+        _;
+    }
 
     constructor (address oracleAddress, address poolControllerAddress, address operator) public GameController(oracleAddress){
         _setPoolController(poolControllerAddress);
         houseEdge = 15;
         jackpotFeeMultiplier = 2;
-        _poolControllerPayable = address(uint160(poolControllerAddress));
         _operator = operator;
     }
 
@@ -54,11 +60,15 @@ contract Poker is GameController {
         _setPoolController(poolControllerAddress);
     }
 
+    function setOperator(address operator) external onlyOwner {
+        _operator = operator;
+    }
+
     function getPoolController() external view returns(address){
         return address(_poolController);
     }
 
-    function setMaxBet(uint256 maxBet) external onlyOwner {
+    function setMaxBet(uint256 maxBet) external onlyOperator {
         _maxBet = maxBet;
     }
 
@@ -70,14 +80,39 @@ contract Poker is GameController {
         jackpotFeeMultiplier = _jackpotFeeMultiplier;
     }
     
-    function setGameWinAmount(uint256 requestid, uint256 winAmount) external {
-        require(msg.sender == _operator, 'P: Not operator');
+    function setGameResult(uint256 requestid, uint128 winAmount, uint128 refAmount, uint64 bitCards) external onlyOperator {
         games[requestid].winAmount = winAmount;
+        games[requestid].refAmount = refAmount;
+        __callback(bitCards, requestid);
     }
 
-    function play(uint256 betColor, uint8 chosenColor) external payable {
+    function sendFundsToPool() external onlyOperator {
+        _poolController.receiveFundsFromGame.value(address(this).balance)();
+    }
+    
+    function claimWinAmount(uint256 requestId) external {
+        require(games[requestId].player == _msgSender() && !games[requestId].isWinAmountClaimed, 'p: not valid claim');
+        address payable player = games[requestId].player;
+        uint256 winAmount = games[requestId].winAmount;
+        uint256 refAmount = games[requestId].refAmount;
+
+        if (winAmount >= _poolController.jackpot()) {
+            _poolController.jackpotDistribution(player);
+        } else {
+            _poolController.rewardDisribution(player, winAmount);
+        }
+
+        games[requestId].isWinAmountClaimed = true;
+
+        _poolController.updateReferralStats(player, winAmount, refAmount);
+        _poolController.rewardDisribution(player, winAmount);
+        
+        emit WinAmountClaimed(requestId);
+    }
+
+    function play(uint256 betColor, uint256 chosenColor) external payable {
         uint256 msgValue = msg.value;
-        uint256 betPoker = uint256(msgValue.sub(betColor));
+        uint256 betPoker = msgValue.sub(betColor);
 
         _isValidBet(msgValue);
         
@@ -88,12 +123,14 @@ contract Poker is GameController {
         super._updateRandomNumber();
 
         Game storage game = games[_lastRequestId];
-        game.betColor = betColor;
-        game.betPoker = betPoker;
-        game.chosenColor = chosenColor;
+        game.betColor = uint128(betColor);
+        game.betPoker = uint128(betPoker);
+        if (chosenColor > 0) {
+            game.chosenColor = uint8(chosenColor);
+        }
         game.player = player;
 
-        emit GameStart(player, _lastRequestId, betPoker, betColor, chosenColor);
+        emit GameStart(_lastRequestId);
     }
 
     function calculateWinAmount(uint256 requestId, GameResults winPoker, bool winColor) external view returns(uint256, uint256, uint256) {
@@ -131,48 +168,6 @@ contract Poker is GameController {
 
         return (winPokerAmount, winColorAmount, referralBonus);
     }
-
-    // function _publishResults(uint8[] memory cards, uint256 requestId, uint256 bitCards) internal {
-    //     uint256 winAmount;
-    //     uint256 betColorEdge;
-    //     uint256 betPoker = games[requestId].betPoker;
-    //     uint256 betColor = games[requestId].betColor;
-    //     uint256 jackPotAdder = betPoker.mul(jackpotFeeMultiplier).div(1000);
-    //     uint256 betPokerEdge = betPoker.mul(houseEdge).div(1000);
-    //     address payable player = games[requestId].player;
-    //     bool colorWin = false;
-        
-    //     if (games[requestId].betColor > 0) {
-    //         uint8[] memory colorCards = new uint8[](3);
-    //         for (uint256 i = 2; i < 5; i++) {
-    //             colorCards[i - 2] = cards[i];
-    //         }
-    //         if (getColorResult(requestId, colorCards)) {
-    //             betColorEdge = betColor.mul(houseEdge).div(1000);
-    //             winAmount = betColor.mul(jackpotFeeMultiplier).sub(betColorEdge);
-    //             colorWin = true;
-    //         }
-    //     }
-    //     GameResults winPoker = getPokerResult(cards);
-
-    //     if (winPoker == GameResults.Draw) {
-    //         winAmount = winAmount.add(betPoker.sub(betPokerEdge + jackPotAdder));
-    //     } else if (winPoker == GameResults.Win) {
-    //         winAmount = winAmount.add(betPoker.mul(2).sub(betPokerEdge + jackPotAdder));
-    //     } else if (winPoker == GameResults.Jackpot) {
-    //         _poolController.jackpotDistribution(player);
-    //     }
-
-    //     if (winAmount > 0) {
-    //         _poolController.rewardDisribution(player, winAmount);
-    //         uint256 refBonus = betPokerEdge;
-    //         if (colorWin) refBonus = refBonus.add(betColorEdge);
-    //         if (winPoker != GameResults.Draw) {
-    //             _poolController.updateReferralStats(player, winAmount, refBonus);
-    //         }
-    //     }
-    //     emit PokerResult(winAmount, colorWin, winPoker, requestId, bitCards, player);
-    // }
 
     function getPokerResult(uint8[] memory _cardsArray) public pure returns(GameResults) {
         Hand memory player;
@@ -213,7 +208,7 @@ contract Poker is GameController {
 
     function _setPoolController(address poolAddress) internal {
         IPool poolCandidate = IPool(poolAddress);
-        require(poolCandidate.supportsIPool(), "poolAddress must be IPool");
+        require(poolCandidate.supportsIPool(), "p: poolAddress not IPool");
         _poolController = poolCandidate;
     }
 
@@ -430,6 +425,6 @@ contract Poker is GameController {
 
     function _isValidBet(uint256 betValue) internal view {
         uint256 gasFee = _poolController.getOracleGasFee();
-        require(betValue.mul(1000) > gasFee.mul(1015) && betValue <= _maxBet, 'P: bad bet');
+        require(betValue.mul(1000) > gasFee.mul(1015) && betValue <= _maxBet, 'p: bad bet');
     }
 }

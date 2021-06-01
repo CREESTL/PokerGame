@@ -66,8 +66,8 @@ contract PoolController is IPool, Context, Ownable {
         whitelist[_msgSender()] = true;
         totalWinningsMilestones = [0, 20000000000, 60000000000, 100000000000, 140000000000, 180000000000, 220000000000];
         bonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
-        jackpot = 500000; // TODO: change to 78000000000 on deploy for test/prod
-        jackpotLimit = 1000000; // TODO: change to 1950000000000 on deploy for test/prod
+        jackpot = 500000000000; // TODO: change to 78000000000 on deploy for test/prod
+        jackpotLimit = 1000000000000; // TODO: change to 1950000000000 on deploy for test/prod
     }
 
     function getGame() external view returns (address) {
@@ -138,7 +138,9 @@ contract PoolController is IPool, Context, Ownable {
         jackpot = jackpot.add(amount);
     }
 
-    function jackpotDistribution(address payable player) external onlyGame returns (bool) {
+    function receiveFundsFromGame() external payable {}
+
+    function jackpotDistribution(address payable player) external onlyGame {
         uint256 jackpotAmount;
         if (jackpot > jackpotLimit) {
             jackpotAmount = jackpotLimit;
@@ -149,7 +151,6 @@ contract PoolController is IPool, Context, Ownable {
         }
         _rewardDistribution(player, jackpotAmount);
         emit JackpotWin(player, jackpotAmount);
-        return true;
     }
 
     function updateReferralStats(address referral, uint256 amount, uint256 betEdge) external onlyGame {
@@ -164,9 +165,9 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function addBetToPool(uint256 betAmount) external onlyGame payable {
-        uint256 oracleFeeAmount = pool.oracleGasFee;
-        pool.amount = pool.amount.add(betAmount).sub(oracleFeeAmount);
-        pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleFeeAmount);
+        uint256 oracleGasFee = pool.oracleGasFee;
+        pool.amount = pool.amount.add(betAmount).sub(oracleGasFee);
+        pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleGasFee);
     }
 
     function rewardDisribution(address payable player, uint256 prize) public onlyGame returns (bool) {

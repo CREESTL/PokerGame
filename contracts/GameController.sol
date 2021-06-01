@@ -11,7 +11,7 @@ contract GameController is IGame, Ownable {
     enum Status { Unknown, Pending, Result }
 
     struct Numbers {
-        uint8[] result;
+        uint64 result;
         uint64 timestamp;
         Status status;
     }
@@ -21,11 +21,6 @@ contract GameController is IGame, Ownable {
     IOracle internal _oracle;
     uint256 internal _lastRequestId;
     mapping(uint256 => Numbers) internal _randomNumbers; // requestId -> Numbers
-
-    modifier onlyOracle() {
-        require(msg.sender == address(_oracle), "caller is not the oracle");
-        _;
-    }
 
     constructor (address oracleAddress) public {
         _setOracle(oracleAddress);
@@ -39,6 +34,14 @@ contract GameController is IGame, Ownable {
         return address(_oracle);
     }
 
+    function getRandomNumberInfo(uint256 requestId) public view onlyOwner returns(uint64, uint64, Status) {
+        return (
+            _randomNumbers[requestId].result,
+            _randomNumbers[requestId].timestamp,
+            _randomNumbers[requestId].status
+        );
+    }
+
     function setOracle(address oracleAddress) external onlyOwner {
         _setOracle(oracleAddress);
     }
@@ -47,27 +50,24 @@ contract GameController is IGame, Ownable {
         return _lastRequestId;
     }
 
-    function __callback(uint8[] calldata cards, uint256 requestId, uint256 bitCards) external onlyOracle {
+    function __callback(uint64 bitCards, uint256 requestId) internal {
         Numbers storage number = _randomNumbers[requestId];
         number.timestamp = uint64(block.timestamp);
-        require(number.status == Status.Pending, "request already closed");
+        require(number.status == Status.Pending, "gc: request is closed");
         number.status = Status.Result;
-        number.result = cards;
-        _publishResults(cards, requestId, bitCards);
+        number.result = bitCards;
     }
 
     function _updateRandomNumber() internal {
         uint256 requestId = _oracle.createRandomNumberRequest();
-        require(_randomNumbers[requestId].timestamp <= (uint64(block.timestamp) - MIN_TIME_TO_HISTORY_OF_REQUESTS), "requestId already used");
+        require(_randomNumbers[requestId].timestamp <= (uint64(block.timestamp) - MIN_TIME_TO_HISTORY_OF_REQUESTS), "gc: requestId is used");
         _randomNumbers[requestId].status = Status.Pending;
         _lastRequestId = requestId;
     }
 
     function _setOracle(address oracleAddress) internal {
         IOracle iOracleCandidate = IOracle(oracleAddress);
-        require(iOracleCandidate.supportsIOracle(), "invalid IOracle address");
+        require(iOracleCandidate.supportsIOracle(), "gc: invalid IOracle address");
         _oracle = iOracleCandidate;
     }
-
-    function _publishResults(uint8[] memory cards, uint256 gameId, uint256 bitCards) internal {}
 }
