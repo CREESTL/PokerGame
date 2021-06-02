@@ -40,7 +40,7 @@ contract PoolController is IPool, Context, Ownable {
     uint256 public jackpotLimit; 
 
     mapping (address => RefAccount) refAccounts;
-    mapping (address => bool) private whitelist;
+    mapping (address => bool) public whitelist;
 
     address private _oracleOperator;
     IGame private _game;
@@ -69,6 +69,16 @@ contract PoolController is IPool, Context, Ownable {
         jackpot = 500000000000; // TODO: change to 78000000000 on deploy for test/prod
         jackpotLimit = 1000000000000; // TODO: change to 1950000000000 on deploy for test/prod
     }
+
+    function getTotalWinningsMilestones() external view returns(uint[7] memory) {
+        return totalWinningsMilestones;
+    }
+
+    function getBonusPercentMilestones() external view returns(uint[7] memory) {
+        return bonusPercentMilestones;
+    }
+
+
 
     function getGame() external view returns (address) {
         return address(_game);

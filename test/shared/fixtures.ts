@@ -40,6 +40,8 @@ export const contractsFixture: Fixture<PokerFixture> = async function (): Promis
   await oracle.setOperatorAddress(owner.address);
 
   await poker.setMaxBet('10000000000000');
+  await poolController.deposit(owner.address, { value: 100000000000 });
+
 
   return {
     xTRX,

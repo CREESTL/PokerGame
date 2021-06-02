@@ -176,8 +176,6 @@ describe('Poker', () => {
 
   describe('game workflow', async () => {
     it('checking play workflow, user wins poker and color', async () => {
-      expect (await xTRX.balanceOf(wallet.address)).to.equal(0);
-      await poolController.deposit(wallet.address, { value: 100000000000 });
       expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
@@ -212,8 +210,6 @@ describe('Poker', () => {
     });
 
     it('checking play workflow, user loses poker and wins color', async () => {
-      expect (await xTRX.balanceOf(wallet.address)).to.equal(0);
-      await poolController.deposit(wallet.address, { value: 100000000000 });
       expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
@@ -249,8 +245,6 @@ describe('Poker', () => {
     });
 
     it('checking play workflow, user loses poker and loses color', async () => {
-      expect (await xTRX.balanceOf(wallet.address)).to.equal(0);
-      await poolController.deposit(wallet.address, { value: 100000000000 });
       expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
@@ -286,8 +280,6 @@ describe('Poker', () => {
     });
 
     it('checking play workflow, draw poker and loses color', async () => {
-      expect (await xTRX.balanceOf(wallet.address)).to.equal(0);
-      await poolController.deposit(wallet.address, { value: 100000000000 });
       expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
@@ -324,8 +316,6 @@ describe('Poker', () => {
     });
 
     it('checking play workflow, user wins jackpot and loses color', async () => {
-      expect (await xTRX.balanceOf(wallet.address)).to.equal(0);
-      await poolController.deposit(wallet.address, { value: 100000000000 });
       expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
