@@ -49,6 +49,7 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "coverage": "hardhat coverage"
+    "coverage": "hardhat coverage",
+    "flatten": "hardhat flatten contracts/Poker.sol > contracts/flattened/Poker.sol && hardhat flatten contracts/PoolController.sol > contracts/flattened/PoolController.sol && hardhat flatten contracts/Oracle.sol > contracts/flattened/Oracle.sol && hardhat flatten contracts/XTRXToken.sol > contracts/flattened/XTRXToken.sol"
   }
 }
