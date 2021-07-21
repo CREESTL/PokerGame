@@ -9,7 +9,7 @@ module.exports = {
       originEnergyLimit: 1e7
     },
     shasta: {
-      privateKey: process.env.PRIVATE_KEY_SHASTA,
+      privateKey: '',
       // userFeePercentage: 50,
       feeLimit: 1e9,
       fullHost: 'https://api.shasta.trongrid.io',
