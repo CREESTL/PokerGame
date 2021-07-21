@@ -62,7 +62,7 @@ contract PoolController is IPool, Context, Ownable {
         IInternalToken xEthCandidate = IInternalToken(xEthTokenAddress);
         require(xEthCandidate.supportsIInternalToken(), "invalid xTRX address");
         pool.internalToken = xEthCandidate;
-        pool.oracleGasFee = 12000000;
+        pool.oracleGasFee = 3000000;
         whitelist[_msgSender()] = true;
         totalWinningsMilestones = [0, 20000000000, 60000000000, 100000000000, 140000000000, 180000000000, 220000000000];
         bonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];

@@ -157,7 +157,7 @@ describe('Poker', () => {
       await poker.play(100000000, 0, { value: 100000000 });
     }
     poolInfo = await poolController.getPoolInfo();
-    expect(poolInfo[3]).to.equal(120000000);
+    expect(poolInfo[3]).to.equal(30000000);
     await poolController.takeOracleFee();
     poolInfo = await poolController.getPoolInfo();
     expect(poolInfo[3]).to.equal(0);

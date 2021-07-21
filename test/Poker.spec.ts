@@ -182,7 +182,7 @@ describe('Poker', () => {
       // @ts-ignore
       await poker.play(0, 0, { from: wallet.address, value: 100000000 });
       poolInfo = await poolController.getPoolInfo();
-      expect(poolInfo[1]).to.equal(100088000000);
+      expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
       const winPoker = await poker.getPokerResult(winCards);
       const winColor = await poker.getColorResult(requestId, evenWinColorCards);
@@ -216,7 +216,7 @@ describe('Poker', () => {
       // @ts-ignore
       await poker.play(10000000, 0, { from: wallet.address, value: 100000000 });
       poolInfo = await poolController.getPoolInfo();
-      expect(poolInfo[1]).to.equal(100088000000);
+      expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
       const winPoker = await poker.getPokerResult(computerWinsCards);
       const winColor = await poker.getColorResult(requestId, evenWinColorCards);
@@ -251,7 +251,7 @@ describe('Poker', () => {
       // @ts-ignore
       await poker.play(10000000, 0, { from: wallet.address, value: 100000000 });
       poolInfo = await poolController.getPoolInfo();
-      expect(poolInfo[1]).to.equal(100088000000);
+      expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
       const winPoker = await poker.getPokerResult(computerWinsCards);
       const winColor = await poker.getColorResult(requestId, oddWinColorCards);
@@ -286,7 +286,7 @@ describe('Poker', () => {
       // @ts-ignore
       await poker.play(10000000, 0, { from: wallet.address, value: 100000000 });
       poolInfo = await poolController.getPoolInfo();
-      expect(poolInfo[1]).to.equal(100088000000);
+      expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
       const winPoker = await poker.getPokerResult(drawCards);
       const winColor = await poker.getColorResult(requestId, oddWinColorCards);
@@ -322,7 +322,7 @@ describe('Poker', () => {
       // @ts-ignore
       await poker.play(10000000, 0, { from: wallet.address, value: 100000000 });
       poolInfo = await poolController.getPoolInfo();
-      expect(poolInfo[1]).to.equal(100088000000);
+      expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
       const winPoker = await poker.getPokerResult(winJackpotCards);
       const winColor = await poker.getColorResult(requestId, oddWinColorCards);
