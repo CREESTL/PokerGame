@@ -117,7 +117,7 @@ contract Poker is GameController {
         _isValidBet(msgValue);
         
         address payable player = _msgSender();
-        _poolController.addBetToPool.value(msgValue)(msgValue);
+        _poolController.addBetToPool(msgValue);
         _poolController.updateJackpot(betPoker.mul(jackpotFeeMultiplier).div(1000));
         
         super._updateRandomNumber();
