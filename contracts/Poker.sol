@@ -105,7 +105,7 @@ contract Poker is GameController {
         games[requestId].isWinAmountClaimed = true;
 
         _poolController.updateReferralStats(player, winAmount, refAmount);
-        _poolController.rewardDisribution(player, winAmount);
+        // _poolController.rewardDisribution(player, winAmount);
         
         emit WinAmountClaimed(requestId);
     }
