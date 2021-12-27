@@ -27,6 +27,7 @@ contract Poker is GameController, Pausable{
     mapping(uint => Game) internal games;
 
     event PokerResult(uint8[] cards, address player, bool win, uint requestId);
+    event Jackpot(address indexed player);
 
     IPool internal _poolController;
 
@@ -67,7 +68,7 @@ contract Poker is GameController, Pausable{
         // uint maxWin = _poolController.maxBet(10); // pseudocode
         // uint potentialWin = msg.value.mul(2);
         // require(potentialWin <= maxWin, "incorrectly large bet");
-        
+
         _poolController.addBetToPool(msg.value);
         if (_randomNumbers[_lastRequestId].status != Status.Pending) {
             super._updateRandomNumber();
@@ -104,13 +105,13 @@ contract Poker is GameController, Pausable{
         (computer.hand ,computer.kickers) = evaluateHand(computer.cards, computer.ranks);
 
         win = determineWinnerPoker(player.hand ,player.kickers, computer.hand, computer.kickers);
-        return win;      
+        return win;
     }
 
     function sort(uint8[7] memory dataRanks, uint8[7] memory dataCards,uint low, uint high) pure internal {
         if (low < high) {
             uint pivotVal = dataRanks[(low + high) / 2];
-        
+
             uint low1 = low;
             uint high1 = high;
             for (;;) {
@@ -156,7 +157,7 @@ contract Poker is GameController, Pausable{
         }
         return false;
     }
-    
+
     function evaluateHand(uint8[7] memory cardsArray, uint8[7] memory ranksArray) public pure returns(uint8, int8[7] memory) {
         uint8 strongestHand = 0;
         // get kickers
@@ -169,7 +170,7 @@ contract Poker is GameController, Pausable{
         uint8 i;
         // write pairs and triples, triple always 1st
         int8[2] memory pairs = [-1, -1];
-        
+
         uint8 streetChecker = 1;
         // check for street flush
         uint8 flushWinSuit;
@@ -283,7 +284,7 @@ contract Poker is GameController, Pausable{
             }
             return (strongestHand, retOrder);
         }
-        
+
 
         if (strongestHand < 3) {
             // two pairs
@@ -349,10 +350,13 @@ contract Poker is GameController, Pausable{
             winAmount = winAmount.add(games[requestId].betPoker.mul(2).sub(betPokerEdge + jackPotAdder));
         }
         if (winPoker == 3) {
-            _poolController.jackpotDistribution(games[requestId].player);
+            address player = games[requestId].player;
+            _poolController.jackpotDistribution(player);
+            IRandomMinter(_randomMinter).mintRandomFree(1, player);
+            emit Jackpot(player);
         }
         if(winAmount > 0) {
-            emit PokerResult(cards, games[requestId].player, true, requestId); 
+            emit PokerResult(cards, games[requestId].player, true, requestId);
             _poolController.rewardDisribution(games[requestId].player, winAmount);
             _poolController.updateReferralTotalWinnings(games[requestId].player, winAmount);
             _poolController.updateReferralEarningsBalance(games[requestId].player, (betColorEdge.add(betPokerEdge)).div(100));
