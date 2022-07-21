@@ -150,15 +150,16 @@ contract PoolController is IPool, Context, Ownable {
 
     function receiveFundsFromGame() external payable {}
 
-    function jackpotDistribution(address payable player) external onlyGame {
-        uint256 jackpotAmount;
-        if (jackpot > jackpotLimit) {
+    function jackpotDistribution(address payable player, uint256 prize) external onlyGame {
+        uint256 jackpotAmount = prize;
+        if (jackpotAmount > jackpotLimit) {
             jackpotAmount = jackpotLimit;
-            jackpot = jackpot.sub(jackpotLimit);
-        } else {
-            jackpotAmount = jackpot;
-            jackpot = 0;
         }
+        if (jackpotAmount > jackpot) {
+            jackpotAmount = jackpot;
+        }
+
+        jackpot = jackpot.sub(jackpotAmount);
         _rewardDistribution(player, jackpotAmount);
         emit JackpotWin(player, jackpotAmount);
     }

@@ -4,7 +4,7 @@ interface IPool {
     function supportsIPool() external view returns (bool);
     function addBetToPool(uint256 betAmount) external payable;
 
-    function jackpotDistribution(address payable player) external;
+    function jackpotDistribution(address payable player, uint256 prize) external;
     function rewardDisribution(address payable player, uint256 prize) external returns (bool);
     function updateJackpot(uint amount) external;
 

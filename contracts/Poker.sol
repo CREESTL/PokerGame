@@ -32,6 +32,7 @@ contract Poker is GameController {
         address payable player;
         uint8 chosenColor;
         bool isWinAmountClaimed;
+        bool isJackpot;
     }
 
     uint256 public houseEdge;
@@ -80,9 +81,10 @@ contract Poker is GameController {
         jackpotFeeMultiplier = _jackpotFeeMultiplier;
     }
     
-    function setGameResult(uint256 requestid, uint128 winAmount, uint128 refAmount, uint64 bitCards) external onlyOperator {
+    function setGameResult(uint256 requestid, uint128 winAmount, uint128 refAmount, bool isJackpot, uint64 bitCards) external onlyOperator {
         games[requestid].winAmount = winAmount;
         games[requestid].refAmount = refAmount;
+        games[requestid].isJackpot = isJackpot;
         __callback(bitCards, requestid);
     }
 
@@ -98,8 +100,8 @@ contract Poker is GameController {
         uint256 winAmount = games[requestId].winAmount;
         uint256 refAmount = games[requestId].refAmount;
 
-        if (winAmount >= _poolController.jackpot()) {
-            _poolController.jackpotDistribution(player);
+        if (games[requestId].isJackpot) {
+            _poolController.jackpotDistribution(player, winAmount);
         } else {
             _poolController.rewardDisribution(player, winAmount);
         }
