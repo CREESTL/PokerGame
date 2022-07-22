@@ -181,9 +181,8 @@ contract PoolController is IPool, Context, Ownable {
         pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleGasFee);
     }
 
-    function rewardDisribution(address payable player, uint256 prize) public onlyGame returns (bool) {
+    function rewardDisribution(address payable player, uint256 prize) public onlyGame {
         _rewardDistribution(player, prize);
-        return true;
     }
 
     function withdrawReferralEarnings(address payable player) external {
@@ -264,12 +263,9 @@ contract PoolController is IPool, Context, Ownable {
         return (pool.amount).mul(PERCENT100).div(pool.internalToken.totalSupply());
     }
 
-    function _rewardDistribution(address payable player, uint256 prize) internal returns (bool) {
-        if (address(this).balance < prize) {
-            return false;
-        }
+    function _rewardDistribution(address payable player, uint256 prize) internal {
+        require(prize <= address(this).balance, "amount exceeds balance");
         pool.amount = pool.amount.sub(prize);
         player.transfer(prize);
-        return true;
     }
 }
