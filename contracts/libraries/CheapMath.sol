@@ -1,4 +1,5 @@
-pragma solidity >0.4.18 < 0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
 library CheapMath {
     function add(uint256 x, uint256 y) internal pure returns (uint256 z) {

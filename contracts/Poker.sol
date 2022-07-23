@@ -1,7 +1,7 @@
-pragma solidity >0.4.18 < 0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
-// import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Interfaces.sol";
 import "./GameController.sol";
 import "./libraries/CheapMath.sol";

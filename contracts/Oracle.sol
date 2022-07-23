@@ -1,7 +1,8 @@
-pragma solidity >0.4.18 < 0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/ownership/Ownable.sol";
-import "@openzeppelin/contracts/GSN/Context.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+// import "@openzeppelin/contracts/GSN/Context.sol";
 import "./Interfaces.sol";
 
 

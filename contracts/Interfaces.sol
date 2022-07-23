@@ -1,4 +1,5 @@
-pragma solidity >=0.4.4 < 0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
 interface IPool {
     function supportsIPool() external view returns (bool);

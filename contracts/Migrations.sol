@@ -1,4 +1,5 @@
-pragma solidity >0.4.18 < 0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
 
 contract Migrations {
@@ -11,7 +12,7 @@ contract Migrations {
         }
     }
 
-    constructor() public {
+    constructor() {
         owner = msg.sender;
     }
 

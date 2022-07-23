@@ -1,14 +1,15 @@
-pragma solidity >=0.4.4 < 0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
-import "@openzeppelin/contracts/GSN/Context.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Interfaces.sol";
 
 
-contract XTRXToken is ERC20Detailed, IInternalToken, ERC20Burnable, Ownable {
+contract XTRXToken is IERC20Metadata, IInternalToken, ERC20Burnable, Ownable {
     using SafeMath for uint256;
 
 //    mapping (address => bool) internal _burnerAddresses; // TODO: remove all unused code
@@ -24,7 +25,7 @@ contract XTRXToken is ERC20Detailed, IInternalToken, ERC20Burnable, Ownable {
         _;
     }
 
-    constructor() ERC20Detailed("xEthereum", "xTRX", 18) public {
+    constructor() ERC20("xEthereum", "xTRX", 18) public {
 //        _burnerAddresses[_msgSender()] = true;
     }
 
