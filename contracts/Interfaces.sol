@@ -29,8 +29,6 @@ interface IInternalToken is IERC20{
     function supportsIInternalToken() external view returns (bool);
     function burnTokenFrom(address account, uint256 amount) external;
     function mint(address recipient, uint256 amount) external;
-    //function totalSupply() external view returns (uint256);
-    //function balanceOf(address account) external view returns (uint256);
 
 }
 
