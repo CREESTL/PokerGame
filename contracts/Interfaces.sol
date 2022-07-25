@@ -6,7 +6,7 @@ interface IPool {
     function addBetToPool(uint256 betAmount) external payable;
 
     function jackpotDistribution(address payable player, uint256 prize) external;
-    function rewardDisribution(address payable player, uint256 prize) external returns (bool);
+    function rewardDisribution(address payable player, uint256 prize) external;
     function updateJackpot(uint amount) external;
 
     function updateReferralStats(address player, uint amount, uint256 betEdge) external;
@@ -25,10 +25,7 @@ interface IGame {
 
 interface IInternalToken {
     function supportsIInternalToken() external view returns (bool);
-    function mint(address recipient, uint256 amount) external;
     function burnTokenFrom(address account, uint256 amount) external;
-    function totalSupply() external view returns (uint256);
-    function balanceOf(address account) external view returns (uint256);
 }
 
 interface IOracle {
