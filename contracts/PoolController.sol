@@ -45,7 +45,7 @@ contract PoolController is IPool, Context, Ownable {
     Pool private pool;
 
     modifier onlyGame() {
-        require(_msgSender() == address(_game), "caller is not allowed to do some");
+        require(_msgSender() == address(_game), "Caller is not the game owner!");
         _;
     }
 
@@ -53,7 +53,7 @@ contract PoolController is IPool, Context, Ownable {
         require(_msgSender() == _oracleOperator, "caller is not the operator");
         _;
     }
-    // maybe take all of this as arguments for constructor
+    // TODO maybe take all of this as arguments for constructor
     constructor (address xEthTokenAddress) {
         IInternalToken xEthCandidate = IInternalToken(xEthTokenAddress);
         require(xEthCandidate.supportsIInternalToken(), "invalid xTRX address");
@@ -99,6 +99,10 @@ contract PoolController is IPool, Context, Ownable {
 
     function getPoolAmount() external view returns (uint256) {
         return pool.amount;
+    }
+
+    function getPoolAddress() external view returns (address) {
+        return address(pool.internalToken);
     }
 
     function getOracleGasFee() external view returns (uint256) {
