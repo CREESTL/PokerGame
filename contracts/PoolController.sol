@@ -54,9 +54,7 @@ contract PoolController is IPool, Context, Ownable {
         _;
     }
     // maybe take all of this as arguments for constructor
-    constructor (
-        address xEthTokenAddress
-    ) public {
+    constructor (address xEthTokenAddress) {
         IInternalToken xEthCandidate = IInternalToken(xEthTokenAddress);
         require(xEthCandidate.supportsIInternalToken(), "invalid xTRX address");
         pool.internalToken = xEthCandidate;
@@ -82,7 +80,7 @@ contract PoolController is IPool, Context, Ownable {
         return address(_game);
     }
 
-    function supportsIPool() external view returns (bool) {
+    function supportsIPool() external pure returns (bool) {
         return true;
     }
 
@@ -198,7 +196,7 @@ contract PoolController is IPool, Context, Ownable {
         require(pool.internalToken.balanceOf(_msgSender()) >= amount, "amount exceeds balance");
         uint256 withdrawAmount = amount.mul(_getPrice()).div(PERCENT100);
         pool.amount = pool.amount.sub(withdrawAmount);
-        _msgSender().transfer(withdrawAmount);
+        payable(_msgSender()).transfer(withdrawAmount);
         pool.internalToken.burnTokenFrom(_msgSender(), amount);
     }
 
@@ -227,7 +225,7 @@ contract PoolController is IPool, Context, Ownable {
     function takeOracleFee() external onlyOracleOperator {
         uint256 oracleFeeAmount = pool.oracleFeeAmount;
         pool.oracleFeeAmount = 0;
-        _msgSender().transfer(oracleFeeAmount);
+        payable(_msgSender()).transfer(oracleFeeAmount);
     }
 
     function addRef(address parent, address son) external {

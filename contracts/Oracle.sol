@@ -22,12 +22,12 @@ contract Oracle is IOracle, Ownable {
         _;
     }
 
-    constructor (address operatorAddress) public {
+    constructor (address operatorAddress) {
         _nonce = 0;
         _setOperatorAddress(operatorAddress);
     }
 
-    function supportsIOracle() external view returns (bool) {
+    function supportsIOracle() external pure returns (bool) {
         return true;
     }
 

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 interface IPool {
     function supportsIPool() external view returns (bool);
     function addBetToPool(uint256 betAmount) external payable;
@@ -23,9 +25,13 @@ interface IGame {
     // function __callback(uint8[] calldata cards, uint256 requestId) in; // TODO: add "bytes memory _proof" arg
 }
 
-interface IInternalToken {
+interface IInternalToken is IERC20{
     function supportsIInternalToken() external view returns (bool);
     function burnTokenFrom(address account, uint256 amount) external;
+    function mint(address recipient, uint256 amount) external;
+    //function totalSupply() external view returns (uint256);
+    //function balanceOf(address account) external view returns (uint256);
+
 }
 
 interface IOracle {

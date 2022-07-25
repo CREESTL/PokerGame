@@ -23,11 +23,11 @@ contract GameController is IGame, Ownable {
     uint256 internal _lastRequestId;
     mapping(uint256 => Numbers) internal _randomNumbers; // requestId -> Numbers
 
-    constructor (address oracleAddress) public {
+    constructor (address oracleAddress) {
         _setOracle(oracleAddress);
     }
 
-    function supportsIGame() external view returns (bool) {
+    function supportsIGame() external pure returns (bool) {
         return true;
     }
 

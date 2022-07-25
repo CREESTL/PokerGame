@@ -50,7 +50,7 @@ contract Poker is GameController {
         _;
     }
 
-    constructor (address oracleAddress, address poolControllerAddress, address operator) public GameController(oracleAddress){
+    constructor (address oracleAddress, address poolControllerAddress, address operator) GameController(oracleAddress){
         _setPoolController(poolControllerAddress);
         houseEdge = 15;
         jackpotFeeMultiplier = 2;
@@ -89,7 +89,7 @@ contract Poker is GameController {
     }
 
     function sendFundsToPool() external onlyOperator {
-        _poolController.receiveFundsFromGame.value(address(this).balance)();
+        _poolController.receiveFundsFromGame{value: address(this).balance}();
     }
     
     function claimWinAmount(uint256 requestId) external {
@@ -119,7 +119,7 @@ contract Poker is GameController {
 
         _isValidBet(msgValue);
         
-        address payable player = _msgSender();
+        address payable player = payable(_msgSender());
         _poolController.addBetToPool(msgValue);
         _poolController.updateJackpot(betPoker.mul(jackpotFeeMultiplier).div(1000));
         
@@ -362,7 +362,7 @@ contract Poker is GameController {
             // check for full house
             if (pairs[1] > -1) {
                 strongestHand = 6;
-                if (valuesMatch[uint256(pairs[0])] >= valuesMatch[uint256(pairs[1])]) {
+                if (valuesMatch[uint256(uint8(pairs[0]))] >= valuesMatch[uint256(uint8(pairs[1]))]) {
                     // retOrder[0] = pairs[0];
                     retOrder[1] = pairs[1];
                 } else {

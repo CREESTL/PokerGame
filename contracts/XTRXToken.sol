@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Interfaces.sol";
 
 
-contract XTRXToken is ERC20Burnable, IInternalToken, Ownable {
+contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     using SafeMath for uint256;
 
     /// @dev Only some addresses can burn tokens
@@ -30,13 +30,14 @@ contract XTRXToken is ERC20Burnable, IInternalToken, Ownable {
 
     /// @dev Create a new token
     /// @dev Add the caller of constructor to the list of burners
-    constructor() ERC20("xEthereum", "xTRX", 18) {
+    /// @dev Default `decimals` is 18
+    constructor() ERC20("xEthereum", "xTRX") {
         _burnerAddresses[_msgSender()] = true;
     }
 
 
     /// @dev Checks if this contract supports interface
-    function supportsIInternalToken() external view returns (bool) {
+    function supportsIInternalToken() external pure returns (bool) {
         return true;
     }
 
