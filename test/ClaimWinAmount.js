@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-
+const { parseEther } = ethers.utils;
 
 // Tests for Poker.sol
 describe("Poker", function () {
@@ -9,6 +9,7 @@ describe("Poker", function () {
   // Constants to be used afterwards
   let poker;
   let poolController;
+  let gameController;
   let oracle;
   let owner;
   let addr1;
@@ -25,7 +26,6 @@ describe("Poker", function () {
     let xtrx = await _xtrx.deploy();
     await xtrx.deployed();
 
-
     // Deploy pool oracle 
     _oracle = await ethers.getContractFactory("Oracle");
     oracle = await _oracle.deploy(addr1.address);
@@ -33,7 +33,7 @@ describe("Poker", function () {
     
     // Deploy game controller and provide it with pool oracle address
     _gameController = await ethers.getContractFactory("GameController");
-    let gameController = await _gameController.deploy(oracle.address);
+    gameController = await _gameController.deploy(oracle.address);
     await gameController.deployed();
 
     // Deploy pool controller and provide it with token address
@@ -41,6 +41,8 @@ describe("Poker", function () {
     poolController = await _poolController.deploy(xtrx.address);
     await poolController.deployed();
     let poolAddress = await poolController.getPoolAddress();
+    // Send some funds to the pool
+    await poolController.receiveFundsFromGame({value: parseEther("1")});
     
     // Deploy the game itself and provide it with required addresses
     _poker = await ethers.getContractFactory("Poker");
@@ -48,45 +50,77 @@ describe("Poker", function () {
     await poker.deployed();
 
     // Set max bet of the game
-    await poker.setMaxBet(ethers.utils.parseEther("2"));
+    await poker.setMaxBet(parseEther("2"));
     // Set the game address of the pool controller
     await poolController.setGame(poker.address);
     // Set the game address of the game oracle
     await oracle.setGame(poker.address);
+    // Set game operator
+    await poker.setOperator(owner.address);
   });
 
 
-  describe("Testing Jackpot", function () {
+  describe("Jackpot", function () {
 
-    it("Should mint tokens to accounts", async function () {
-
+    it("Should work fine in normal conditions", async function () {
 
       // Start the game
-      let overrides = {value: ethers.utils.parseEther("0.001")};
-      await poker.connect(owner).play("1000", "2000", overrides);
+      // This also refreshes random numbers and updates jackpot
+      // betColor = 1000 wei (random)
+      // chosenColor = 2000 wei (random)
+      // Add 10_000_000_000 - 3_000_000 (oracle fee) =  9_997_000_000 wei to the pool amount
+      await poker.play(1000, 2000, {value: 10_000_000_000});
+      // Get the last request id
+      let lastReqId = await poker.getLastRequestId();
+      // Cheat: set jackpot
+      // winAmount = 200_000 wei (random)
+      // refAmount = 100_000 wei (random)
+      await poker.setGameResult(lastReqId, 200_000, 100_000, true, 0);
+      // Try to claim the winAmount
+      // This should work
+      await poker.claimWinAmount(lastReqId);
+
+    });  
+
+    it("Should fail if jackpot is greater than pool amount", async function () {
+
+      // Start the game
+      // This also refreshes random numbers and updates jackpot
+      // betColor = 1000 wei (random)
+      // chosenColor = 2000 wei (random)
+      // Add 10_000_000_000 - 3_000_000 (oracle fee) =  9_997_000_000 wei to the pool amount
+      await poker.play(1000, 2000, {value: 10_000_000_000});
+      // Get the last request id
+      let lastReqId = await poker.getLastRequestId();
+      // Cheat: set jackpot
+      // winAmount = 9_997_000_001 wei (greater than pool balance)
+      // refAmount = 100_000 wei (random)
+      await poker.setGameResult(lastReqId, 9_997_000_001, 100_000, true, 0);
+      // Try to claim the winAmount 
+      // This should fail
+      await expect(poker.claimWinAmount(lastReqId)).to.revertedWith("pc: Not Enough Funds in the Pool!");
 
     });
 
-    it("Should not mint more than one token for address", async function () {
-      // Mint the first token to account
-      await poker.connect(addr1).giveMeToken(uri);
-      // Try mint the second token to account
-      await expect(poker.connect(addr1).giveMeToken(uri)).to.revertedWith("Only a Single Token for Address is Allowed!");
+    it("Should cut win amount to limit", async function () {
+
+      // Start the game
+      // This also refreshes random numbers and updates jackpot
+      // betColor = 1000 wei (random)
+      // chosenColor = 2000 wei (random)
+      // Add 10_000_000_000_000 - 3_000_000 (oracle fee) =  9_999_997_000_000 wei to the pool amount
+      await poker.play(1000, 2000, {value: 10_000_000_000_000});
+      // Get the last request id
+      let lastReqId = await poker.getLastRequestId();
+      // Cheat: set jackpot
+      // winAmount = 600_000_000_000 wei (more than jackpotLimit and jackpot)
+      // refAmount = 100_000 wei (random)
+      await poker.setGameResult(lastReqId, 600_000_000_000, 100_000, true, 0);
+      // Try to claim the winAmount 
+      // It should work even though winAmount is so large
+      await poker.claimWinAmount(lastReqId);
+
     });
-
-    it("Should allow owner to mint tokens to several users", async function () {
-      // Mint 3 tokens to 3 different accounts. One for account.
-      await poker.connect(owner).giveTokenTo(addr1.address, uri);
-      const addr1Balance = await poker.balanceOf(addr1.address);
-      expect(addr1Balance).to.equal(1);
-      await poker.connect(owner).giveTokenTo(addr2.address, uri);
-      const addr2Balance = await poker.balanceOf(addr2.address);
-      expect(addr2Balance).to.equal(1);
-      await poker.connect(owner).giveTokenTo(addr3.address, uri);
-      const addr3Balance = await poker.balanceOf(addr3.address);
-      expect(addr3Balance).to.equal(1);
-    });      
-
    
   });
 
