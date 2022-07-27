@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { parseEther } = ethers.utils;
@@ -113,13 +114,52 @@ describe("Poker", function () {
       // Get the last request id
       let lastReqId = await poker.getLastRequestId();
       // Cheat: set jackpot
-      // winAmount = 600_000_000_000 wei (more than jackpotLimit and jackpot)
+      // winAmount = 600_000_000_000 wei (greater than jackpotLimit and jackpot)
       // refAmount = 100_000 wei (random)
       await poker.setGameResult(lastReqId, 600_000_000_000, 100_000, true, 0);
       // Try to claim the winAmount 
       // It should work even though winAmount is so large
       await poker.claimWinAmount(lastReqId);
 
+    });
+
+    it("Should fail if win amount was not set", async function () {
+
+      // Start the game
+      // This also refreshes random numbers and updates jackpot
+      // betColor = 1000 wei (random)
+      // chosenColor = 2000 wei (random)
+      // Add 10_000_000_000_000 - 3_000_000 (oracle fee) =  9_999_997_000_000 wei to the pool amount
+      await poker.play(1000, 2000, {value: 10_000_000_000_000});
+      // Get the last request id
+      let lastReqId = await poker.getLastRequestId();
+      // Cheat: set jackpot
+      // winAmount = 0 wei ()
+      // refAmount = 0 wei (random)
+      await poker.setGameResult(lastReqId, 0, 0, true, 0)
+      // Try to claim the winAmount 
+      // It should fail because neither winAmount nor refAmount was set
+      await expect(poker.claimWinAmount(lastReqId)).to.be.revertedWith("p: Invalid Amount!");
+    });
+
+    it("Should fail if win has been claimed before", async function () {
+
+      // Start the game
+      // This also refreshes random numbers and updates jackpot
+      // betColor = 1000 wei (random)
+      // chosenColor = 2000 wei (random)
+      // Add 10_000_000_000_000 - 3_000_000 (oracle fee) =  9_999_997_000_000 wei to the pool amount
+      await poker.play(1000, 2000, {value: 10_000_000_000_000});
+      // Get the last request id
+      let lastReqId = await poker.getLastRequestId();
+      // Cheat: set jackpot
+      // winAmount = 200_000 wei (random)
+      // refAmount = 100_000 wei (random)
+      await poker.setGameResult(lastReqId, 200_000, 100_000, true, 0);
+      // Try to claim the winAmount 
+      await poker.claimWinAmount(lastReqId);
+      // And try that again
+      await expect(poker.claimWinAmount(lastReqId)).to.be.revertedWith("p: Win Already Claimed!");
     });
    
   });
