@@ -93,13 +93,12 @@ contract Poker is GameController {
     }
     
     function claimWinAmount(uint256 requestId) external {
-        require(games[requestId].player == _msgSender()
-            && (games[requestId].winAmount > 0 || games[requestId].refAmount > 0)
-            && !games[requestId].isWinAmountClaimed, 'p: not valid claim');
+        require(games[requestId].player == _msgSender(), 'p: Caller is not a player!');
+        require(games[requestId].winAmount > 0 || games[requestId].refAmount > 0, 'p: Invalid amount!');
+        require(!games[requestId].isWinAmountClaimed, 'p: Win already claimed!');
         address payable player = games[requestId].player;
         uint256 winAmount = games[requestId].winAmount;
         uint256 refAmount = games[requestId].refAmount;
-
         if (games[requestId].isJackpot) {
             _poolController.jackpotDistribution(player, winAmount);
         } else {

@@ -264,7 +264,8 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function _rewardDistribution(address payable player, uint256 prize) internal {
-        require(prize <= address(this).balance, "amount exceeds balance");
+        require(prize <= address(this).balance, "pc: Not enough funds to pay the reward!");
+        require(prize <= pool.amount, "pc: Not Enough Funds in the Pool!");
         pool.amount = pool.amount.sub(prize);
         player.transfer(prize);
     }
