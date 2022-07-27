@@ -46,7 +46,7 @@ contract Poker is GameController {
     mapping(uint256 => Game) public games;
 
     modifier onlyOperator() {
-        require(msg.sender == _operator, "p: not operator");
+        require(msg.sender == _operator, "p: Caller Is Not an Operator!");
         _;
     }
 
@@ -93,9 +93,9 @@ contract Poker is GameController {
     }
     
     function claimWinAmount(uint256 requestId) external {
-        require(games[requestId].player == _msgSender(), 'p: Caller is not a player!');
-        require(games[requestId].winAmount > 0 || games[requestId].refAmount > 0, 'p: Invalid amount!');
-        require(!games[requestId].isWinAmountClaimed, 'p: Win already claimed!');
+        require(games[requestId].player == _msgSender(), 'p: Caller Is Not a Player!');
+        require(games[requestId].winAmount > 0 || games[requestId].refAmount > 0, 'p: Invalid Amount!');
+        require(!games[requestId].isWinAmountClaimed, 'p: Win Already Claimed!');
         address payable player = games[requestId].player;
         uint256 winAmount = games[requestId].winAmount;
         uint256 refAmount = games[requestId].refAmount;
@@ -210,7 +210,7 @@ contract Poker is GameController {
 
     function _setPoolController(address poolAddress) internal {
         IPool poolCandidate = IPool(poolAddress);
-        require(poolCandidate.supportsIPool(), "p: poolAddress not IPool");
+        require(poolCandidate.supportsIPool(), "p: Contract with poolAddress Does Not Implement IPool Interface!");
         _poolController = poolCandidate;
     }
 
@@ -427,6 +427,6 @@ contract Poker is GameController {
 
     function _isValidBet(uint256 betValue) internal view {
         uint256 gasFee = _poolController.getOracleGasFee();
-        require(betValue.mul(1000) > gasFee.mul(1015) && betValue <= _maxBet, 'p: bad bet');
+        require(betValue.mul(1000) > gasFee.mul(1015) && betValue <= _maxBet, 'p: Bet Is Invalid!');
     }
 }

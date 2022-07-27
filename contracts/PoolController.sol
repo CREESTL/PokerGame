@@ -45,18 +45,18 @@ contract PoolController is IPool, Context, Ownable {
     Pool private pool;
 
     modifier onlyGame() {
-        require(_msgSender() == address(_game), "Caller is not the game owner!");
+        require(_msgSender() == address(_game), "pc: Caller Is Not a Game Owner!");
         _;
     }
 
     modifier onlyOracleOperator() {
-        require(_msgSender() == _oracleOperator, "caller is not the operator");
+        require(_msgSender() == _oracleOperator, "pc: Caller Is Not an Operator!");
         _;
     }
     // TODO maybe take all of this as arguments for constructor
     constructor (address xEthTokenAddress) {
         IInternalToken xEthCandidate = IInternalToken(xEthTokenAddress);
-        require(xEthCandidate.supportsIInternalToken(), "invalid xTRX address");
+        require(xEthCandidate.supportsIInternalToken(), "pc: Invalid xTRX Token Address!");
         pool.internalToken = xEthCandidate;
         pool.oracleGasFee = 3000000;
         whitelist[_msgSender()] = true;
@@ -192,12 +192,12 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function deposit(address _to) external payable {
-        require(whitelist[_msgSender()], 'Deposit not allowed');
+        require(whitelist[_msgSender()], 'pc: Deposit is Forbidden for the Caller!');
         _deposit(_to, msg.value);
     }
 
     function withdraw(uint256 amount) external {
-        require(pool.internalToken.balanceOf(_msgSender()) >= amount, "amount exceeds balance");
+        require(pool.internalToken.balanceOf(_msgSender()) >= amount, "pc: Amount Exceeds Token Balance!");
         uint256 withdrawAmount = amount.mul(_getPrice()).div(PERCENT100);
         pool.amount = pool.amount.sub(withdrawAmount);
         payable(_msgSender()).transfer(withdrawAmount);
@@ -233,7 +233,7 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function addRef(address parent, address son) external {
-        require(refAccounts[son].parent == address(0), "Already a referral");
+        require(refAccounts[son].parent == address(0), "pc: Already a Referral!");
         require(parent != son, "same address");
         refAccounts[son].parent = parent;
         refAccounts[parent].referralCounter = refAccounts[parent].referralCounter.add(1);
@@ -264,7 +264,7 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function _rewardDistribution(address payable player, uint256 prize) internal {
-        require(prize <= address(this).balance, "pc: Not enough funds to pay the reward!");
+        require(prize <= address(this).balance, "pc: Not Enough Funds to Pay the Reward!");
         require(prize <= pool.amount, "pc: Not Enough Funds in the Pool!");
         pool.amount = pool.amount.sub(prize);
         player.transfer(prize);

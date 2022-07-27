@@ -18,13 +18,13 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
 
     /// @dev Checks if caller is allowed to burn tokens
     modifier isBurner() {
-       require(_burnerAddresses[_msgSender()], "Caller is not allowed to burn tokens!");
+       require(_burnerAddresses[_msgSender()], "xt: Caller Is Not Allowed to Burn Tokens!");
        _;
     }
 
     /// @dev Checks if caller controls the pool
     modifier onlyPoolController() {
-        require(_msgSender() == _poolController, "Caller is not a pool controller!");
+        require(_msgSender() == _poolController, "xt: Caller is Not a Pool Controller!");
         _;
     }
 
@@ -50,7 +50,7 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     /// @dev Setter for a pool controller address
     function setPoolController(address poolControllerAddress) external onlyOwner {
         IPool iPoolCandidate = IPool(poolControllerAddress);
-        require(iPoolCandidate.supportsIPool(), "Invalid IPool address!");
+        require(iPoolCandidate.supportsIPool(), "xt: Contract Does Not Implement IPool Interface!");
         _poolController = poolControllerAddress;
     }
 
@@ -61,14 +61,14 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
 
     /// @dev Allows a provided user to burn tokens
     function addBurner(address account) external onlyOwner {
-       require(!_burnerAddresses[account], "This user is already allowed to burn tokens!");
-       require(account != address(0), "Can't allow a zero address to burn tokens!");
+       require(!_burnerAddresses[account], "xt: This User Is Already Allowed to Burn Tokens!");
+       require(account != address(0), "xt: Can't Allow a Zero Address to Burn Tokens!");
        _burnerAddresses[account] = true;
     }
 
     /// @dev Prohibits the user from burning tokens
     function removeBurner(address account) external onlyOwner {
-       require(_burnerAddresses[account], "Isnt burner");
+       require(_burnerAddresses[account], "xt: This Address Is Not a Burner!");
        delete  _burnerAddresses[account];
     }
 

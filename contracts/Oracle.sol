@@ -18,7 +18,7 @@ contract Oracle is IOracle, Ownable {
     event RandomNumberEvent(uint bitCards, address indexed callerAddress, uint256 indexed requestId);
 
     modifier onlyGame(address sender) {
-        require(sender == address(_game), "O: not game");
+        require(sender == address(_game), "o: Game Was Not Set!");
         _;
     }
 
@@ -71,7 +71,7 @@ contract Oracle is IOracle, Ownable {
     }
 
     function _setOperatorAddress(address operatorAddress) internal {
-        require(operatorAddress != address(0), "invalid address");
+        require(operatorAddress != address(0), "o: Invalid Operator Address!");
         _operator = operatorAddress;
     }
 }

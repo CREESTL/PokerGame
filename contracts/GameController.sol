@@ -54,21 +54,21 @@ contract GameController is IGame, Ownable {
     function __callback(uint64 bitCards, uint256 requestId) internal {
         Numbers storage number = _randomNumbers[requestId];
         number.timestamp = uint64(block.timestamp);
-        require(number.status == Status.Pending, "gc: request is closed");
+        require(number.status == Status.Pending, "gc: Request Is Closed!");
         number.status = Status.Result;
         number.result = bitCards;
     }
 
     function _updateRandomNumber() internal {
         uint256 requestId = _oracle.createRandomNumberRequest();
-        require(_randomNumbers[requestId].timestamp <= (uint64(block.timestamp) - MIN_TIME_TO_HISTORY_OF_REQUESTS), "gc: requestId is used");
+        require(_randomNumbers[requestId].timestamp <= (uint64(block.timestamp) - MIN_TIME_TO_HISTORY_OF_REQUESTS), "gc: RequestId Has Already Been Used!");
         _randomNumbers[requestId].status = Status.Pending;
         _lastRequestId = requestId;
     }
 
     function _setOracle(address oracleAddress) internal {
         IOracle iOracleCandidate = IOracle(oracleAddress);
-        require(iOracleCandidate.supportsIOracle(), "gc: invalid IOracle address");
+        require(iOracleCandidate.supportsIOracle(), "gc: Contract with oracleAddress Does Not Implement IOracle Interface!");
         _oracle = iOracleCandidate;
     }
 }
