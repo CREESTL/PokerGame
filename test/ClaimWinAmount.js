@@ -27,7 +27,7 @@ describe("Poker", function () {
     let xtrx = await _xtrx.deploy();
     await xtrx.deployed();
 
-    // Deploy pool oracle 
+    // Deploy pool oracle and provide it with pool operator address
     _oracle = await ethers.getContractFactory("Oracle");
     oracle = await _oracle.deploy(addr1.address);
     await oracle.deployed();
