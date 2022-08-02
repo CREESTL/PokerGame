@@ -21,7 +21,7 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "coverage": "hardhat coverage",
-    "flatten": "hardhat flatten contracts/Poker.sol > contracts/flattened/Poker.sol && hardhat flatten contracts/PoolController.sol > contracts/flattened/PoolController.sol && hardhat flatten contracts/Oracle.sol > contracts/flattened/Oracle.sol && hardhat flatten contracts/XTRXToken.sol > contracts/flattened/XTRXToken.sol"
+    "flatten": "hardhat flatten contracts/Poker.sol > contracts/flat/Poker.sol && hardhat flatten contracts/PoolController.sol > contracts/flat/PoolController.sol && hardhat flatten contracts/Oracle.sol > contracts/flat/Oracle.sol && hardhat flatten contracts/XTRXToken.sol > contracts/flat/XTRXToken.sol"
   },
   "repository": {
     "type": "git",
