@@ -36,7 +36,6 @@ let interfaces;
 
 async function main() {
 
-
   // Contract #1: XTRXToken
   contractName = "XTRXToken";
   console.log(`[${contractName}]: Start of Deployment...`);
@@ -45,7 +44,6 @@ async function main() {
   token = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
   OUTPUT_DEPLOY.networks[network.name][contractName].address = token.address;
-
 
   // Contract #2: Oracle
   contractName = "Oracle";
@@ -58,18 +56,8 @@ async function main() {
   OUTPUT_DEPLOY.networks[network.name][contractName].address = oracle.address;
   OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorAddress = oracleOperator.address;
   OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorPrivateKey = oracleOperator.privateKey;
-  
-  // Contract #3: GameController
-  contractName = "GameController";
-  console.log(`[${contractName}]: Start of Deployment...`);
-  _contractProto = await ethers.getContractFactory(contractName);
-  // Provide the game controller with oracle address 
-  contractDeployTx = await _contractProto.deploy(oracle.address);
-  gameController = await contractDeployTx.deployed();
-  console.log(`[${contractName}]: Deployment Finished!`);
-  OUTPUT_DEPLOY.networks[network.name][contractName].address = gameController.address;
 
-  // Contract #4: PoolController
+  // Contract #3: PoolController
   contractName = "PoolController";
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
@@ -79,11 +67,11 @@ async function main() {
   console.log(`[${contractName}]: Deployment Finished!`);
   OUTPUT_DEPLOY.networks[network.name][contractName].address = poolController.address;
 
-  // Contract #5: Poker
+  // Contract #4: Poker
   contractName = "Poker";
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
-  // Provide the game with oracle, pool controller, game owner address (same as oracle operator) 
+  // Provide the game with oracle, pool controller, poker operator addresses
   contractDeployTx = await _contractProto.deploy(oracle.address, poolController.address, pokerOperator.address);
   poker = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
@@ -91,16 +79,8 @@ async function main() {
   OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorAddress = pokerOperator.address;
   OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorPrivateKey = pokerOperator.privateKey;
 
-  // Contract #6: Migrations
-  contractName = "Migrations";
-  console.log(`[${contractName}]: Start of Deployment...`);
-  _contractProto = await ethers.getContractFactory(contractName);
-  contractDeployTx = await _contractProto.deploy();
-  migrations = await contractDeployTx.deployed();
-  console.log(`[${contractName}]: Deployment Finished!`);
-  OUTPUT_DEPLOY.networks[network.name][contractName].address = migrations.address;
-
   // Interfaces from `Interfaces.sol` are abstract and can't be deployed
+  // 'GameController.sol' and 'Migrations.sol' are not deployed as well
 
   console.log(`See Results in "${__dirname + '/deployOutput.json'}" File`);
 

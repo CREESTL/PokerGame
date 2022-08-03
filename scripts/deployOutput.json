@@ -2,26 +2,20 @@
   "networks": {
     "donau": {
       "XTRXToken": {
-        "address": "0xAc6135e68Ec60390E4d13Fe201d69B5Cf7308f12"
+        "address": "0x7781a180AB347C7b5585503caEd5F1C83941CB5c"
       },
       "Oracle": {
-        "address": "0xCd5D5bA49Db18979A712648A743D88b904fA183D",
-        "oracleOperatorAddress": "0xF2867B948D319077A68688545B0b3A3bc1200C91",
-        "oracleOperatorPrivateKey": "0x0094e4d159318eba375eb98a91ed3ceb76a6b1c42701f20cd0ef13205d6421e4"
-      },
-      "GameController": {
-        "address": "0x37C924070aca0eCfb432ED59ed59Bc1db718D251"
+        "address": "0x64DF61D10683b7F04a8268390bcce5329922fbdA",
+        "oracleOperatorAddress": "0xD4bed110A7EC791E0B9D4a938030338e978e5AA7",
+        "oracleOperatorPrivateKey": "0x1f1f63f783aaa67beb4f246a9dae0c11fee10897cd0c2fa3f70f1a7d6b61e7fe"
       },
       "PoolController": {
-        "address": "0xF5Ed2474E749f41b2EB0d4f553aD0b5ED2a898F0"
+        "address": "0xA3Cb8bDe691A6aA5Bf5B38eb5216B60493F8D2cA"
       },
       "Poker": {
-        "address": "0x4Ba1B1Fae9B68CeCd98C6987E4F1f345026f55e7",
-        "pokerOperatorAddress": "0x8d8457fDd5bE419c70d83e5b114a82FFb3e0B7F4",
-        "pokerOperatorPrivateKey": "0xe3c3c50a042c35ccfdc2fbf58fd2608d51eaa833043b1d7592aaabfb0743fc5c"
-      },
-      "Migrations": {
-        "address": "0xAF9c0C576805b6a94a9B7B400EE4D3A9a6204ade"
+        "address": "0xfE930C320F697Aa70f8cda58e8424FA554fa7C71",
+        "pokerOperatorAddress": "0x7Ab5d165E82cD40fA27a0b6D47fa191347279baE",
+        "pokerOperatorPrivateKey": "0x8f653c9480efe0b8631283fa8b7d7d20c32090b4c985b265ac7a56f34f5bf2d5"
       }
     },
     "mainnet": {
@@ -32,19 +26,12 @@
         "address": "",
         "oracleOperatorAddress": ""
       },
-      "GameController": {
-        "address": "",
-        "oracleAddress": ""
-      },
       "PoolController": {
         "address": ""
       },
       "Poker": {
         "address": "",
         "pokerOperatorAddress": ""
-      },
-      "Migrations": {
-        "address": ""
       }
     }
   }
