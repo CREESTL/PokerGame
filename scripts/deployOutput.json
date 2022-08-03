@@ -2,24 +2,26 @@
   "networks": {
     "donau": {
       "XTRXToken": {
-        "address": "0x753eF47D60E6E4683B318D694F27d1D4aF16737b"
+        "address": "0xAc6135e68Ec60390E4d13Fe201d69B5Cf7308f12"
       },
       "Oracle": {
-        "address": "0x5c6dB75D7242941D36D0F828B993D2E1b26DA4Dc",
-        "oracleOperatorAddress": "0x8816c5c8373f4E6944632CeD35F7a5b12C556065"
+        "address": "0xCd5D5bA49Db18979A712648A743D88b904fA183D",
+        "oracleOperatorAddress": "0xF2867B948D319077A68688545B0b3A3bc1200C91",
+        "oracleOperatorPrivateKey": "0x0094e4d159318eba375eb98a91ed3ceb76a6b1c42701f20cd0ef13205d6421e4"
       },
       "GameController": {
-        "address": "0x09C8E1A082eBf98ee244329132B07C0C07f1184D"
+        "address": "0x37C924070aca0eCfb432ED59ed59Bc1db718D251"
       },
       "PoolController": {
-        "address": "0x8548E5B66f490c3A87487FAb8Efb9B903221733f"
+        "address": "0xF5Ed2474E749f41b2EB0d4f553aD0b5ED2a898F0"
       },
       "Poker": {
-        "address": "0x347b59796BCfff9346D8906D239448eD745E2cBC",
-        "pokerOperatorAddress": "0x9272Dd84Ab78230c6B007Da7c9710C0a31c7c39A"
+        "address": "0x4Ba1B1Fae9B68CeCd98C6987E4F1f345026f55e7",
+        "pokerOperatorAddress": "0x8d8457fDd5bE419c70d83e5b114a82FFb3e0B7F4",
+        "pokerOperatorPrivateKey": "0xe3c3c50a042c35ccfdc2fbf58fd2608d51eaa833043b1d7592aaabfb0743fc5c"
       },
       "Migrations": {
-        "address": "0xADd04c12ebD0BE1D677eBabB01297DeE879087aA"
+        "address": "0xAF9c0C576805b6a94a9B7B400EE4D3A9a6204ade"
       }
     },
     "mainnet": {

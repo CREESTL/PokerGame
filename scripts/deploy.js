@@ -12,10 +12,10 @@ function createWallets(numberWallets) {
   let createdWallets = [];
   for (let i = 0; i < numberWallets; i++) {
     let wallet = ethers.Wallet.createRandom();
-    createdWallets.push(wallet.address);
+    createdWallets.push(wallet);
     console.log(`New wallet №${i + 1}:`);
-    console.log(`    Private key: ${wallet.privateKey}`);
     console.log(`    Address: ${wallet.address}`); 
+    console.log(`    Private key: ${wallet.privateKey}`);
   }
   return createdWallets;
 }
@@ -23,7 +23,7 @@ function createWallets(numberWallets) {
 
 // Create 2 new wallets
 // Use them in Oracle and Poker constructors
-let [oracleOperatorAddress, pokerOperatorAddress] = createWallets(2);
+let [oracleOperator, pokerOperator] = createWallets(2);
 
 let contractName;
 let token;
@@ -52,11 +52,12 @@ async function main() {
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
   // Provide the oracle with operator address.
-  contractDeployTx = await _contractProto.deploy(oracleOperatorAddress);
+  contractDeployTx = await _contractProto.deploy(oracleOperator.address);
   oracle = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
-  OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorAddress = oracleOperatorAddress;
   OUTPUT_DEPLOY.networks[network.name][contractName].address = oracle.address;
+  OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorAddress = oracleOperator.address;
+  OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorPrivateKey = oracleOperator.privateKey;
   
   // Contract #3: GameController
   contractName = "GameController";
@@ -83,11 +84,12 @@ async function main() {
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
   // Provide the game with oracle, pool controller, game owner address (same as oracle operator) 
-  contractDeployTx = await _contractProto.deploy(oracle.address, poolController.address, pokerOperatorAddress);
+  contractDeployTx = await _contractProto.deploy(oracle.address, poolController.address, pokerOperator.address);
   poker = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
-  OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorAddress = pokerOperatorAddress;
   OUTPUT_DEPLOY.networks[network.name][contractName].address = poker.address;
+  OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorAddress = pokerOperator.address;
+  OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorPrivateKey = pokerOperator.privateKey;
 
   // Contract #6: Migrations
   contractName = "Migrations";
