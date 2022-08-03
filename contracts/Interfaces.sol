@@ -21,8 +21,7 @@ interface IPool {
 }
 
 interface IGame {
-    // function supportsIGame() external view returns (bool);
-    // function __callback(uint8[] calldata cards, uint256 requestId) in; // TODO: add "bytes memory _proof" arg
+    function supportsIGame() external view returns (bool);
 }
 
 interface IInternalToken is IERC20{
