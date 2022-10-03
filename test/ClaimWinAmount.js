@@ -102,26 +102,6 @@ describe("Poker", function () {
 
     });
 
-    it("Should cut win amount to limit", async function () {
-
-      // Start the game
-      // This also refreshes random numbers and updates jackpot
-      // betColor = 1000 wei (random)
-      // chosenColor = 2000 wei (random)
-      // Add 10_000_000_000_000 - 3_000_000 (oracle fee) =  9_999_997_000_000 wei to the pool amount
-      await poker.play(1000, 2000, {value: 10_000_000_000_000});
-      // Get the last request id
-      let lastReqId = await poker.getLastRequestId();
-      // Cheat: set jackpot
-      // winAmount = 600_000_000_000 wei (greater than jackpotLimit and jackpot)
-      // refAmount = 100_000 wei (random)
-      await poker.setGameResult(lastReqId, 600_000_000_000, 100_000, true, 0);
-      // Try to claim the winAmount 
-      // It should work even though winAmount is so large
-      await poker.claimWinAmount(lastReqId);
-
-    });
-
     it("Should fail if win amount was not set", async function () {
 
       // Start the game
