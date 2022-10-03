@@ -101,7 +101,7 @@ contract PoolController is IPool, Context, Ownable {
         return pool.amount;
     }
 
-    function getPoolAddress() external view returns (address) {
+    function getTokenAddress() external view returns (address) {
         return address(pool.internalToken);
     }
 
