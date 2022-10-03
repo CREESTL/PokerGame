@@ -41,7 +41,7 @@ describe("Poker", function () {
     _poolController = await ethers.getContractFactory("PoolController");
     poolController = await _poolController.deploy(xtrx.address);
     await poolController.deployed();
-    let poolAddress = await poolController.getPoolAddress();
+    let poolAddress = await poolController.getTokenAddress();
     // Send some funds to the pool
     await poolController.receiveFundsFromGame({value: parseEther("1")});
     
