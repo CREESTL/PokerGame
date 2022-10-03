@@ -16,12 +16,6 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     mapping (address => bool) internal _burnerAddresses; 
     address internal _poolController;
 
-    /// @dev Checks if caller is allowed to burn tokens
-    modifier isBurner() {
-       require(_burnerAddresses[_msgSender()], "xt: Caller Is Not Allowed to Burn Tokens!");
-       _;
-    }
-
     /// @dev Checks if caller controls the pool
     modifier onlyPoolController() {
         require(_msgSender() == _poolController, "xt: Caller is Not a Pool Controller!");
@@ -52,24 +46,6 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
         IPool iPoolCandidate = IPool(poolControllerAddress);
         require(iPoolCandidate.supportsIPool(), "xt: Contract Does Not Implement IPool Interface!");
         _poolController = poolControllerAddress;
-    }
-
-    /// @dev Checks if a provided user is allowes to burn tokens
-    function isBurnAllowed(address account) external view returns(bool) {
-       return _burnerAddresses[account];
-    }
-
-    /// @dev Allows a provided user to burn tokens
-    function addBurner(address account) external onlyOwner {
-       require(!_burnerAddresses[account], "xt: This User Is Already Allowed to Burn Tokens!");
-       require(account != address(0), "xt: Can't Allow a Zero Address to Burn Tokens!");
-       _burnerAddresses[account] = true;
-    }
-
-    /// @dev Prohibits the user from burning tokens
-    function removeBurner(address account) external onlyOwner {
-       require(_burnerAddresses[account], "xt: This Address Is Not a Burner!");
-       delete  _burnerAddresses[account];
     }
 
     /// @dev Pool controller can mint tokens to anyone
