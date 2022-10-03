@@ -5,11 +5,14 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Interfaces.sol";
 
-
 contract GameController is IGame, Ownable {
     using SafeMath for uint256;
 
-    enum Status { Unknown, Pending, Result }
+    enum Status {
+        Unknown,
+        Pending,
+        Result
+    }
 
     struct Numbers {
         uint64 result;
@@ -17,13 +20,13 @@ contract GameController is IGame, Ownable {
         Status status;
     }
 
-    uint256 constant private MIN_TIME_TO_HISTORY_OF_REQUESTS = 7 * 86400; // 1 week
+    uint256 private constant MIN_TIME_TO_HISTORY_OF_REQUESTS = 7 * 86400; // 1 week
 
     IOracle internal _oracle;
     uint256 internal _lastRequestId;
     mapping(uint256 => Numbers) internal _randomNumbers; // requestId -> Numbers
 
-    constructor (address oracleAddress) {
+    constructor(address oracleAddress) {
         _setOracle(oracleAddress);
     }
 
@@ -35,7 +38,16 @@ contract GameController is IGame, Ownable {
         return address(_oracle);
     }
 
-    function getRandomNumberInfo(uint256 requestId) public view onlyOwner returns(uint64, uint64, Status) {
+    function getRandomNumberInfo(uint256 requestId)
+        public
+        view
+        onlyOwner
+        returns (
+            uint64,
+            uint64,
+            Status
+        )
+    {
         return (
             _randomNumbers[requestId].result,
             _randomNumbers[requestId].timestamp,
@@ -61,14 +73,21 @@ contract GameController is IGame, Ownable {
 
     function _updateRandomNumber() internal {
         uint256 requestId = _oracle.createRandomNumberRequest();
-        require(_randomNumbers[requestId].timestamp <= (uint64(block.timestamp) - MIN_TIME_TO_HISTORY_OF_REQUESTS), "gc: RequestId Has Already Been Used!");
+        require(
+            _randomNumbers[requestId].timestamp <=
+                (uint64(block.timestamp) - MIN_TIME_TO_HISTORY_OF_REQUESTS),
+            "gc: RequestId Has Already Been Used!"
+        );
         _randomNumbers[requestId].status = Status.Pending;
         _lastRequestId = requestId;
     }
 
     function _setOracle(address oracleAddress) internal {
         IOracle iOracleCandidate = IOracle(oracleAddress);
-        require(iOracleCandidate.supportsIOracle(), "gc: Contract with oracleAddress Does Not Implement IOracle Interface!");
+        require(
+            iOracleCandidate.supportsIOracle(),
+            "gc: Contract with oracleAddress Does Not Implement IOracle Interface!"
+        );
         _oracle = iOracleCandidate;
     }
 }

@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // import "@openzeppelin/contracts/GSN/Context.sol";
 import "./Interfaces.sol";
 
-
 contract Oracle is IOracle, Ownable {
     IGame internal _game;
     address internal _operator;
@@ -14,15 +13,22 @@ contract Oracle is IOracle, Ownable {
 
     mapping(uint256 => bool) internal _pendingRequests;
 
-    event RandomNumberRequestEvent(address indexed callerAddress, uint256 indexed requestId);
-    event RandomNumberEvent(uint bitCards, address indexed callerAddress, uint256 indexed requestId);
+    event RandomNumberRequestEvent(
+        address indexed callerAddress,
+        uint256 indexed requestId
+    );
+    event RandomNumberEvent(
+        uint256 bitCards,
+        address indexed callerAddress,
+        uint256 indexed requestId
+    );
 
     modifier onlyGame(address sender) {
         require(sender == address(_game), "o: Game Was Not Set!");
         _;
     }
 
-    constructor (address operatorAddress) {
+    constructor(address operatorAddress) {
         _nonce = 0;
         _setOperatorAddress(operatorAddress);
     }
@@ -44,15 +50,28 @@ contract Oracle is IOracle, Ownable {
         _game = game;
     }
 
-    function getPendingRequests(uint256 requestId) external view onlyOwner returns (bool) {
+    function getPendingRequests(uint256 requestId)
+        external
+        view
+        onlyOwner
+        returns (bool)
+    {
         return _pendingRequests[requestId];
     }
 
-    function createRandomNumberRequest() external onlyGame(_msgSender()) returns (uint256) {
+    function createRandomNumberRequest()
+        external
+        onlyGame(_msgSender())
+        returns (uint256)
+    {
         uint256 requestId;
         do {
             _nonce++;
-            requestId = uint256(keccak256(abi.encodePacked(block.timestamp, _msgSender(), _nonce)));
+            requestId = uint256(
+                keccak256(
+                    abi.encodePacked(block.timestamp, _msgSender(), _nonce)
+                )
+            );
         } while (_pendingRequests[requestId]);
         _pendingRequests[requestId] = true;
         return requestId;
@@ -62,7 +81,7 @@ contract Oracle is IOracle, Ownable {
         return address(_game);
     }
 
-    function toBit(uint8[] memory cards) public pure returns(uint256) {
+    function toBit(uint8[] memory cards) public pure returns (uint256) {
         uint256 bitCards;
         for (uint256 i = 0; i < cards.length; i++) {
             bitCards |= (uint256(cards[i]) << (6 * i));

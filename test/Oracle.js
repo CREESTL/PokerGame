@@ -11,7 +11,6 @@
 // // const PoolController = artifacts.require('PoolController');
 // const FakeGameController = artifacts.require('FakeGameController');
 
-
 // contract('Oracle', async ([owner, alice, bob]) => {
 //   const ZERO_ADDRESS = '410000000000000000000000000000000000000000';
 //   const RANDOM_NUMBER_MODULE = new BN('1000');

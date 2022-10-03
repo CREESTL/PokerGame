@@ -10,7 +10,6 @@
 //   .use(require('chai-as-promised'))
 //   .should();
 
-
 // const XTRXToken = artifacts.require('XTRXToken');
 // const PoolController = artifacts.require('PoolController');
 

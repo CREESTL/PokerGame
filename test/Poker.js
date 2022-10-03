@@ -65,7 +65,6 @@
 //     await this.poker.setJackpotFeeMultiplier(initJackpotMultiplier, { from: owner });
 //   });
 
-
 //   describe('checking setters and getters:', async () => {
 //     describe('GameController functions', async () => {
 //       it('setOracle should work',async () => {
@@ -103,14 +102,14 @@
 //       assert.equal(await this.fakePoker.setCards(computerWinsCards), 0);
 //     });
 //     it('should be draw', async () => {
-//       assert.equal(await this.fakePoker.setCards(drawCards), 1); 
+//       assert.equal(await this.fakePoker.setCards(drawCards), 1);
 //     });
 //     it('user should win jackpot', async () => {
 //       assert.equal(await this.fakePoker.setCards(userWinsJackpotCards), 3);
 //     });
 //     it('check', async () => {
 //       console.log(await this.fakePoker.checkCombinationResult(check));
-//       // assert.equal(await this.fakePoker.setCards(check), 3); 
+//       // assert.equal(await this.fakePoker.setCards(check), 3);
 //     });
 //   });
 

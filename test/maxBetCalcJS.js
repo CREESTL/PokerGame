@@ -79,7 +79,7 @@
 //       } else {
 //         _maxBet = _maxBet * _maxBet / Cn;
 //       }
-      
+
 //     }
 //   }
 // }
@@ -91,5 +91,3 @@
 //   console.log('POOL_AMOUNT:', poolBalance, 'ITERATION:', i, 'GAMES_COUNTER:', _gamesCounter, 'MAX_BET:', _maxBet)
 //   BET += 2;
 // }
-
-

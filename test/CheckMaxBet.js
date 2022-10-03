@@ -12,8 +12,6 @@
 // const Oracle = artifacts.require('Oracle');
 // const Poker = artifacts.require('Poker');
 
-
-
 // const userWinsCards = [11, 10, 22, 47, 7, 5, 2, 1, 3];
 
 // contract('MaxBetCalc test', async ([owner, alice, bob]) => {
@@ -37,7 +35,7 @@
 //     assert.equal(((await this.poolController.getPoolInfo())[1]).toString(), 18054000000);
 //   });
 
-//   it('checking maxBetCalc', async () => {      
+//   it('checking maxBetCalc', async () => {
 //     for (let i = 0; i < 102; i++) {
 //       await this.poker.play(0, 0, { from: alice, callValue: 30000000 });
 //       const requestId = await this.poker.getLastRequestId();

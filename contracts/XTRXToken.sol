@@ -8,17 +8,19 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Interfaces.sol";
 
-
 contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     using SafeMath for uint256;
 
     /// @dev Only some addresses can burn tokens
-    mapping (address => bool) internal _burnerAddresses; 
+    mapping(address => bool) internal _burnerAddresses;
     address internal _poolController;
 
     /// @dev Checks if caller controls the pool
     modifier onlyPoolController() {
-        require(_msgSender() == _poolController, "xt: Caller is Not a Pool Controller!");
+        require(
+            _msgSender() == _poolController,
+            "xt: Caller is Not a Pool Controller!"
+        );
         _;
     }
 
@@ -29,12 +31,10 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
         _burnerAddresses[_msgSender()] = true;
     }
 
-
     /// @dev Checks if this contract supports interface
     function supportsIInternalToken() external pure returns (bool) {
         return true;
     }
-
 
     /// @dev Getter for a pool controller address
     function getPoolController() external view returns (address) {
@@ -42,19 +42,31 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     }
 
     /// @dev Setter for a pool controller address
-    function setPoolController(address poolControllerAddress) external onlyOwner {
+    function setPoolController(address poolControllerAddress)
+        external
+        onlyOwner
+    {
         IPool iPoolCandidate = IPool(poolControllerAddress);
-        require(iPoolCandidate.supportsIPool(), "xt: Contract Does Not Implement IPool Interface!");
+        require(
+            iPoolCandidate.supportsIPool(),
+            "xt: Contract Does Not Implement IPool Interface!"
+        );
         _poolController = poolControllerAddress;
     }
 
     /// @dev Pool controller can mint tokens to anyone
-    function mint(address recipient, uint256 amount) external onlyPoolController {
+    function mint(address recipient, uint256 amount)
+        external
+        onlyPoolController
+    {
         _mint(recipient, amount);
     }
 
     /// @dev Pool controller can burn anyone's tokens
-    function burnTokenFrom(address account, uint256 amount) external onlyPoolController {
+    function burnTokenFrom(address account, uint256 amount)
+        external
+        onlyPoolController
+    {
         _burn(account, amount);
     }
 }

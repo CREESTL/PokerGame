@@ -13,8 +13,6 @@
 // const { dumbArrayToString } = require('./utils/dumbArrayToString');
 // const { getHexAddress, simpleExpectRevert } = require('./utils/tronBSHelpers');
 
-
-
 // const XTRXToken = artifacts.require('XTRXToken');
 // const Oracle = artifacts.require('Oracle');
 // const PoolController = artifacts.require('PoolController');
