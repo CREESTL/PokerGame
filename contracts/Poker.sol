@@ -361,7 +361,7 @@ contract Poker is GameController {
             // check for full house
             if (pairs[1] > -1) {
                 strongestHand = 6;
-                if (valuesMatch[uint256(uint8(pairs[0]))] >= valuesMatch[uint256(uint8(pairs[1]))]) {
+                if (valuesMatch[uint8(pairs[0])] >= valuesMatch[uint8(pairs[1])]) {
                     // retOrder[0] = pairs[0];
                     retOrder[1] = pairs[1];
                 } else {
