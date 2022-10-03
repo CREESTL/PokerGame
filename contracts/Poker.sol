@@ -27,7 +27,7 @@ contract Poker is GameController {
     struct Game {
         uint128 betColor;
         uint128 betPoker;
-        uint128 winAmount;
+        uint256 winAmount;
         uint128 refAmount;
         address payable player;
         uint8 chosenColor;
@@ -81,10 +81,15 @@ contract Poker is GameController {
         jackpotFeeMultiplier = _jackpotFeeMultiplier;
     }
     
-    function setGameResult(uint256 requestid, uint128 winAmount, uint128 refAmount, bool isJackpot, uint64 bitCards) external onlyOperator {
+    function setGameResult(uint256 requestid, uint256 winAmount, uint128 refAmount, bool isJackpot, uint64 bitCards) external onlyOperator {
         games[requestid].winAmount = winAmount;
         games[requestid].refAmount = refAmount;
         games[requestid].isJackpot = isJackpot;
+
+        if(isJackpot) {
+            _poolController.freezeJackpot(winAmount);
+        }
+
         __callback(bitCards, requestid);
     }
 
@@ -102,7 +107,7 @@ contract Poker is GameController {
         if (games[requestId].isJackpot) {
             _poolController.jackpotDistribution(player, winAmount);
         } else {
-            _poolController.rewardDisribution(player, winAmount);
+            _poolController.rewardDistribution(player, winAmount);
         }
 
         games[requestId].isWinAmountClaimed = true;
@@ -156,16 +161,17 @@ contract Poker is GameController {
         }
 
         if (winPoker == GameResults.Draw) {
-            winPokerAmount = winPokerAmount.add(betPoker.sub(betPokerEdge + jackPotAdder));
+            winPokerAmount = betPoker.sub(betPokerEdge + jackPotAdder);
         }
 
         if (winPoker == GameResults.Win) {
             referralBonus = referralBonus.add(betPokerEdge);
-            winPokerAmount = winPokerAmount.add(betPoker.mul(2).sub(betPokerEdge + jackPotAdder));
+            winPokerAmount = betPoker.mul(2).sub(betPokerEdge + jackPotAdder);
         }
 
         if (winPoker == GameResults.Jackpot) {
-            winPokerAmount = winPokerAmount.add(_poolController.jackpot());
+            winPokerAmount = _poolController.jackpot() <= _poolController.jackpotLimit()
+                ? _poolController.jackpot() : _poolController.jackpotLimit();
         }
 
         return (winPokerAmount, winColorAmount, referralBonus);

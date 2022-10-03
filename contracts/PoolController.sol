@@ -34,7 +34,8 @@ contract PoolController is IPool, Context, Ownable {
     uint256 internal constant PERCENT100 = 10 ** 6; // 100 %
 
     // jackpot
-    uint256 public jackpot;
+    uint256 public totalJackpot;
+    uint256 public freezedJackpot;
     uint256 public jackpotLimit; 
 
     mapping (address => RefAccount) refAccounts;
@@ -62,8 +63,8 @@ contract PoolController is IPool, Context, Ownable {
         whitelist[_msgSender()] = true;
         totalWinningsMilestones = [0, 20000000000, 60000000000, 100000000000, 140000000000, 180000000000, 220000000000];
         bonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
-        jackpot = 500000000000; // TODO: change to 78000000000 on deploy for test/prod
-        jackpotLimit = 1000000000000; // TODO: change to 1950000000000 on deploy for test/prod
+        totalJackpot = 78000000000; // TODO: change to 78000000000 on deploy for test/prod
+        jackpotLimit = 1950000000000; // TODO: change to 1950000000000 on deploy for test/prod
     }
 
     function getTotalWinningsMilestones() external view returns(uint[7] memory) {
@@ -73,8 +74,6 @@ contract PoolController is IPool, Context, Ownable {
     function getBonusPercentMilestones() external view returns(uint[7] memory) {
         return bonusPercentMilestones;
     }
-
-
 
     function getGame() external view returns (address) {
         return address(_game);
@@ -137,7 +136,7 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function setJackpot(uint256 _jackpot) external onlyOwner {
-        jackpot = _jackpot;
+        totalJackpot = _jackpot;
     }
 
     function setJackpotLimit(uint256 _jackpotLimit) external onlyOwner {
@@ -145,23 +144,25 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function updateJackpot(uint256 amount) external onlyGame {
-        jackpot = jackpot.add(amount);
+        totalJackpot = totalJackpot.add(amount);
+    }
+
+    function freezeJackpot (uint256 amount) external onlyGame {
+        freezedJackpot = freezedJackpot.add(amount);
+    }
+
+    // Don't change this name, otherwise back/front can break
+    function jackpot() public view returns (uint256) {
+        return totalJackpot.sub(freezedJackpot);
     }
 
     function receiveFundsFromGame() external payable {}
 
     function jackpotDistribution(address payable player, uint256 prize) external onlyGame {
-        uint256 jackpotAmount = prize;
-        if (jackpotAmount > jackpotLimit) {
-            jackpotAmount = jackpotLimit;
-        }
-        if (jackpotAmount > jackpot) {
-            jackpotAmount = jackpot;
-        }
-
-        jackpot = jackpot.sub(jackpotAmount);
-        _rewardDistribution(player, jackpotAmount);
-        emit JackpotWin(player, jackpotAmount);
+        totalJackpot = totalJackpot.sub(prize);
+        freezedJackpot = freezedJackpot.sub(prize);
+        _rewardDistribution(player, prize);
+        emit JackpotWin(player, prize);
     }
 
     function updateReferralStats(address referral, uint256 amount, uint256 betEdge) external onlyGame {
@@ -172,7 +173,6 @@ contract PoolController is IPool, Context, Ownable {
 
         uint256 referralEarnings = betEdge.mul(refAccounts[parent].bonusPercent).div(100);
         refAccounts[parent].referralEarningsBalance = refAccounts[parent].referralEarningsBalance.add(referralEarnings);
-            
     }
 
     function addBetToPool(uint256 betAmount) external onlyGame payable {
@@ -181,7 +181,7 @@ contract PoolController is IPool, Context, Ownable {
         pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleGasFee);
     }
 
-    function rewardDisribution(address payable player, uint256 prize) public onlyGame {
+    function rewardDistribution(address payable player, uint256 prize) public onlyGame {
         _rewardDistribution(player, prize);
     }
 
