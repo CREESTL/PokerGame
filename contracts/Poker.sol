@@ -148,15 +148,15 @@ contract Poker is GameController {
         address payable player = games[requestId].player;
         uint256 winAmount = games[requestId].winAmount;
         uint256 refAmount = games[requestId].refAmount;
+        
+        games[requestId].isWinAmountClaimed = true;
+        _poolController.updateReferralStats(player, winAmount, refAmount);
+
         if (games[requestId].isJackpot) {
             _poolController.jackpotDistribution(player, winAmount);
         } else {
             _poolController.rewardDistribution(player, winAmount);
         }
-
-        games[requestId].isWinAmountClaimed = true;
-
-        _poolController.updateReferralStats(player, winAmount, refAmount);
 
         emit WinAmountClaimed(requestId);
     }

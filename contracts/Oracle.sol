@@ -8,7 +8,6 @@ import "./Interfaces.sol";
 contract Oracle is IOracle, Ownable {
     IGame internal _game;
     address internal _operator;
-    string internal _owner;
     uint256 internal _nonce;
 
     mapping(uint256 => bool) internal _pendingRequests;
