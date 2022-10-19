@@ -5,20 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IPool.sol";
 import "./GameController.sol";
 
-/**
- * play() платит
- * создается запись для игры
- * обновляется ставка в пуле
- * обновляется джекпот
- * обновляется число рандомное
- * эмитится событие
- * бек ловит
- * бек отрабатывает свою часть логики
- * вызывается getPokerResult с массивом карты С БЕКА
- * вызывается calculateGameResult С БЕКА
- * вызывается setGameResult С БЕКА
- * игрок вызывает claimWinAmount и забирает выигрыш, если выиграл
- */
 
 contract Poker is GameController {
     using SafeMath for uint256;
@@ -140,7 +126,7 @@ contract Poker is GameController {
             _poolController.freezeJackpot(winAmount);
         }
 
-        __callback(bitCards, requestid);
+        _closeRequest(bitCards, requestid);
     }
 
     // Only backend can send funds from Poker to Pool
@@ -189,7 +175,7 @@ contract Poker is GameController {
             betPoker.mul(jackpotFeeMultiplier).div(1000)
         );
 
-        super._updateRandomNumber();
+        super._updateRandomRequest();
 
         Game storage game = games[_lastRequestId];
         game.betColor = uint128(betColor);

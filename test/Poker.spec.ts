@@ -216,7 +216,7 @@ describe("Poker", () => {
       let gameInfo = await poker.games(requestId);
       expect(gameInfo[2]).to.equal(gameResults[0].add(gameResults[1]));
       // check that cards are correct
-      const gameMetaData = await poker.getRandomNumberInfo(requestId);
+      const gameMetaData = await poker.getRequest(requestId);
       expect(gameMetaData[0]).to.equal(bitCards);
       // check that user data updated and he cant claim reward again
       gameInfo = await poker.games(requestId);
@@ -260,7 +260,7 @@ describe("Poker", () => {
       let gameInfo = await poker.games(requestId);
       expect(gameInfo[2]).to.equal(gameResults[0].add(gameResults[1]));
       // check that cards are correct
-      const gameMetaData = await poker.getRandomNumberInfo(requestId);
+      const gameMetaData = await poker.getRequest(requestId);
       expect(gameMetaData[0]).to.equal(bitCards);
       // check that user data updated and he cant claim reward again
       gameInfo = await poker.games(requestId);
@@ -304,7 +304,7 @@ describe("Poker", () => {
       let gameInfo = await poker.games(requestId);
       expect(gameInfo[2]).to.equal(gameResults[0].add(gameResults[1]));
       // check that cards are correct
-      const gameMetaData = await poker.getRandomNumberInfo(requestId);
+      const gameMetaData = await poker.getRequest(requestId);
       expect(gameMetaData[0]).to.equal(bitCards);
       // check that user data updated and he cant claim reward again
       gameInfo = await poker.games(requestId);
@@ -348,7 +348,7 @@ describe("Poker", () => {
       let gameInfo = await poker.games(requestId);
       expect(gameInfo[2]).to.equal(gameResults[0].add(gameResults[1]));
       // check that cards are correct
-      const gameMetaData = await poker.getRandomNumberInfo(requestId);
+      const gameMetaData = await poker.getRequest(requestId);
       expect(gameMetaData[0]).to.equal(bitCards);
       // check that user data updated and he cant claim reward again
       gameInfo = await poker.games(requestId);
@@ -392,7 +392,7 @@ describe("Poker", () => {
       const gameInfo = await poker.games(requestId);
       expect(gameInfo[2]).to.equal(gameResults[0].add(gameResults[1]));
 
-      const gameMetaData = await poker.getRandomNumberInfo(requestId);
+      const gameMetaData = await poker.getRequest(requestId);
       expect(gameMetaData[0]).to.equal(bitCards);
     });
 
