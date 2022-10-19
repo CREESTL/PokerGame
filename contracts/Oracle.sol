@@ -2,8 +2,8 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-// import "@openzeppelin/contracts/GSN/Context.sol";
-import "./Interfaces.sol";
+import "./interfaces/IOracle.sol";
+import "./interfaces/IGame.sol";
 
 contract Oracle is IOracle, Ownable {
     IGame internal _game;

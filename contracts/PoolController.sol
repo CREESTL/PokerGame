@@ -3,7 +3,9 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./Interfaces.sol";
+import "./interfaces/IPool.sol";
+import "./interfaces/IInternalToken.sol";
+import "./interfaces/IGame.sol";
 
 /**
  * Jackpot logic

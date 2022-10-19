@@ -2,9 +2,8 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./Interfaces.sol";
+import "./interfaces/IPool.sol";
 import "./GameController.sol";
-import "./libraries/CheapMath.sol";
 
 /**
  * play() платит

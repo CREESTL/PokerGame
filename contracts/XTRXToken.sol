@@ -6,7 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "./Interfaces.sol";
+import "./interfaces/IInternalToken.sol";
+import "./interfaces/IPool.sol";
 
 contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     using SafeMath for uint256;
