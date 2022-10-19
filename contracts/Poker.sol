@@ -20,6 +20,7 @@ contract Poker is GameController {
 
     uint256 public _maxBet;
     // TODO backend address
+    //      NOT USED!
     address public _operator;
 
     struct Hand {

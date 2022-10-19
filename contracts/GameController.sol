@@ -156,6 +156,8 @@ contract GameController is IGame, Ownable {
      * @notice Sets a new oracle. See `setOracle`
      */
     function _setOracle(address oracleAddress) internal {
+        // Check that contract with the provided address supports
+        // correct interface
         IOracle iOracleCandidate = IOracle(oracleAddress);
         require(
             iOracleCandidate.supportsIOracle(),

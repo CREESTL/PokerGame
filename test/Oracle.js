@@ -32,29 +32,29 @@
 
 //   it('should show right oracle contract parameters', async () => {
 //     assert.isTrue(await this.oracle.supportsIOracle())
-//     assert.equal(await this.oracle.getOperatorAddress(), getHexAddress(owner));
+//     assert.equal(await this.oracle.getOperator(), getHexAddress(owner));
 //   });
 
-//   describe('setOperatorAddress', async () => {
+//   describe('setOperator', async () => {
 //     it('should change operator if caller is the owner', async () => {
-//       assert.equal(await this.oracle.getOperatorAddress(), getHexAddress(owner));
-//       await this.oracle.setOperatorAddress(getHexAddress(alice), { from: owner });
-//       assert.equal(await this.oracle.getOperatorAddress(), getHexAddress(alice));
-//       await this.oracle.setOperatorAddress(getHexAddress(owner), { from: owner });
+//       assert.equal(await this.oracle.getOperator(), getHexAddress(owner));
+//       await this.oracle.setOperator(getHexAddress(alice), { from: owner });
+//       assert.equal(await this.oracle.getOperator(), getHexAddress(alice));
+//       await this.oracle.setOperator(getHexAddress(owner), { from: owner });
 //     });
 
 //     it('should not change operator if caller is not the owner', async () => {
-//       assert.equal(await this.oracle.getOperatorAddress(), getHexAddress(owner));
+//       assert.equal(await this.oracle.getOperator(), getHexAddress(owner));
 //       // will fail
-//       await this.oracle.setOperatorAddress(alice, { from: alice });
-//       expect(await this.oracle.getOperatorAddress()).to.equal(getHexAddress(owner));
+//       await this.oracle.setOperator(alice, { from: alice });
+//       expect(await this.oracle.getOperator()).to.equal(getHexAddress(owner));
 //     });
 
 //     it('should not change operator to zero address', async () => {
-//       assert.equal(await this.oracle.getOperatorAddress(), getHexAddress(owner));
+//       assert.equal(await this.oracle.getOperator(), getHexAddress(owner));
 //       // will fail
-//       await this.oracle.setOperatorAddress(ZERO_ADDRESS, { from: owner });
-//       assert.equal(await this.oracle.getOperatorAddress(), getHexAddress(owner));
+//       await this.oracle.setOperator(ZERO_ADDRESS, { from: owner });
+//       assert.equal(await this.oracle.getOperator(), getHexAddress(owner));
 //     });
 //   });
 
@@ -120,12 +120,12 @@
 //     it('should create random number request if caller is IGame contract', async () => {
 //       await this.fakeGameController.createRandomNumberRequest();
 //       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
-//       assert.isTrue(await this.oracle.getPendingRequests(requestId.toString()), { from: owner });
+//       assert.isTrue(await this.oracle.checkPending(requestId.toString()), { from: owner });
 //     });
 
 //     it('should not create random number request if caller is not IGame contract', async () => {
 //       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
-//       assert.isTrue(await this.oracle.getPendingRequests(requestId.toString()), { from: owner });
+//       assert.isTrue(await this.oracle.checkPending(requestId.toString()), { from: owner });
 //        // will fail
 //       const fakeRequestId = await this.oracle.createRandomNumberRequest({ from: owner });
 //       assert.equal(await this.fakeGameController.getLastRequestId({ from: owner }), requestId.toString());
@@ -136,7 +136,7 @@
 //       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
 //       const receipt = await this.fakeGameController.acceptRandomNumberRequest(requestId.toString());
 //       // try {
-//       //   expectEvent.inTransaction(receipt, this.oracle, 'RandomNumberRequestEvent', {
+//       //   expectEvent.inTransaction(receipt, this.oracle, 'RandomNumberRequested', {
 //       //   callerAddress: this.fakeGameController.address,
 //       //   requestId: requestId
 //       // });
@@ -157,7 +157,7 @@
 //       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
 //       await this.fakeGameController.acceptRandomNumberRequest(requestId, { from: owner });
 //       const RANDOM_NUMBER = 10;
-//       assert.equal(await this.oracle.getPendingRequests(requestId, { from: owner }), true);
+//       assert.equal(await this.oracle.checkPending(requestId, { from: owner }), true);
 //       // const oracle = tronweb.contract().at(this.oracle.address);
 //       // oracle.then(meta => {
 //       //   console.log(meta.RandomNumberEvent(), 999999);

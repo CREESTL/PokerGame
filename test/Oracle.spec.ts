@@ -30,18 +30,18 @@ describe("Poker", () => {
   });
 
   describe("check getters", async () => {
-    it("getOperatorAddress and setOperatorAddress should change/return storage value", async () => {
-      expect(await oracle.getOperatorAddress()).to.equal(wallet.address);
-      await oracle.setOperatorAddress(other.address);
-      await expect(oracle.setOperatorAddress(constants.AddressZero)).to.be
+    it("getOperator and setOperator should change/return storage value", async () => {
+      expect(await oracle.getOperator()).to.equal(wallet.address);
+      await oracle.setOperator(other.address);
+      await expect(oracle.setOperator(constants.AddressZero)).to.be
         .reverted;
-      expect(await oracle.getOperatorAddress()).to.equal(other.address);
+      expect(await oracle.getOperator()).to.equal(other.address);
     });
 
-    it("getPendingRequests should return storage value", async () => {
+    it("checkPending should return storage value", async () => {
       await poker.play(0, 0, { value: 1000000000000 });
       const requestId = await poker.getLastRequestId();
-      expect(await oracle.getPendingRequests(requestId)).to.equal(true);
+      expect(await oracle.checkPending(requestId)).to.equal(true);
     });
 
     it("getGame should return storage value", async () => {

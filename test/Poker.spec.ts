@@ -54,8 +54,8 @@ describe("Poker", () => {
     ));
   });
 
-  it("toBit func should convert array of cards to correct binary num", async () => {
-    expect(await oracle.toBit(checkingToBitArr)).to.equal(checkingToBitInt);
+  it("cardsToBinNum func should convert array of cards to correct binary num", async () => {
+    expect(await oracle.cardsToBinNum(checkingToBitArr)).to.equal(checkingToBitInt);
   });
 
   // setter and getters
@@ -203,7 +203,7 @@ describe("Poker", () => {
       expect(gameResults[1]).to.equal(0);
       expect(gameResults[2]).to.equal(1500000);
 
-      const bitCards = await oracle.toBit(winCards);
+      const bitCards = await oracle.cardsToBinNum(winCards);
 
       await poker.setGameResult(
         requestId,
@@ -246,7 +246,7 @@ describe("Poker", () => {
       expect(gameResults[1]).to.equal(19850000);
       expect(gameResults[2]).to.equal(150000);
 
-      const bitCards = await oracle.toBit(computerWinsCards);
+      const bitCards = await oracle.cardsToBinNum(computerWinsCards);
 
       await poker.setGameResult(
         requestId,
@@ -290,7 +290,7 @@ describe("Poker", () => {
       expect(gameResults[1]).to.equal(0);
       expect(gameResults[2]).to.equal(0);
 
-      const bitCards = await oracle.toBit(computerWinsCards);
+      const bitCards = await oracle.cardsToBinNum(computerWinsCards);
 
       await poker.setGameResult(
         requestId,
@@ -334,7 +334,7 @@ describe("Poker", () => {
       expect(gameResults[1]).to.equal(0);
       expect(gameResults[2]).to.equal(0);
 
-      const bitCards = await oracle.toBit(drawCards);
+      const bitCards = await oracle.cardsToBinNum(drawCards);
 
       await poker.setGameResult(
         requestId,
@@ -379,7 +379,7 @@ describe("Poker", () => {
       expect(gameResults[1]).to.equal(0);
       expect(gameResults[2]).to.equal(0);
 
-      const bitCards = await oracle.toBit(winJackpotCards);
+      const bitCards = await oracle.cardsToBinNum(winJackpotCards);
 
       await poker.setGameResult(
         requestId,

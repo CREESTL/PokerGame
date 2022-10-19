@@ -137,7 +137,7 @@ describe("Poker", () => {
         winColor
       );
 
-      const bitCards = await oracle.toBit(winCards);
+      const bitCards = await oracle.cardsToBinNum(winCards);
       await poker.setGameResult(
         requestId,
         gameResults[0].add(gameResults[1]),
@@ -169,7 +169,7 @@ describe("Poker", () => {
         winColor
       );
 
-      const bitCards = await oracle.toBit(winCards);
+      const bitCards = await oracle.cardsToBinNum(winCards);
       await poker.setGameResult(
         requestId,
         gameResults[0].add(gameResults[1]),
@@ -271,7 +271,7 @@ describe("Poker", () => {
       winColor
     );
 
-    const bitCards = await oracle.toBit(winJackpotCards);
+    const bitCards = await oracle.cardsToBinNum(winJackpotCards);
 
     await poker.setGameResult(
       requestId,

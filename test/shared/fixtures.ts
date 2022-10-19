@@ -46,7 +46,7 @@ export const contractsFixture: Fixture<PokerFixture> =
 
     await poolController.setGame(poker.address);
     await oracle.setGame(poker.address);
-    await oracle.setOperatorAddress(owner.address);
+    await oracle.setOperator(owner.address);
 
     await poker.setMaxBet("10000000000000");
     await poolController.deposit(owner.address, { value: 100000000000 });

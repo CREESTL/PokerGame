@@ -48,7 +48,7 @@
 //   });
 
 //   it('checkingToBit', async () => {
-//     assert.equal(await this.oracle.toBit(checkingToBitArr), checkingToBitInt);
+//     assert.equal(await this.oracle.cardsToBinNum(checkingToBitArr), checkingToBitInt);
 //   })
 
 //   it('setHouseEdge should change storage value', async () => {
