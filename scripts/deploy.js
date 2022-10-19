@@ -87,7 +87,7 @@ async function main() {
     pokerOperator.privateKey;
 
   // Interfaces from `Interfaces.sol` are abstract and can't be deployed
-  // 'GameController.sol' and 'Migrations.sol' are not deployed as well
+  // 'GameController.sol' is not deployed as well
 
   console.log(`See Results in "${__dirname + "/deployOutput.json"}" File`);
 
