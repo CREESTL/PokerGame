@@ -1,16 +1,16 @@
-import { ethers, waffle } from 'hardhat';
-import { PoolController } from '../typechain/PoolController';
-import { XTRXToken } from '../typechain/XTRXToken';
-import { Poker } from '../typechain/Poker';
-import { Oracle } from '../typechain/Oracle';
-import { expect } from './shared/expect';
-import { contractsFixture } from './shared/fixtures';
+import { ethers, waffle } from "hardhat";
+import { PoolController } from "../typechain/PoolController";
+import { XTRXToken } from "../typechain/XTRXToken";
+import { Poker } from "../typechain/Poker";
+import { Oracle } from "../typechain/Oracle";
+import { expect } from "./shared/expect";
+import { contractsFixture } from "./shared/fixtures";
 
 const { constants } = ethers;
 
 const TEST_ADDRESSES: [string, string] = [
-  '0x1000000000000000000000000000000000000000',
-  '0x2000000000000000000000000000000000000000',
+  "0x1000000000000000000000000000000000000000",
+  "0x2000000000000000000000000000000000000000",
 ];
 
 const createFixtureLoader = waffle.createFixtureLoader;
@@ -26,7 +26,7 @@ const evenWinColorCards = [12, 25, 38]; // returns 2, 0, 3 even wins
 const oddWinColorCards = [22, 47, 7]; // returns 1, 3, 0 odd wins
 
 const checkingToBitArr = [1, 6, 13, 14, 24, 27, 44, 45, 50];
-const checkingToBitInt = '14274713982914945';
+const checkingToBitInt = "14274713982914945";
 
 const initHouseEdge = 15;
 const changedHouseEdge = 20;
@@ -34,9 +34,8 @@ const changedHouseEdge = 20;
 const initJackpotMultiplier = 2;
 const changedJackpotMultiplier = 5;
 
-describe('Poker', () => {
+describe("Poker", () => {
   const [wallet, other] = waffle.provider.getWallets();
-
 
   let xTRX: XTRXToken;
   let poolController: PoolController;
@@ -45,138 +44,146 @@ describe('Poker', () => {
 
   let loadFixture: ReturnType<typeof createFixtureLoader>;
 
-  before('create fixture loader', async () => {
-    loadFixture = createFixtureLoader([wallet, other])
-  })
+  before("create fixture loader", async () => {
+    loadFixture = createFixtureLoader([wallet, other]);
+  });
 
-  beforeEach('deploy fixture', async () => {
-    ;({
-      xTRX,
-      poolController,
-      oracle,
-      poker,
-    } = await loadFixture(contractsFixture));
-  })
+  beforeEach("deploy fixture", async () => {
+    ({ xTRX, poolController, oracle, poker } = await loadFixture(
+      contractsFixture
+    ));
+  });
 
-  it('toBit func should convert array of cards to correct binary num', async () => {
+  it("toBit func should convert array of cards to correct binary num", async () => {
     expect(await oracle.toBit(checkingToBitArr)).to.equal(checkingToBitInt);
-  })
+  });
 
   // setter and getters
 
-  describe('check setters and getters', async () => {
-    it('setHouseEdge should change storage value', async () => {
+  describe("check setters and getters", async () => {
+    it("setHouseEdge should change storage value", async () => {
       expect(await poker.houseEdge()).to.equal(initHouseEdge);
       await poker.setHouseEdge(changedHouseEdge);
       expect(await poker.houseEdge()).to.equal(changedHouseEdge);
     });
-  
-    it('setJackpotMultiplier should change storage value', async () => {
-      expect(await poker.jackpotFeeMultiplier()).to.equal(initJackpotMultiplier);
+
+    it("setJackpotMultiplier should change storage value", async () => {
+      expect(await poker.jackpotFeeMultiplier()).to.equal(
+        initJackpotMultiplier
+      );
       await poker.setJackpotFeeMultiplier(changedJackpotMultiplier);
-      expect(await poker.jackpotFeeMultiplier()).to.equal(changedJackpotMultiplier);
+      expect(await poker.jackpotFeeMultiplier()).to.equal(
+        changedJackpotMultiplier
+      );
     });
 
-    it('setOracle should work', async () => {
+    it("setOracle should work", async () => {
       await poker.setOracle(oracle.address);
       expect(await poker.getOracle()).to.equal(oracle.address);
-    })
-    
-    it('getLastRequestId should work', async () => {
+    });
+
+    it("getLastRequestId should work", async () => {
       await poker.getLastRequestId();
-    })
+    });
 
-    it('getLastRequestId should not work', async () => {
-      await expect(poker.getLastRequestId({ from: other.address })).to.be.reverted;
-    })
+    it("getLastRequestId should not work", async () => {
+      await expect(poker.getLastRequestId({ from: other.address })).to.be
+        .reverted;
+    });
 
-    it('setPoolController should work',async () => {
+    it("setPoolController should work", async () => {
       await poker.setPoolController(poolController.address);
       expect(await poker.getPoolController()).to.equal(poolController.address);
-    })
+    });
 
-    it('setOperator should work',async () => {
+    it("setOperator should work", async () => {
       await poker.setOperator(other.address);
       expect(await poker._operator()).to.equal(other.address);
-    })
+    });
   });
 
-  describe('check poker results', async () => {
-    it('poker result should be lose', async () => {
+  describe("check poker results", async () => {
+    it("poker result should be lose", async () => {
       expect(await poker.getPokerResult(computerWinsCards)).to.equal(0);
-    })
+    });
 
-    it('poker result should be draw', async () => {
+    it("poker result should be draw", async () => {
       expect(await poker.getPokerResult(drawCards)).to.equal(1);
-    })
+    });
 
-    it('poker result should be win', async () => {
+    it("poker result should be win", async () => {
       expect(await poker.getPokerResult(winCards)).to.equal(2);
-    })
+    });
 
-    it('poker result should be win jackpot', async () => {
+    it("poker result should be win jackpot", async () => {
       expect(await poker.getPokerResult(winJackpotCards)).to.equal(3);
-    })
-  })
+    });
+  });
 
-  describe('check unchecked requires', async () => {
-    it('setMaxBet should fail', async () => {
+  describe("check unchecked requires", async () => {
+    it("setMaxBet should fail", async () => {
       // @ts-ignore
-      await expect(poker.setMaxBet(100, { from: other.address })).to.be.reverted;
-    })
+      await expect(poker.setMaxBet(100, { from: other.address })).to.be
+        .reverted;
+    });
 
-    it('setGameResult should fail', async () => {
+    it("setGameResult should fail", async () => {
       await poker.play(10000000, 0, { value: 100000000 });
       const requestId = await poker.getLastRequestId();
       // @ts-ignore
-      await expect(poker.setGameResult(requestId, 100, { from: other.address })).to.be.reverted;
-    })
+      await expect(poker.setGameResult(requestId, 100, { from: other.address }))
+        .to.be.reverted;
+    });
 
-    it('sendFundsToPool should fail', async () => {
+    it("sendFundsToPool should fail", async () => {
       // @ts-ignore
-      await expect(poker.sendFundsToPool({ from: other.address })).to.be.reverted;
-    })
+      await expect(poker.sendFundsToPool({ from: other.address })).to.be
+        .reverted;
+    });
 
-    it('claimWinAmount should fail', async () => {
+    it("claimWinAmount should fail", async () => {
       await poker.play(10000000, 0, { value: 100000000 });
       const requestId = await poker.getLastRequestId();
       // @ts-ignore
-      await expect(poker.claimWinAmount(requestId, { from: other.address })).to.be.reverted;
-    })
-  })
+      await expect(poker.claimWinAmount(requestId, { from: other.address })).to
+        .be.reverted;
+    });
+  });
 
-  describe('misc functions', async () => {
-    describe('check sendFundsToPool', async () => {
-      it('sendFundsToPool to pool should work', async () => {
+  describe("misc functions", async () => {
+    describe("check sendFundsToPool", async () => {
+      it("sendFundsToPool to pool should work", async () => {
         await poker.play(0, 0, { value: 100000000 });
         await poker.sendFundsToPool();
-      })
+      });
 
-      it('sendFundsToPool should fail', async () => {
+      it("sendFundsToPool should fail", async () => {
         // @ts-ignore
-        await expect(poker.sendFundsToPool({ from: other.address })).to.be.reverted;
-      })
-    })
+        await expect(poker.sendFundsToPool({ from: other.address })).to.be
+          .reverted;
+      });
+    });
 
-    describe('check claimWinAmount', async () => {
-      it('claimWinAmount should work', async () => {
+    describe("check claimWinAmount", async () => {
+      it("claimWinAmount should work", async () => {
         await poker.play(0, 0, { value: 100000000 });
         const requestId = await poker.getLastRequestId();
         await poker.claimWinAmount(requestId);
-      })
+      });
 
-      it('claimWinAmount should fail', async () => {
+      it("claimWinAmount should fail", async () => {
         await poker.play(0, 0, { value: 100000000 });
         const requestId = await poker.getLastRequestId();
         // @ts-ignore
-        await expect(poker.claimWinAmount(requestId, { from: other.address })).to.be.reverted;
-      })
-    })
-  })
+        await expect(poker.claimWinAmount(requestId, { from: other.address }))
+          .to.be.reverted;
+      });
+    });
+  });
 
-  describe('game workflow', async () => {
-    it('checking play workflow, user wins poker and color', async () => {
-      expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
+  describe("game workflow", async () => {
+    it("checking play workflow, user wins poker and color", async () => {
+      expect(await xTRX.balanceOf(wallet.address)).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
@@ -187,14 +194,23 @@ describe('Poker', () => {
       const winPoker = await poker.getPokerResult(winCards);
       const winColor = await poker.getColorResult(requestId, evenWinColorCards);
 
-      const gameResults = await poker.calculateWinAmount(requestId, winPoker, winColor);
+      const gameResults = await poker.calculateWinAmount(
+        requestId,
+        winPoker,
+        winColor
+      );
       expect(gameResults[0]).to.equal(198300000);
       expect(gameResults[1]).to.equal(0);
       expect(gameResults[2]).to.equal(1500000);
 
       const bitCards = await oracle.toBit(winCards);
 
-      await poker.setGameResult(requestId, (gameResults[0].add(gameResults[1])), gameResults[2], bitCards);
+      await poker.setGameResult(
+        requestId,
+        gameResults[0].add(gameResults[1]),
+        gameResults[2],
+        bitCards
+      );
       await poker.claimWinAmount(requestId);
       // check that winAmount is correct
       let gameInfo = await poker.games(requestId);
@@ -209,8 +225,8 @@ describe('Poker', () => {
       await expect(poker.claimWinAmount(requestId)).to.be.reverted;
     });
 
-    it('checking play workflow, user loses poker and wins color', async () => {
-      expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
+    it("checking play workflow, user loses poker and wins color", async () => {
+      expect(await xTRX.balanceOf(wallet.address)).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
@@ -221,14 +237,23 @@ describe('Poker', () => {
       const winPoker = await poker.getPokerResult(computerWinsCards);
       const winColor = await poker.getColorResult(requestId, evenWinColorCards);
 
-      const gameResults = await poker.calculateWinAmount(requestId, winPoker, winColor);
+      const gameResults = await poker.calculateWinAmount(
+        requestId,
+        winPoker,
+        winColor
+      );
       expect(gameResults[0]).to.equal(0);
       expect(gameResults[1]).to.equal(19850000);
       expect(gameResults[2]).to.equal(150000);
 
       const bitCards = await oracle.toBit(computerWinsCards);
 
-      await poker.setGameResult(requestId, (gameResults[0].add(gameResults[1])), gameResults[2], bitCards);
+      await poker.setGameResult(
+        requestId,
+        gameResults[0].add(gameResults[1]),
+        gameResults[2],
+        bitCards
+      );
       await poker.claimWinAmount(requestId);
 
       // check that winAmount is correct
@@ -244,8 +269,8 @@ describe('Poker', () => {
       await expect(poker.claimWinAmount(requestId)).to.be.reverted;
     });
 
-    it('checking play workflow, user loses poker and loses color', async () => {
-      expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
+    it("checking play workflow, user loses poker and loses color", async () => {
+      expect(await xTRX.balanceOf(wallet.address)).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
@@ -256,14 +281,23 @@ describe('Poker', () => {
       const winPoker = await poker.getPokerResult(computerWinsCards);
       const winColor = await poker.getColorResult(requestId, oddWinColorCards);
 
-      const gameResults = await poker.calculateWinAmount(requestId, winPoker, winColor);
+      const gameResults = await poker.calculateWinAmount(
+        requestId,
+        winPoker,
+        winColor
+      );
       expect(gameResults[0]).to.equal(0);
       expect(gameResults[1]).to.equal(0);
       expect(gameResults[2]).to.equal(0);
 
       const bitCards = await oracle.toBit(computerWinsCards);
 
-      await poker.setGameResult(requestId, (gameResults[0].add(gameResults[1])), gameResults[2], bitCards);
+      await poker.setGameResult(
+        requestId,
+        gameResults[0].add(gameResults[1]),
+        gameResults[2],
+        bitCards
+      );
       await poker.claimWinAmount(requestId);
 
       // check that winAmount is correct
@@ -279,8 +313,8 @@ describe('Poker', () => {
       await expect(poker.claimWinAmount(requestId)).to.be.reverted;
     });
 
-    it('checking play workflow, draw poker and loses color', async () => {
-      expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
+    it("checking play workflow, draw poker and loses color", async () => {
+      expect(await xTRX.balanceOf(wallet.address)).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
@@ -291,16 +325,24 @@ describe('Poker', () => {
       const winPoker = await poker.getPokerResult(drawCards);
       const winColor = await poker.getColorResult(requestId, oddWinColorCards);
 
-      const gameResults = await poker.calculateWinAmount(requestId, winPoker, winColor);
+      const gameResults = await poker.calculateWinAmount(
+        requestId,
+        winPoker,
+        winColor
+      );
       expect(gameResults[0]).to.equal(88470000);
       expect(gameResults[1]).to.equal(0);
       expect(gameResults[2]).to.equal(0);
 
       const bitCards = await oracle.toBit(drawCards);
 
-      await poker.setGameResult(requestId, (gameResults[0].add(gameResults[1])), gameResults[2], bitCards);
+      await poker.setGameResult(
+        requestId,
+        gameResults[0].add(gameResults[1]),
+        gameResults[2],
+        bitCards
+      );
       await poker.claimWinAmount(requestId);
-
 
       // check that winAmount is correct
       let gameInfo = await poker.games(requestId);
@@ -315,8 +357,8 @@ describe('Poker', () => {
       await expect(poker.claimWinAmount(requestId)).to.be.reverted;
     });
 
-    it('checking play workflow, user wins jackpot and loses color', async () => {
-      expect ((await xTRX.balanceOf(wallet.address))).to.equal(100000000000);
+    it("checking play workflow, user wins jackpot and loses color", async () => {
+      expect(await xTRX.balanceOf(wallet.address)).to.equal(100000000000);
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
@@ -327,15 +369,24 @@ describe('Poker', () => {
       const winPoker = await poker.getPokerResult(winJackpotCards);
       const winColor = await poker.getColorResult(requestId, oddWinColorCards);
 
-      const gameResults = await poker.calculateWinAmount(requestId, winPoker, winColor);
+      const gameResults = await poker.calculateWinAmount(
+        requestId,
+        winPoker,
+        winColor
+      );
       // 180000 came from him playing thus updating jackpot pool
       expect(gameResults[0]).to.equal(500000180000);
       expect(gameResults[1]).to.equal(0);
       expect(gameResults[2]).to.equal(0);
 
-      const bitCards = await oracle.toBit(winJackpotCards)
+      const bitCards = await oracle.toBit(winJackpotCards);
 
-      await poker.setGameResult(requestId, (gameResults[0].add(gameResults[1])), gameResults[2], bitCards);
+      await poker.setGameResult(
+        requestId,
+        gameResults[0].add(gameResults[1]),
+        gameResults[2],
+        bitCards
+      );
       await poker.claimWinAmount(requestId);
 
       const gameInfo = await poker.games(requestId);
@@ -345,7 +396,7 @@ describe('Poker', () => {
       expect(gameMetaData[0]).to.equal(bitCards);
     });
 
-    it('check jackpot increasing', async () => {
+    it("check jackpot increasing", async () => {
       // this is mock init jackpot value testing
       expect(await poolController.jackpot()).to.equal(500000000000);
       // every bet adds 200 000 to jackpot, so +20 000 000 after 100 games
@@ -353,6 +404,6 @@ describe('Poker', () => {
         await poker.play(0, 0, { value: 100000000 });
       }
       expect(await poolController.jackpot()).to.equal(500020000000);
-    })
-  })
-})
+    });
+  });
+});

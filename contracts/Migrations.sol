@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+// TODO for Truffle, Delete
 contract Migrations {
     address public owner;
     uint256 public last_completed_migration;

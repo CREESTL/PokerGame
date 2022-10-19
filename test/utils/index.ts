@@ -1,1 +1,1 @@
-export * from './dumbArrayToString';
+export * from "./dumbArrayToString";

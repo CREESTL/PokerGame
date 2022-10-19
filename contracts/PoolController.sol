@@ -5,6 +5,10 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Interfaces.sol";
 
+/**
+ * Jackpot logic
+ */
+
 contract PoolController is IPool, Context, Ownable {
     using SafeMath for uint256;
 
@@ -256,6 +260,7 @@ contract PoolController is IPool, Context, Ownable {
         _rewardDistribution(player, reward);
     }
 
+    // Anyone can deposit funds into the pool
     function deposit(address _to) external payable {
         require(
             whitelist[_msgSender()],

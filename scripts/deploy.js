@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT 
+// SPDX-License-Identifier: MIT
 const { ethers, network } = require("hardhat");
 const fs = require("fs");
 const path = require("path");
@@ -14,12 +14,11 @@ function createWallets(numberWallets) {
     let wallet = ethers.Wallet.createRandom();
     createdWallets.push(wallet);
     console.log(`New wallet №${i + 1}:`);
-    console.log(`    Address: ${wallet.address}`); 
+    console.log(`    Address: ${wallet.address}`);
     console.log(`    Private key: ${wallet.privateKey}`);
   }
   return createdWallets;
 }
-
 
 // Create 2 new wallets
 // Use them in Oracle and Poker constructors
@@ -35,7 +34,6 @@ let migrations;
 let interfaces;
 
 async function main() {
-
   // Contract #1: XTRXToken
   contractName = "XTRXToken";
   console.log(`[${contractName}]: Start of Deployment...`);
@@ -54,43 +52,50 @@ async function main() {
   oracle = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
   OUTPUT_DEPLOY.networks[network.name][contractName].address = oracle.address;
-  OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorAddress = oracleOperator.address;
-  OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorPrivateKey = oracleOperator.privateKey;
+  OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorAddress =
+    oracleOperator.address;
+  OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorPrivateKey =
+    oracleOperator.privateKey;
 
   // Contract #3: PoolController
   contractName = "PoolController";
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
-  // Provide the pool controller with token address 
+  // Provide the pool controller with token address
   contractDeployTx = await _contractProto.deploy(token.address);
   poolController = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
-  OUTPUT_DEPLOY.networks[network.name][contractName].address = poolController.address;
+  OUTPUT_DEPLOY.networks[network.name][contractName].address =
+    poolController.address;
 
   // Contract #4: Poker
   contractName = "Poker";
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
   // Provide the game with oracle, pool controller, poker operator addresses
-  contractDeployTx = await _contractProto.deploy(oracle.address, poolController.address, pokerOperator.address);
+  contractDeployTx = await _contractProto.deploy(
+    oracle.address,
+    poolController.address,
+    pokerOperator.address
+  );
   poker = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
   OUTPUT_DEPLOY.networks[network.name][contractName].address = poker.address;
-  OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorAddress = pokerOperator.address;
-  OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorPrivateKey = pokerOperator.privateKey;
+  OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorAddress =
+    pokerOperator.address;
+  OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorPrivateKey =
+    pokerOperator.privateKey;
 
   // Interfaces from `Interfaces.sol` are abstract and can't be deployed
   // 'GameController.sol' and 'Migrations.sol' are not deployed as well
 
-  console.log(`See Results in "${__dirname + '/deployOutput.json'}" File`);
+  console.log(`See Results in "${__dirname + "/deployOutput.json"}" File`);
 
   fs.writeFileSync(
     path.resolve(__dirname, "./deployOutput.json"),
     JSON.stringify(OUTPUT_DEPLOY, null, "  ")
   );
-
 }
-
 
 main()
   .then(() => process.exit(0))

@@ -6,6 +6,21 @@ import "./Interfaces.sol";
 import "./GameController.sol";
 import "./libraries/CheapMath.sol";
 
+/**
+ * play() платит
+ * создается запись для игры
+ * обновляется ставка в пуле
+ * обновляется джекпот
+ * обновляется число рандомное
+ * эмитится событие
+ * бек ловит
+ * бек отрабатывает свою часть логики
+ * вызывается getPokerResult с массивом карты С БЕКА
+ * вызывается calculateGameResult С БЕКА
+ * вызывается setGameResult С БЕКА
+ * игрок вызывает claimWinAmount и забирает выигрыш, если выиграл
+ */
+
 contract Poker is GameController {
     using SafeMath for uint256;
     using SafeMath for uint128;
@@ -19,6 +34,7 @@ contract Poker is GameController {
     }
 
     uint256 public _maxBet;
+    // TODO backend address
     address public _operator;
 
     struct Hand {
@@ -128,6 +144,7 @@ contract Poker is GameController {
         __callback(bitCards, requestid);
     }
 
+    // Only backend can send funds from Poker to Pool
     function sendFundsToPool() external onlyOperator {
         _poolController.receiveFundsFromGame{value: address(this).balance}();
     }
@@ -148,7 +165,7 @@ contract Poker is GameController {
         address payable player = games[requestId].player;
         uint256 winAmount = games[requestId].winAmount;
         uint256 refAmount = games[requestId].refAmount;
-        
+
         games[requestId].isWinAmountClaimed = true;
         _poolController.updateReferralStats(player, winAmount, refAmount);
 

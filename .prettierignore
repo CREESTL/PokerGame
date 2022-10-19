@@ -5,3 +5,4 @@ migrations
 flat
 cache
 artifacts
+*.lock

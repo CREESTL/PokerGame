@@ -5,6 +5,10 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Interfaces.sol";
 
+/**
+ * Utility functions
+ * Random number updates
+ */
 contract GameController is IGame, Ownable {
     using SafeMath for uint256;
 
@@ -24,6 +28,7 @@ contract GameController is IGame, Ownable {
 
     IOracle internal _oracle;
     uint256 internal _lastRequestId;
+    // TODO where _randomNumbers
     mapping(uint256 => Numbers) internal _randomNumbers; // requestId -> Numbers
 
     constructor(address oracleAddress) {

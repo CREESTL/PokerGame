@@ -66,6 +66,7 @@ contract Oracle is IOracle, Ownable {
         uint256 requestId;
         do {
             _nonce++;
+            // TODO get random not from chain
             requestId = uint256(
                 keccak256(
                     abi.encodePacked(block.timestamp, _msgSender(), _nonce)
@@ -83,6 +84,7 @@ contract Oracle is IOracle, Ownable {
     function toBit(uint8[] memory cards) public pure returns (uint256) {
         uint256 bitCards;
         for (uint256 i = 0; i < cards.length; i++) {
+            // TODO what is it???
             bitCards |= (uint256(cards[i]) << (6 * i));
         }
         return bitCards;
