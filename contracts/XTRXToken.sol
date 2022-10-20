@@ -9,6 +9,10 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./interfaces/IInternalToken.sol";
 import "./interfaces/IPool.sol";
 
+
+/**
+ * TODO Only used for tests? Delete it?
+ */
 contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     using SafeMath for uint256;
 

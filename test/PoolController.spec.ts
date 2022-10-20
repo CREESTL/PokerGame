@@ -129,11 +129,11 @@ describe("Poker", () => {
       // @ts-ignore
       await poker.play(0, 0, { value: 100000000 });
       const requestId = await poker.getLastRequestId();
-      const winPoker = await poker.getPokerResult(winCards);
+      const result = await poker.getPokerResult(winCards);
       const winColor = await poker.getColorResult(requestId, evenWinColorCards);
       const gameResults = await poker.calculateWinAmount(
         requestId,
-        winPoker,
+        result,
         winColor
       );
 
@@ -161,11 +161,11 @@ describe("Poker", () => {
       // @ts-ignore
       await poker.play(100000000, 0, { value: 100000000 });
       const requestId = await poker.getLastRequestId();
-      const winPoker = await poker.getPokerResult(winCards);
+      const result = await poker.getPokerResult(winCards);
       const winColor = await poker.getColorResult(requestId, evenWinColorCards);
       const gameResults = await poker.calculateWinAmount(
         requestId,
-        winPoker,
+        result,
         winColor
       );
 
@@ -263,11 +263,11 @@ describe("Poker", () => {
     await poker.play(0, 0, { value: 100000000000 });
     const requestId = await poker.getLastRequestId();
 
-    const winPoker = await poker.getPokerResult(winJackpotCards);
+    const result = await poker.getPokerResult(winJackpotCards);
     const winColor = await poker.getColorResult(requestId, evenWinColorCards);
     const gameResults = await poker.calculateWinAmount(
       requestId,
-      winPoker,
+      result,
       winColor
     );
 

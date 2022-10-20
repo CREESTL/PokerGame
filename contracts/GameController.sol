@@ -64,7 +64,7 @@ contract GameController is IGame, Ownable {
     }
 
     /**
-     * @notice Indicates that the contract supports `IGame` interface
+     * @notice Indicates that the contract supports {IGame} interface
      * @return True in any case
      */
     function supportsIGame() external pure returns (bool) {
@@ -153,7 +153,7 @@ contract GameController is IGame, Ownable {
     }
 
     /**
-     * @notice Sets a new oracle. See `setOracle`
+     * @notice Sets a new oracle. See {setOracle}
      */
     function _setOracle(address oracleAddress) internal {
         // Check that contract with the provided address supports

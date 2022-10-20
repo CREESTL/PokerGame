@@ -202,6 +202,9 @@ contract PoolController is IPool, Context, Ownable {
         totalJackpot = totalJackpot.add(amount);
     }
 
+    /**
+     * TODO why freeze it? what happens after?
+     */
     function freezeJackpot(uint256 amount) external onlyGame {
         freezedJackpot = freezedJackpot.add(amount);
     }

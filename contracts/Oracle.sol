@@ -63,7 +63,7 @@ contract Oracle is IOracle, Ownable {
     }
 
     /**
-     * @notice Indicates that the contract supports `IOracle` interface
+     * @notice Indicates that the contract supports {IOracle} interface
      * @return True in any case
      */
     function supportsIOracle() external pure returns (bool) {
@@ -168,7 +168,7 @@ contract Oracle is IOracle, Ownable {
     /**
      * @notice Sets the address of the poker game for this oracle
      *         to provide random numbers for
-     * See `setGame`
+     * See {setGame}
      */
     function _setGame(address gameAddress) internal {
         // Check that contract with the provided address supports
@@ -182,7 +182,7 @@ contract Oracle is IOracle, Ownable {
     }
 
     /**
-     * @notice Sets a new operator. See `setOperator`
+     * @notice Sets a new operator. See {setOperator}
      */
     function _setOperator(address operatorAddress) internal {
         require(operatorAddress != address(0), "o: Invalid Operator Address!");

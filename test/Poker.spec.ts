@@ -191,12 +191,12 @@ describe("Poker", () => {
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
-      const winPoker = await poker.getPokerResult(winCards);
+      const result = await poker.getPokerResult(winCards);
       const winColor = await poker.getColorResult(requestId, evenWinColorCards);
 
       const gameResults = await poker.calculateWinAmount(
         requestId,
-        winPoker,
+        result,
         winColor
       );
       expect(gameResults[0]).to.equal(198300000);
@@ -234,12 +234,12 @@ describe("Poker", () => {
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
-      const winPoker = await poker.getPokerResult(computerWinsCards);
+      const result = await poker.getPokerResult(computerWinsCards);
       const winColor = await poker.getColorResult(requestId, evenWinColorCards);
 
       const gameResults = await poker.calculateWinAmount(
         requestId,
-        winPoker,
+        result,
         winColor
       );
       expect(gameResults[0]).to.equal(0);
@@ -278,12 +278,12 @@ describe("Poker", () => {
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
-      const winPoker = await poker.getPokerResult(computerWinsCards);
+      const result = await poker.getPokerResult(computerWinsCards);
       const winColor = await poker.getColorResult(requestId, oddWinColorCards);
 
       const gameResults = await poker.calculateWinAmount(
         requestId,
-        winPoker,
+        result,
         winColor
       );
       expect(gameResults[0]).to.equal(0);
@@ -322,12 +322,12 @@ describe("Poker", () => {
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
-      const winPoker = await poker.getPokerResult(drawCards);
+      const result = await poker.getPokerResult(drawCards);
       const winColor = await poker.getColorResult(requestId, oddWinColorCards);
 
       const gameResults = await poker.calculateWinAmount(
         requestId,
-        winPoker,
+        result,
         winColor
       );
       expect(gameResults[0]).to.equal(88470000);
@@ -366,12 +366,12 @@ describe("Poker", () => {
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const requestId = await poker.getLastRequestId();
-      const winPoker = await poker.getPokerResult(winJackpotCards);
+      const result = await poker.getPokerResult(winJackpotCards);
       const winColor = await poker.getColorResult(requestId, oddWinColorCards);
 
       const gameResults = await poker.calculateWinAmount(
         requestId,
-        winPoker,
+        result,
         winColor
       );
       // 180000 came from him playing thus updating jackpot pool

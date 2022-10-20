@@ -6,23 +6,38 @@ import "./interfaces/IPool.sol";
 import "./GameController.sol";
 
 
+/**
+ * @title Main Texas Hold`em game logic
+ */
 contract Poker is GameController {
     using SafeMath for uint256;
     using SafeMath for uint128;
     using SafeMath for uint8;
 
-    enum GameResults {
+    /**
+     * @dev All possible results of the game
+     */
+    enum GameResult {
         Lose,
         Draw,
         Win,
         Jackpot
     }
 
+    /**
+     * @dev Maximum amount of tokens to bet
+     */
     uint256 public _maxBet;
-    // TODO backend address
-    //      NOT USED!
+
+    /**
+     * @dev The address of the operator capable 
+     *      of calling specific functions
+     */
     address public _operator;
 
+    /**
+     * @dev One of the players
+     */
     struct Hand {
         uint8[7] ranks;
         uint8[7] cards;
@@ -30,6 +45,11 @@ contract Poker is GameController {
         uint8 hand;
     }
 
+    /**
+     * @dev Game from the point of view of a single player
+     *      If 2 players take part in one game round, each of them
+     *      has his own {Game} 
+     */
     struct Game {
         uint128 betColor;
         uint128 betPoker;
@@ -41,39 +61,89 @@ contract Poker is GameController {
         bool isJackpot;
     }
 
+    // TODO search in docs
     uint256 public houseEdge;
+    /**
+     * @dev Bet amount gets multiplied by {jackpotFeeMultiplier} 
+     *      if a player wins a jackpot
+     */
     uint256 public jackpotFeeMultiplier;
 
-    event PokerResult(
+    /**
+     * @dev Indicates that the game has started
+     */
+    event GameStart(uint256 requestId);
+
+    /**
+     * TODO not used
+     * @dev Indicates that the game has finished
+     *      Shows the result of a single game
+     */
+    event GameFinished(
         uint256 winAmount,
         bool winColor,
-        GameResults winPoker,
+        GameResult result,
         uint256 requestId,
         uint256 cards,
         address player
     );
-    event GameStart(uint256 requestId);
+
+    /**
+     * @dev Indicates that someone claimed the amount he won
+     */
     event WinAmountClaimed(uint256 requestId);
 
+    /**
+     * @dev Contract controlling pool of in-game tokens
+     */
     IPool private _poolController;
+
+    /**
+     * @dev Mapping from request IDs to games
+     */
     mapping(uint256 => Game) public games;
 
+    /**
+     * @dev Checks that caller is an operator
+     */
     modifier onlyOperator() {
-        require(msg.sender == _operator, "p: Caller Is Not an Operator!");
+        require(msg.sender == _operator, "Poker: caller is not an operator!");
         _;
     }
 
+    /**
+     * @notice Initializes the contract. Assignes default values to variables
+     */
     constructor(
+        // The address of the oracle to generate random numbers
         address oracleAddress,
+        // The address controlling the pool of in-game tokens
         address poolControllerAddress,
+        // The address of gane operator (usually, address of the backend)
         address operator
     ) GameController(oracleAddress) {
         _setPoolController(poolControllerAddress);
+        // TODO percent???
         houseEdge = 15;
+        // Bet gets multiplied by 2 in case of jackpot by default
         jackpotFeeMultiplier = 2;
         _operator = operator;
     }
 
+    /**
+     * @notice Returns the address of the current pool controller
+     * @return The address of the current pool controller
+     */
+    function getPoolController() external view returns (address) {
+        return address(_poolController);
+
+    }
+
+    /**
+     * @notice Changes the address of the pool controller
+     * @param  poolControllerAddress A new address of the pool controller
+     * // TODO add checks for zero address here and in other places
+     */
     function setPoolController(address poolControllerAddress)
         external
         onlyOwner
@@ -81,22 +151,36 @@ contract Poker is GameController {
         _setPoolController(poolControllerAddress);
     }
 
-    function setOperator(address operator) external onlyOwner {
-        _operator = operator;
+    /**
+     * @notice Changes the address of the game operator
+     * @param  operatorAddress The address of the new operator
+     */
+    function setOperator(address operatorAddress) external onlyOwner {
+        _operator = operatorAddress;
     }
 
-    function getPoolController() external view returns (address) {
-        return address(_poolController);
-    }
-
+    /**
+     * @notice Changes the maxximum amount of tokens to bet
+     * @param maxBet The maximum amount of tokens to bets
+     */
     function setMaxBet(uint256 maxBet) external onlyOperator {
         _maxBet = maxBet;
-    }
+    }  
 
+
+    /**
+     * // TODO what is house edge?
+     * @notice Changes the house edge of the game
+     * @param _houseEdge A new house edge
+     */
     function setHouseEdge(uint256 _houseEdge) external onlyOwner {
         houseEdge = _houseEdge;
     }
 
+    /**
+     * @notice Changes the current jackpot multiplier
+     * @param _jackpotFeeMultiplier A new jackpot multiplier to use
+     */
     function setJackpotFeeMultiplier(uint256 _jackpotFeeMultiplier)
         external
         onlyOwner
@@ -104,81 +188,126 @@ contract Poker is GameController {
         jackpotFeeMultiplier = _jackpotFeeMultiplier;
     }
 
+    /**
+     * @notice Called by the backend to set the game result
+     * // TODO Rename it to `gameId`???
+     * @param requestId ????
+     * @param winAmount The amount that will be given to the winner
+     * // TODO or is it a referal program amount???
+     * @param refAmount The amount that will be given to the referee
+     * @param isJackpot True if one of the players won a jackpot
+     * // TODO bit = past tense of bet?
+     * @param bitCards ????
+     */
     function setGameResult(
-        uint256 requestid,
+        uint256 requestId,
         uint256 winAmount,
         uint128 refAmount,
         bool isJackpot,
         uint64 bitCards
     ) external onlyOperator {
-        games[requestid].winAmount = winAmount;
-        games[requestid].refAmount = refAmount;
-        games[requestid].isJackpot = isJackpot;
+        // Values from backend are assigned to the game
+        games[requestId].winAmount = winAmount;
+        games[requestId].refAmount = refAmount;
+        games[requestId].isJackpot = isJackpot;
 
         if (isJackpot) {
             require(
                 winAmount <= _poolController.jackpotLimit(),
-                "pc: jackpot is greater than limit"
+                "Poker: jackpot is greater than limit!"
             );
             require(
                 winAmount <= _poolController.totalJackpot(),
-                "pc: not enough funds for jackpot"
+                "Poker: not enough funds for jackpot!"
             );
+            // TODO freeze jackpot???
             _poolController.freezeJackpot(winAmount);
         }
 
-        _closeRequest(bitCards, requestid);
+        // Finish work with current game request
+        _closeRequest(bitCards, requestId);
     }
 
-    // Only backend can send funds from Poker to Pool
+    /**
+     * @notice Sends tokens from the game to the pool controller
+     */
     function sendFundsToPool() external onlyOperator {
         _poolController.receiveFundsFromGame{value: address(this).balance}();
     }
 
+    /**
+     * @notice Allows player to claim tokens he won in the game
+     * @param requestId The ID of the game request
+     */
     function claimWinAmount(uint256 requestId) external {
         require(
             games[requestId].player == _msgSender(),
-            "p: Caller Is Not a Player!"
+            "Poker: caller is not a player!"
         );
+        // Either player of referee should win.
         require(
             games[requestId].winAmount > 0 || games[requestId].refAmount > 0,
-            "p: Invalid Amount!"
+            "Poker: Invalid Amount!"
         );
         require(
             !games[requestId].isWinAmountClaimed,
-            "p: Win Already Claimed!"
+            "p: win already claimed!"
         );
+        /
         address payable player = games[requestId].player;
         uint256 winAmount = games[requestId].winAmount;
         uint256 refAmount = games[requestId].refAmount;
 
+        // Mark that this game win amount was claimed
         games[requestId].isWinAmountClaimed = true;
+
+        // TODO comment on this...
         _poolController.updateReferralStats(player, winAmount, refAmount);
 
         if (games[requestId].isJackpot) {
+            // If a player won a jackpot, disctribute tokens in one way
             _poolController.jackpotDistribution(player, winAmount);
         } else {
+            // If a player simply won (no jackpot), distribute tokens in another way
             _poolController.rewardDistribution(player, winAmount);
         }
 
         emit WinAmountClaimed(requestId);
     }
 
+    /**
+     * @notice User pays tokens, makes bets and starts a game
+     * @param betColor The color a player thinks will be dominant in the flop cards 
+     * TODO what's the difference between betColor and chosenColor???
+     * @chosenColor The color a player chose at first???
+     */
     function play(uint256 betColor, uint256 chosenColor) external payable {
         uint256 msgValue = msg.value;
+
+        // What's left of players tokens after he bet on the color
         uint256 betPoker = msgValue.sub(betColor);
 
+        // Check that the bet is valid
         _isValidBet(msgValue);
 
-        address payable player = payable(_msgSender());
+        // Tokens from each bet get added to the total pool
         _poolController.addBetToPool(msgValue);
+        // Jackpot amount gets calculated based on player's bet 
         _poolController.updateJackpot(
+            // TODO why divide by 1000?
             betPoker.mul(jackpotFeeMultiplier).div(1000)
         );
 
+        // Create a new request for a random number
+        // This updates {_lastRequestId}
         super._updateRandomRequest();
 
+        address payable player = payable(_msgSender());
+
+        // Get a random game from all games
+        // It is "empty" at first
         Game storage game = games[_lastRequestId];
+        // Initialize it with new values
         game.betColor = uint128(betColor);
         game.betPoker = uint128(betPoker);
         if (chosenColor > 0) {
@@ -189,9 +318,19 @@ contract Poker is GameController {
         emit GameStart(_lastRequestId);
     }
 
+    /**
+     * @notice Calculates the amount of tokens to be payed for:
+     *         - Poker win
+     *         - Color bet win
+     *         - Referral program membership
+     * TODO maybe random number request???
+     * @param requestId The ID of the game request
+     * @param result The result of the game with the provided ID
+     * @param winColor True if a player won a color bet. False - if he lost
+     */
     function calculateWinAmount(
         uint256 requestId,
-        GameResults winPoker,
+        GameResult result,
         bool winColor
     )
         external
@@ -201,20 +340,27 @@ contract Poker is GameController {
             uint256,
             uint256
         )
-    {
+    {   
+        // How many tokens to pay to the winner of poker game
         uint256 winPokerAmount;
+        // How many tokens to pay to the winner of color bet
+        // Can be summed with {winPokerAmount}
         uint256 winColorAmount;
+        // Tokens to pay for referral program membership
+        uint256 referralBonus;
 
+        // Retrive info about the game using the game ID
         uint256 betPoker = games[requestId].betPoker;
         uint256 betColor = games[requestId].betColor;
 
+        // TODO what is edge??? why divide by 1000???
         uint256 betPokerEdge = betPoker.mul(houseEdge).div(1000);
         uint256 betColorEdge;
 
+        // TODO what's that for?
         uint256 jackPotAdder = betPoker.mul(jackpotFeeMultiplier).div(1000);
 
-        uint256 referralBonus;
-
+        // User won a color bet
         if (winColor) {
             betColorEdge = betColor.mul(houseEdge).div(1000);
             referralBonus = referralBonus.add(betColorEdge);
@@ -223,16 +369,20 @@ contract Poker is GameController {
             );
         }
 
-        if (winPoker == GameResults.Draw) {
+        // None of the players won
+        if (result == GameResult.Draw) {
             winPokerAmount = betPoker.sub(betPokerEdge + jackPotAdder);
         }
 
-        if (winPoker == GameResults.Win) {
+        // User won a game
+        if (result == GameResult.Win) {
             referralBonus = referralBonus.add(betPokerEdge);
+            // TODO why multiply only by 2, not {jackpotFeeMultiplier}
             winPokerAmount = betPoker.mul(2).sub(betPokerEdge + jackPotAdder);
         }
 
-        if (winPoker == GameResults.Jackpot) {
+        // User won and it's a jackpot
+        if (result == GameResult.Jackpot) {
             winPokerAmount = _poolController.jackpot() <=
                 _poolController.jackpotLimit()
                 ? _poolController.jackpot()
@@ -242,10 +392,11 @@ contract Poker is GameController {
         return (winPokerAmount, winColorAmount, referralBonus);
     }
 
+    
     function getPokerResult(uint8[] memory _cardsArray)
         public
         pure
-        returns (GameResults)
+        returns (GameResult)
     {
         Hand memory player;
         Hand memory computer;
@@ -296,6 +447,10 @@ contract Poker is GameController {
         return false;
     }
 
+    /**
+     * @notice Changes the address of the pool controller
+     *         See {setPoolController}
+     */
     function _setPoolController(address poolAddress) internal {
         IPool poolCandidate = IPool(poolAddress);
         require(
@@ -341,21 +496,21 @@ contract Poker is GameController {
         int8[7] memory playerKickers,
         uint8 computerHand,
         int8[7] memory computerKickers
-    ) private pure returns (GameResults) {
+    ) private pure returns (GameResult) {
         if (playerHand > computerHand) {
-            if (playerHand == 9) return GameResults.Jackpot;
-            return GameResults.Win;
+            if (playerHand == 9) return GameResult.Jackpot;
+            return GameResult.Win;
         }
         if (playerHand == computerHand) {
             for (uint256 i; i < 7; i++) {
                 if (playerKickers[i] > computerKickers[i])
-                    return GameResults.Win;
+                    return GameResult.Win;
                 if (playerKickers[i] < computerKickers[i])
-                    return GameResults.Lose;
+                    return GameResult.Lose;
             }
-            return GameResults.Draw;
+            return GameResult.Draw;
         }
-        return GameResults.Lose;
+        return GameResult.Lose;
     }
 
     function _evaluateHand(
