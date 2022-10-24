@@ -5,11 +5,11 @@
 // // vars for maxBetCal function
 // let _gamesCounter = 0;
 // let _betFlip = 0;
-// let _betColor = 0;
+// let _colorBet = 0;
 // let _betFlipSquare = 0;
-// let _betColorSquare = 0;
+// let _colorBetSquare = 0;
 // let _betFlipVariance = 0;
-// let _betColorVariance = 0;
+// let _colorBetVariance = 0;
 // let _maxBet = 1000;
 
 // let poolBalance = STARTING_POOL_BALANCE;
@@ -33,29 +33,29 @@
 //       _maxBet = poolAmount / 230;
 //     };
 //     _betFlip = pokerB;
-//     _betColor = colorB;
+//     _colorBet = colorB;
 //     _betFlipSquare = pokerB * pokerB;
-//     _betColorSquare = colorB * colorB;
+//     _colorBetSquare = colorB * colorB;
 //   }
 
 //   if (_gamesCounter > 1) {
 //     _betFlip = ((_gamesCounter - 1) * _betFlip + pokerB) /_gamesCounter;
-//     _betColor = ((_gamesCounter - 1) * _betColor + colorB) / _gamesCounter;
+//     _colorBet = ((_gamesCounter - 1) * _colorBet + colorB) / _gamesCounter;
 //     _betFlipSquare = ((_gamesCounter - 1) * _betFlipSquare + (pokerB * pokerB)) / _gamesCounter;
-//     _betColorSquare = ((_gamesCounter - 1) * _betColorSquare + (colorB * colorB)) / _gamesCounter;
+//     _colorBetSquare = ((_gamesCounter - 1) * _colorBetSquare + (colorB * colorB)) / _gamesCounter;
 //     _betFlipVariance = _betFlipSquare - (_betFlip * _betFlip);
-//     _betColorVariance = _betColorSquare - (_betColor * _betColor);
+//     _colorBetVariance = _colorBetSquare - (_colorBet * _colorBet);
 //     const Fn = _betFlip + (Math.sqrt(_betFlipVariance) * 10);
-//     const Cn = _betColor + (Math.sqrt(_betColorVariance) * 10);
+//     const Cn = _colorBet + (Math.sqrt(_colorBetVariance) * 10);
 
 //     ////////////////////////////////
 //     console.log(
 //       '_betFlip:', _betFlip,
-//       '_betColor:', _betColor,
+//       '_colorBet:', _colorBet,
 //       '_betFlipSquare:', _betFlipSquare,
-//       '_betColorSquare:', _betColorSquare,
+//       '_colorBetSquare:', _colorBetSquare,
 //       '_betFlipVariance:', _betFlipVariance,
-//       '_betColorVariance:', _betColorVariance,
+//       '_colorBetVariance:', _colorBetVariance,
 //       'Fn:', Fn,
 //       'Cn:', Cn,
 //     )

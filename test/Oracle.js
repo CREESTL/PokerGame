@@ -119,26 +119,26 @@
 
 //     it('should create random number request if caller is IGame contract', async () => {
 //       await this.fakeGameController.createRandomNumberRequest();
-//       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
-//       assert.isTrue(await this.oracle.checkPending(requestId.toString()), { from: owner });
+//       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
+//       assert.isTrue(await this.oracle.checkPending(gameId.toString()), { from: owner });
 //     });
 
 //     it('should not create random number request if caller is not IGame contract', async () => {
-//       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
-//       assert.isTrue(await this.oracle.checkPending(requestId.toString()), { from: owner });
+//       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
+//       assert.isTrue(await this.oracle.checkPending(gameId.toString()), { from: owner });
 //        // will fail
 //       const fakeRequestId = await this.oracle.createRandomNumberRequest({ from: owner });
-//       assert.equal(await this.fakeGameController.getLastRequestId({ from: owner }), requestId.toString());
+//       assert.equal(await this.fakeGameController.getLastRequestId({ from: owner }), gameId.toString());
 //     });
 
 //     it('should accept random number request if caller is IGame contract', async () => {
 //       await this.fakeGameController.createRandomNumberRequest();
-//       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
-//       const receipt = await this.fakeGameController.acceptRandomNumberRequest(requestId.toString());
+//       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
+//       const receipt = await this.fakeGameController.acceptRandomNumberRequest(gameId.toString());
 //       // try {
 //       //   expectEvent.inTransaction(receipt, this.oracle, 'RandomNumberRequested', {
 //       //   callerAddress: this.fakeGameController.address,
-//       //   requestId: requestId
+//       //   gameId: gameId
 //       // });
 //       // } catch(e) {
 //       //   console.log(e,13123123213213123213);
@@ -148,16 +148,16 @@
 
 //     it('should not accept random number request if caller is not IGame contract', async () => {
 //       await this.fakeGameController.createRandomNumberRequest();
-//       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
-//       simpleExpectRevert(this.oracle.acceptRandomNumberRequest(requestId, { from: owner }), 'address is not a game');
+//       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
+//       simpleExpectRevert(this.oracle.acceptRandomNumberRequest(gameId, { from: owner }), 'address is not a game');
 //     });
 
 //     it('should publish result if caller is the operator', async () => {
 //       await this.fakeGameController.createRandomNumberRequest();
-//       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
-//       await this.fakeGameController.acceptRandomNumberRequest(requestId, { from: owner });
+//       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
+//       await this.fakeGameController.acceptRandomNumberRequest(gameId, { from: owner });
 //       const RANDOM_NUMBER = 10;
-//       assert.equal(await this.oracle.checkPending(requestId, { from: owner }), true);
+//       assert.equal(await this.oracle.checkPending(gameId, { from: owner }), true);
 //       // const oracle = tronweb.contract().at(this.oracle.address);
 //       // oracle.then(meta => {
 //       //   console.log(meta.RandomNumberEvent(), 999999);
@@ -168,30 +168,30 @@
 //       //       done();
 //       //     }
 //       //     if(err) console.log(err, 777777777);
-//       //     this.oracle.publishRandomNumber(RANDOM_NUMBER, this.fakeGameController.address, requestId, { from: owner });
+//       //     this.oracle.publishRandomNumber(RANDOM_NUMBER, this.fakeGameController.address, gameId, { from: owner });
 //       //   })
 //       // })
-//       // await this.oracle.publishRandomNumber(RANDOM_NUMBER, this.fakeGameController.address, requestId, { from: owner });
+//       // await this.oracle.publishRandomNumber(RANDOM_NUMBER, this.fakeGameController.address, gameId, { from: owner });
 //     });
 
 //     it('should not publish result if caller is not operator', async () => {
 //       await this.fakeGameController.createRandomNumberRequest();
-//       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
-//       await this.fakeGameController.acceptRandomNumberRequest(requestId, { from: alice });
+//       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
+//       await this.fakeGameController.acceptRandomNumberRequest(gameId, { from: alice });
 //       const RANDOM_NUMBER = 10;
-//       simpleExpectRevert(this.oracle.publishRandomNumber(RANDOM_NUMBER, this.fakeGameController.address, requestId, { from: owner }),
+//       simpleExpectRevert(this.oracle.publishRandomNumber(RANDOM_NUMBER, this.fakeGameController.address, gameId, { from: owner }),
 //         'is not the operator');
 //     });
 
 //     it('should not publish result if call func with wrong params', async () => {
 //       await this.fakeGameController.createRandomNumberRequest();
-//       const requestId = await this.fakeGameController.getLastRequestId({ from: owner });
-//       await this.fakeGameController.acceptRandomNumberRequest(requestId, { from: owner });
+//       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
+//       await this.fakeGameController.acceptRandomNumberRequest(gameId, { from: owner });
 //       const RANDOM_NUMBER = 10;
 //       const otherGame = await FakeGameController.new(this.oracle.address);
-//       simpleExpectRevert(this.oracle.publishRandomNumber(RANDOM_NUMBER, otherGame.address, requestId, { from: owner }),
+//       simpleExpectRevert(this.oracle.publishRandomNumber(RANDOM_NUMBER, otherGame.address, gameId, { from: owner }),
 //         'address is not a game');
-//       simpleExpectRevert(this.oracle.publishRandomNumber(RANDOM_NUMBER, this.fakeGameController.address, requestId.add(10), { from: owner }),
+//       simpleExpectRevert(this.oracle.publishRandomNumber(RANDOM_NUMBER, this.fakeGameController.address, gameId.add(10), { from: owner }),
 //         'request isn\'t in pending list');
 //     });
 //   });

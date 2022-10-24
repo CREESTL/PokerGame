@@ -26,7 +26,7 @@ contract GameController is IGame, Ownable {
      *      Gets closed when game is finished.
      */     
     struct Request {
-        // TODO number of cards??
+        // Binary representation of array of cards
         uint64 result;
         // Last time when any changes were made in the request
         uint64 closedTime;
@@ -98,10 +98,10 @@ contract GameController is IGame, Ownable {
 
     /**
      * @notice Returns the request with the provided ID
-     * @param requestId The ID of the request to look for
+     * @param gameId The ID of the request to look for
      * @return Full info about the request
      */
-    function getRequest(uint256 requestId)
+    function getRequest(uint256 gameId)
         public
         view
         onlyOwner
@@ -112,24 +112,23 @@ contract GameController is IGame, Ownable {
         )
     {
         return (
-            _requests[requestId].result,
-            _requests[requestId].closedTime,
-            _requests[requestId].status
+            _requests[gameId].result,
+            _requests[gameId].closedTime,
+            _requests[gameId].status
         );
     }
 
     /**
      * @notice Finishes work with request and closes it
-     * TODO not sure about params
-     * @param bitCards The amount of cards???
-     * @param requestId The ID of request to close
+     * @param cardsBits Binary number representing an array of cards
+     * @param gameId The ID of request to close
      */
-    function _closeRequest(uint64 bitCards, uint256 requestId) internal {
-        Request storage request = _requests[requestId];
+    function _closeRequest(uint64 cardsBits, uint256 gameId) internal {
+        Request storage request = _requests[gameId];
         request.closedTime = uint64(block.timestamp);
         require(request.status != Status.Closed, "GameController: request is already closed!");
         request.status = Status.Closed;
-        request.result = bitCards;
+        request.result = cardsBits;
     }
 
     /**
@@ -138,8 +137,8 @@ contract GameController is IGame, Ownable {
      */
     function _updateRandomRequest() internal {
         // Request ID is a random number
-        uint256 requestId = _oracle.createRandomNumberRequest();
-        Request storage request = _requests[requestId];
+        uint256 gameId = _oracle.createRandomNumberRequest();
+        Request storage request = _requests[gameId];
         // Check that chosen request was closed not too long ago
         require(
             request.closedTime <=
@@ -149,7 +148,7 @@ contract GameController is IGame, Ownable {
         // Change request's status to Pending
         request.status = Status.Pending;
         // Update the ID of the last processed request
-        _lastRequestId = requestId;
+        _lastRequestId = gameId;
     }
 
     /**

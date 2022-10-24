@@ -66,7 +66,7 @@ describe("Poker", function () {
     it("Should work fine in normal conditions", async () => {
       // Start the game
       // This also refreshes random numbers and updates jackpot
-      // betColor = 1000 wei (random)
+      // colorBet = 1000 wei (random)
       // chosenColor = 2000 wei (random)
       // Add 10_000_000_000 - 3_000_000 (oracle fee) =  9_997_000_000 wei to the pool amount
       await poker.play(1000, 2000, { value: 10_000_000_000 });
@@ -84,7 +84,7 @@ describe("Poker", function () {
     it("Should fail if jackpot is greater than pool amount", async () => {
       // Start the game
       // This also refreshes random numbers and updates jackpot
-      // betColor = 1000 wei (random)
+      // colorBet = 1000 wei (random)
       // chosenColor = 2000 wei (random)
       // Add 10_000_000_000 - 3_000_000 (oracle fee) =  9_997_000_000 wei to the pool amount
       await poker.play(1000, 2000, { value: 10_000_000_000 });
@@ -104,7 +104,7 @@ describe("Poker", function () {
     it("Should fail if win amount was not set", async () => {
       // Start the game
       // This also refreshes random numbers and updates jackpot
-      // betColor = 1000 wei (random)
+      // colorBet = 1000 wei (random)
       // chosenColor = 2000 wei (random)
       // Add 10_000_000_000_000 - 3_000_000 (oracle fee) =  9_999_997_000_000 wei to the pool amount
       await poker.play(1000, 2000, { value: 10_000_000_000_000 });
@@ -124,7 +124,7 @@ describe("Poker", function () {
     it("Should fail if win has been claimed before", async () => {
       // Start the game
       // This also refreshes random numbers and updates jackpot
-      // betColor = 1000 wei (random)
+      // colorBet = 1000 wei (random)
       // chosenColor = 2000 wei (random)
       // Add 10_000_000_000_000 - 3_000_000 (oracle fee) =  9_999_997_000_000 wei to the pool amount
       await poker.play(1000, 2000, { value: 10_000_000_000_000 });

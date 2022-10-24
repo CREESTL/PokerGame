@@ -39,8 +39,12 @@ contract Poker is GameController {
      * @dev One of the players
      */
     struct Hand {
-        uint8[7] ranks;
+        // Total of 7 cards
         uint8[7] cards;
+        // Each card has a rank. A number from 0 to 13
+        uint8[7] ranks;
+        // Kickers are cards in a poker hand that do not determine the rank of the hand,
+        // but are used to break ties between hands of the same rank
         int8[7] kickers;
         uint8 hand;
     }
@@ -51,18 +55,33 @@ contract Poker is GameController {
      *      has his own {Game} 
      */
     struct Game {
-        uint128 betColor;
-        uint128 betPoker;
+        // The amount of tokens a player bet on the color
+        uint128 colorBet;
+        // The amount of tokens a player bet on the poker game itself
+        uint128 pokerBet;
+        // The amount of tokens to be given to the winner of the game
         uint256 winAmount;
+        // The amount of tokens to be given to the members of referral program
         uint128 refAmount;
+        // A person taking part in the game
         address payable player;
+        // A color a person has chosen to bet on
         uint8 chosenColor;
+        // True if win amount of the game has been claimed
         bool isWinAmountClaimed;
+        // True if the result of the game was a jackpot
         bool isJackpot;
     }
 
-    // TODO search in docs
+    /**
+     * House edge is the mathematical advantage that a casino has on a player’s bet
+     * that ensures the casino makes a profit over the long run.
+     */
     uint256 public houseEdge;
+    /**
+     * If `houserEdge` is 15 and `percentDivider` is 1000, then house edge is 15 / 1000 = 0.015%
+     */
+    uint256 constant private percentDivider = 1000;
     /**
      * @dev Bet amount gets multiplied by {jackpotFeeMultiplier} 
      *      if a player wins a jackpot
@@ -72,10 +91,10 @@ contract Poker is GameController {
     /**
      * @dev Indicates that the game has started
      */
-    event GameStart(uint256 requestId);
+    event GameStart(uint256 gameId);
 
     /**
-     * TODO not used
+     * TODO not used - emit it!
      * @dev Indicates that the game has finished
      *      Shows the result of a single game
      */
@@ -83,7 +102,7 @@ contract Poker is GameController {
         uint256 winAmount,
         bool winColor,
         GameResult result,
-        uint256 requestId,
+        uint256 gameId,
         uint256 cards,
         address player
     );
@@ -91,7 +110,7 @@ contract Poker is GameController {
     /**
      * @dev Indicates that someone claimed the amount he won
      */
-    event WinAmountClaimed(uint256 requestId);
+    event WinAmountClaimed(uint256 gameId);
 
     /**
      * @dev Contract controlling pool of in-game tokens
@@ -123,7 +142,7 @@ contract Poker is GameController {
         address operator
     ) GameController(oracleAddress) {
         _setPoolController(poolControllerAddress);
-        // TODO percent???
+        // House edge is se
         houseEdge = 15;
         // Bet gets multiplied by 2 in case of jackpot by default
         jackpotFeeMultiplier = 2;
@@ -142,7 +161,6 @@ contract Poker is GameController {
     /**
      * @notice Changes the address of the pool controller
      * @param  poolControllerAddress A new address of the pool controller
-     * // TODO add checks for zero address here and in other places
      */
     function setPoolController(address poolControllerAddress)
         external
@@ -169,7 +187,6 @@ contract Poker is GameController {
 
 
     /**
-     * // TODO what is house edge?
      * @notice Changes the house edge of the game
      * @param _houseEdge A new house edge
      */
@@ -190,26 +207,23 @@ contract Poker is GameController {
 
     /**
      * @notice Called by the backend to set the game result
-     * // TODO Rename it to `gameId`???
-     * @param requestId ????
+     * @param gameId The ID of the game
      * @param winAmount The amount that will be given to the winner
-     * // TODO or is it a referal program amount???
-     * @param refAmount The amount that will be given to the referee
+     * @param refAmount The amount that will be given to the member of referral program
      * @param isJackpot True if one of the players won a jackpot
-     * // TODO bit = past tense of bet?
-     * @param bitCards ????
+     * @param cardsBits Binary number representing an array of cards
      */
     function setGameResult(
-        uint256 requestId,
+        uint256 gameId,
         uint256 winAmount,
         uint128 refAmount,
         bool isJackpot,
-        uint64 bitCards
+        uint64 cardsBits
     ) external onlyOperator {
         // Values from backend are assigned to the game
-        games[requestId].winAmount = winAmount;
-        games[requestId].refAmount = refAmount;
-        games[requestId].isJackpot = isJackpot;
+        games[gameId].winAmount = winAmount;
+        games[gameId].refAmount = refAmount;
+        games[gameId].isJackpot = isJackpot;
 
         if (isJackpot) {
             require(
@@ -220,12 +234,12 @@ contract Poker is GameController {
                 winAmount <= _poolController.totalJackpot(),
                 "Poker: not enough funds for jackpot!"
             );
-            // TODO freeze jackpot???
+            // TODO freeze jackpot??? comment on that...
             _poolController.freezeJackpot(winAmount);
         }
 
         // Finish work with current game request
-        _closeRequest(bitCards, requestId);
+        _closeRequest(cardsBits, gameId);
     }
 
     /**
@@ -237,34 +251,34 @@ contract Poker is GameController {
 
     /**
      * @notice Allows player to claim tokens he won in the game
-     * @param requestId The ID of the game request
+     * @param gameId The ID of the game request
      */
-    function claimWinAmount(uint256 requestId) external {
+    function claimWinAmount(uint256 gameId) external {
         require(
-            games[requestId].player == _msgSender(),
+            games[gameId].player == _msgSender(),
             "Poker: caller is not a player!"
         );
         // Either player of referee should win.
         require(
-            games[requestId].winAmount > 0 || games[requestId].refAmount > 0,
+            games[gameId].winAmount > 0 || games[gameId].refAmount > 0,
             "Poker: Invalid Amount!"
         );
         require(
-            !games[requestId].isWinAmountClaimed,
+            !games[gameId].isWinAmountClaimed,
             "p: win already claimed!"
         );
         /
-        address payable player = games[requestId].player;
-        uint256 winAmount = games[requestId].winAmount;
-        uint256 refAmount = games[requestId].refAmount;
+        address payable player = games[gameId].player;
+        uint256 winAmount = games[gameId].winAmount;
+        uint256 refAmount = games[gameId].refAmount;
 
         // Mark that this game win amount was claimed
-        games[requestId].isWinAmountClaimed = true;
+        games[gameId].isWinAmountClaimed = true;
 
         // TODO comment on this...
         _poolController.updateReferralStats(player, winAmount, refAmount);
 
-        if (games[requestId].isJackpot) {
+        if (games[gameId].isJackpot) {
             // If a player won a jackpot, disctribute tokens in one way
             _poolController.jackpotDistribution(player, winAmount);
         } else {
@@ -272,20 +286,19 @@ contract Poker is GameController {
             _poolController.rewardDistribution(player, winAmount);
         }
 
-        emit WinAmountClaimed(requestId);
+        emit WinAmountClaimed(gameId);
     }
 
     /**
      * @notice User pays tokens, makes bets and starts a game
-     * @param betColor The color a player thinks will be dominant in the flop cards 
-     * TODO what's the difference between betColor and chosenColor???
-     * @chosenColor The color a player chose at first???
+     * @param colorBet The amount of tokens at stake for a chosen color
+     * @chosenColor The color a player chose
      */
-    function play(uint256 betColor, uint256 chosenColor) external payable {
+    function play(uint256 colorBet, uint256 chosenColor) external payable {
         uint256 msgValue = msg.value;
 
         // What's left of players tokens after he bet on the color
-        uint256 betPoker = msgValue.sub(betColor);
+        uint256 pokerBet = msgValue.sub(colorBet);
 
         // Check that the bet is valid
         _isValidBet(msgValue);
@@ -294,8 +307,7 @@ contract Poker is GameController {
         _poolController.addBetToPool(msgValue);
         // Jackpot amount gets calculated based on player's bet 
         _poolController.updateJackpot(
-            // TODO why divide by 1000?
-            betPoker.mul(jackpotFeeMultiplier).div(1000)
+            pokerBet.mul(jackpotFeeMultiplier).div(percentDivider)
         );
 
         // Create a new request for a random number
@@ -308,8 +320,8 @@ contract Poker is GameController {
         // It is "empty" at first
         Game storage game = games[_lastRequestId];
         // Initialize it with new values
-        game.betColor = uint128(betColor);
-        game.betPoker = uint128(betPoker);
+        game.colorBet = uint128(colorBet);
+        game.pokerBet = uint128(pokerBet);
         if (chosenColor > 0) {
             game.chosenColor = uint8(chosenColor);
         }
@@ -323,13 +335,16 @@ contract Poker is GameController {
      *         - Poker win
      *         - Color bet win
      *         - Referral program membership
-     * TODO maybe random number request???
-     * @param requestId The ID of the game request
+     * @param gameId The ID of the game 
      * @param result The result of the game with the provided ID
      * @param winColor True if a player won a color bet. False - if he lost
+     * @return The amount of tokens to be payed for:
+     *         - Poker win
+     *         - Color bet win
+     *         - Referral program membership
      */
     function calculateWinAmount(
-        uint256 requestId,
+        uint256 gameId,
         GameResult result,
         bool winColor
     )
@@ -350,35 +365,33 @@ contract Poker is GameController {
         uint256 referralBonus;
 
         // Retrive info about the game using the game ID
-        uint256 betPoker = games[requestId].betPoker;
-        uint256 betColor = games[requestId].betColor;
+        uint256 pokerBet = games[gameId].pokerBet;
+        uint256 colorBet = games[gameId].colorBet;
 
-        // TODO what is edge??? why divide by 1000???
-        uint256 betPokerEdge = betPoker.mul(houseEdge).div(1000);
-        uint256 betColorEdge;
+        uint256 pokerBetEdge = pokerBet.mul(houseEdge).div(percentDivider);
+        uint256 colorBetEdge;
 
-        // TODO what's that for?
-        uint256 jackPotAdder = betPoker.mul(jackpotFeeMultiplier).div(1000);
+        uint256 jackPotAdder = pokerBet.mul(jackpotFeeMultiplier).div(percentDivider);
 
         // User won a color bet
         if (winColor) {
-            betColorEdge = betColor.mul(houseEdge).div(1000);
-            referralBonus = referralBonus.add(betColorEdge);
-            winColorAmount = betColor.mul(jackpotFeeMultiplier).sub(
-                betColorEdge
+            colorBetEdge = colorBet.mul(houseEdge).div(percentDivider);
+            referralBonus = referralBonus.add(colorBetEdge);
+            winColorAmount = colorBet.mul(jackpotFeeMultiplier).sub(
+                colorBetEdge
             );
         }
 
         // None of the players won
         if (result == GameResult.Draw) {
-            winPokerAmount = betPoker.sub(betPokerEdge + jackPotAdder);
+            winPokerAmount = pokerBet.sub(pokerBetEdge + jackPotAdder);
         }
 
         // User won a game
         if (result == GameResult.Win) {
-            referralBonus = referralBonus.add(betPokerEdge);
-            // TODO why multiply only by 2, not {jackpotFeeMultiplier}
-            winPokerAmount = betPoker.mul(2).sub(betPokerEdge + jackPotAdder);
+            referralBonus = referralBonus.add(pokerBetEdge);
+            // TODO why multiply only by 2, not {jackpotFeeMultiplier}???
+            winPokerAmount = pokerBet.mul(2).sub(pokerBetEdge + jackPotAdder);
         }
 
         // User won and it's a jackpot
@@ -392,28 +405,39 @@ contract Poker is GameController {
         return (winPokerAmount, winColorAmount, referralBonus);
     }
 
-    
-    function getPokerResult(uint8[] memory _cardsArray)
+    /**
+     * @title Distributes cards between a player and a computer, compares their hands and determines the winner
+     * @param _cards The array of cards to play
+     * TODO          Does it have the length of 7 or 8?
+     * @return Game result: Win, Jackpot, Lose or Draw
+     */
+    function getPokerResult(uint8[] memory _cards)
         public
         pure
         returns (GameResult)
     {
         Hand memory player;
         Hand memory computer;
-        for (uint256 i; i < _cardsArray.length; i++) {
+        for (uint256 i; i < _cards.length; i++) {
             if (i < 7) {
-                // player cards 0 - 6
-                player.cards[i] = _cardsArray[i];
-                player.ranks[i] = _cardsArray[i] % 13;
+                // First 7 cards of the player are copied from _cards
+                player.cards[i] = _cards[i];
+                player.ranks[i] = _cards[i] % 13;
             }
             if (i > 1) {
-                // computer cards 2 - 8
-                computer.cards[i - 2] = _cardsArray[i];
-                computer.ranks[i - 2] = _cardsArray[i] % 13;
+                // Cards from index 2 to index 8 are copied to computer's hand
+                // So cards 2 - 6 (5 in total) are the same for computer and the player
+                computer.cards[i - 2] = _cards[i];
+                computer.ranks[i - 2] = _cards[i] % 13;
             }
         }
-        _sort(player.ranks, player.cards, 0, 6);
-        _sort(computer.ranks, computer.cards, 0, 6);
+        // Sort both players' cards and card ranks
+        _quickSort(player.ranks, 0, 6);
+        _quickSort(player.cards, 0, 6);
+        _quickSort(computer.ranks, 0, 6);
+        _quickSort(computer.cards, 0, 6);
+
+        // Check hands of both players and return the strongest hands for both
         (player.hand, player.kickers) = _evaluateHand(
             player.cards,
             player.ranks
@@ -422,8 +446,10 @@ contract Poker is GameController {
             computer.cards,
             computer.ranks
         );
+
+        // Determine the winner of the game based on each player's hand
         return
-            _determineWinnerPoker(
+            _getPokerResult(
                 player.hand,
                 player.kickers,
                 computer.hand,
@@ -431,15 +457,21 @@ contract Poker is GameController {
             );
     }
 
-    function getColorResult(uint256 requestId, uint8[] memory colorCards)
+    /**
+     * @title Checks if player guessed the dominant color correctly
+     * @param gameId The ID of the game
+     * @param cardColors Colors of cards
+     * @return True if player guessed the dominant color. False - if he did not
+     */
+    function getColorResult(uint256 gameId, uint8[] memory cardColors)
         public
         view
         returns (bool)
     {
         uint256 colorCounter;
-        uint256 chosenColor = games[requestId].chosenColor;
-        for (uint256 i; i < colorCards.length; i++) {
-            if ((colorCards[i] / 13) % 2 == chosenColor) {
+        uint256 chosenColor = games[gameId].chosenColor;
+        for (uint256 i; i < cardColors.length; i++) {
+            if ((cardColors[i] / 13) % 2 == chosenColor) {
                 colorCounter++;
             }
             if (colorCounter >= 2) return true;
@@ -460,133 +492,141 @@ contract Poker is GameController {
         _poolController = poolCandidate;
     }
 
-    function _sort(
-        uint8[7] memory dataRanks,
-        uint8[7] memory dataCards,
-        uint256 low,
-        uint256 high
+    /**
+     * @notice Quick Sort algorithm for an array of numbers
+     * @param array The array of numbers to sort
+     * @param left The index of the array to start the sorting at
+     * @param right The index of the array to stop the sorting at
+     *        (sorting takes place between `left` and `right` elements)
+     */
+    function _quickSort(
+        uint8[7] memory array,
+        uint256 left,
+        uint256 right
     ) private pure {
-        if (low < high) {
-            uint256 pivotVal = dataRanks[(low + high) / 2];
-            uint256 low1 = low;
-            uint256 high1 = high;
-            for (;;) {
-                while (dataRanks[low1] > pivotVal) low1++;
-                while (dataRanks[high1] < pivotVal) high1--;
-                if (low1 >= high1) break;
-                (dataRanks[low1], dataRanks[high1]) = (
-                    dataRanks[high1],
-                    dataRanks[low1]
-                );
-                (dataCards[low1], dataCards[high1]) = (
-                    dataCards[high1],
-                    dataCards[low1]
-                );
-                low1++;
-                high1--;
+        require(left < right, "Poker: invalid boundaries for sorting!");
+        if (left < right) {
+            // Pivot is chosen as the value in the middle between left and right
+            uint256 pivot = array[(left + right) / 2];
+            uint256 i = left;
+            uint256 j = right;
+            // This loop moves all elements of the array less than the pivot, to the left from the pivot
+            // and all alements of the array greater than the pivot - to the right from the pivot
+            while (i <= j) {
+                // If the element to the left from the pivot is less than the pivot, just move on to the next one.
+                // Because all elements to the left from the pivot are supposed to be less than the pivot.
+                while (array[i] < pivot) {
+                    i += 1;
+                }
+                // If the element to the right from the pivot is greater than the pivot, just move on to the next one.
+                // Because all elements to the right from the pivot are supposed to be greater than the pivot.
+                while (pivot < array[j]) {
+                    j -= 1;
+                }
+                // - If either the element to the left from the pivot is greater than the pivot
+                // OR
+                // - If the element to the right from the pivot is less than the pivot
+                // OR
+                // - Both
+                // Then swap elements' places
+                // This is the base case
+                if (i <= j) {
+                    (array[i], array[j]) = (array[j], array[i]);
+                    i += 1;
+                    j -= 1;
+                }
             }
-            if (low < high1) _sort(dataRanks, dataCards, low, high1);
-            high1++;
-            if (high1 < high) _sort(dataRanks, dataCards, high1, high);
+            // Now when the array is "separated" in 2 parts, use quicksort to each part again
+            if (left < j) {
+                _quickSort(array, left, j);
+            }
+            if (i < right) {
+                _quickSort(array, i, right);
+            }
+
         }
     }
 
-    function _determineWinnerPoker(
-        uint8 playerHand,
-        int8[7] memory playerKickers,
-        uint8 computerHand,
-        int8[7] memory computerKickers
-    ) private pure returns (GameResult) {
-        if (playerHand > computerHand) {
-            if (playerHand == 9) return GameResult.Jackpot;
-            return GameResult.Win;
-        }
-        if (playerHand == computerHand) {
-            for (uint256 i; i < 7; i++) {
-                if (playerKickers[i] > computerKickers[i])
-                    return GameResult.Win;
-                if (playerKickers[i] < computerKickers[i])
-                    return GameResult.Lose;
-            }
-            return GameResult.Draw;
-        }
-        return GameResult.Lose;
-    }
-
-    function _evaluateHand(
-        uint8[7] memory cardsArray,
-        uint8[7] memory ranksArray
+    /**
+     * @title Check all card combinations of the player and return the strongest hand
+     * @param _cards The array of cards to check
+     * @param _ranks The array of ranks of cards
+     * @return The strongest hand and card order
+     */
+   function _evaluateHand(
+        uint8[7] memory _cards,
+        uint8[7] memory _ranks
     ) private pure returns (uint8, int8[7] memory) {
         uint8 strongestHand;
-        // get kickers
+        // Get kickers.
         int8[7] memory retOrder = [-1, -1, -1, -1, -1, -1, -1];
-        // check for flush
+        // Check for flush
         uint8[4] memory suits = [0, 0, 0, 0];
-        // check for pairs, 3oaK, 4oaK
+        // Check for pairs, 3oaK, 4oaK
         uint8[13] memory valuesMatch = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        // for loop
+        // Used in a loop
         uint256 i;
-        // write pairs and triples, triple always 1st
+        // Write pairs and triples, triple always first
         int8[2] memory pairs = [-1, -1];
         uint256 streetChecker = 1;
-        // check for street flush
+        // Check for street flush
         uint256 flushWinSuit;
         int8[7] memory streetFlushCards = [-1, -1, -1, -1, -1, -1, -1];
 
         for (i = 0; i < 7; i++) {
-            valuesMatch[ranksArray[i]]++;
-            // check for street
+            valuesMatch[_ranks[i]]++;
+            // Check for street
             if (i < 6) {
-                if (ranksArray[i] == ranksArray[i + 1] + 1) {
+                if (_ranks[i] == _ranks[i + 1] + 1) {
                     streetChecker++;
                     if (streetChecker == 5) {
                         strongestHand = 4;
-                        retOrder[0] = int8(ranksArray[i + 1]) + 4;
+                        retOrder[0] = int8(_ranks[i + 1]) + 4;
                     }
                 }
-                if (ranksArray[i] > ranksArray[i + 1] + 1) {
+                if (_ranks[i] > _ranks[i + 1] + 1) {
                     streetChecker = 1;
                 }
             }
-            // check for 4oaK
-            if (valuesMatch[ranksArray[i]] == 4 && strongestHand < 7) {
+            // Check for 4oaK
+            if (valuesMatch[_ranks[i]] == 4 && strongestHand < 7) {
                 strongestHand = 7;
-                retOrder[0] = int8(ranksArray[i]);
+                retOrder[0] = int8(_ranks[i]);
                 break;
-                // check for 3oaK
-            } else if (valuesMatch[ranksArray[i]] == 3 && strongestHand < 3) {
+                // Check for 3oaK
+            } else if (valuesMatch[_ranks[i]] == 3 && strongestHand < 3) {
                 strongestHand = 3;
-                retOrder[0] = int8(ranksArray[i]);
-            } else if (valuesMatch[ranksArray[i]] == 2) {
+                retOrder[0] = int8(_ranks[i]);
+            } else if (valuesMatch[_ranks[i]] == 2) {
                 if (pairs[0] == -1) {
-                    pairs[0] = int8(ranksArray[i]);
+                    pairs[0] = int8(_ranks[i]);
                 } else if (pairs[1] == -1) {
-                    pairs[1] = int8(ranksArray[i]);
+                    pairs[1] = int8(_ranks[i]);
                 }
             }
-            suits[(cardsArray[i] / 13)]++;
+            suits[(_cards[i] / 13)]++;
         }
 
         if (strongestHand == 7) {
             for (i = 0; i < 7; i++) {
-                // find kicker
-                if (int8(ranksArray[i]) != retOrder[0]) {
-                    retOrder[1] = int8(ranksArray[i]);
+                // Find kicker
+                if (int8(_ranks[i]) != retOrder[0]) {
+                    retOrder[1] = int8(_ranks[i]);
                     return (strongestHand, retOrder);
                 }
             }
         }
 
-        // check for flush
+        // Check for flush
         if (strongestHand < 5) {
             for (i = 0; i < 4; i++) {
                 if (suits[i] >= 5) {
                     flushWinSuit = i;
                     uint8 cnt = 0;
                     for (i = 0; i < 7; i++) {
-                        if (cardsArray[i] / 13 == flushWinSuit) {
-                            streetFlushCards[cnt] = int8(ranksArray[i]);
-                            retOrder[cnt] = int8(ranksArray[i]);
+                        if (_cards[i] / 13 == flushWinSuit) {
+                            streetFlushCards[cnt] = int8(_ranks[i]);
+                            retOrder[cnt] = int8(_ranks[i]);
                             cnt++;
                             retOrder[6] = 50;
                         }
@@ -624,25 +664,23 @@ contract Poker is GameController {
         }
 
         if (strongestHand == 3) {
-            // check for full house
+            // Check for full house
             if (pairs[1] > -1) {
                 strongestHand = 6;
                 if (
                     valuesMatch[uint8(pairs[0])] >= valuesMatch[uint8(pairs[1])]
                 ) {
-                    // retOrder[0] = pairs[0];
                     retOrder[1] = pairs[1];
                 } else {
-                    // retOrder[0] = pairs[1];
                     retOrder[1] = pairs[0];
                 }
                 return (strongestHand, retOrder);
             }
-            // check for 3oaK
+            // Check for 3oaK
             for (i = 0; i < 5; i++) {
-                // find kickers
-                if (int8(ranksArray[i]) != retOrder[0]) {
-                    retOrder[i + 1] = int8(ranksArray[i]);
+                // Find kickers
+                if (int8(_ranks[i]) != retOrder[0]) {
+                    retOrder[i + 1] = int8(_ranks[i]);
                     if (retOrder[2] != -1) break;
                 }
             }
@@ -650,7 +688,7 @@ contract Poker is GameController {
         }
 
         if (strongestHand < 3) {
-            // two pairs
+            // Two pairs
             if (pairs[1] != -1) {
                 strongestHand = 2;
                 if (pairs[0] > pairs[1]) {
@@ -662,23 +700,23 @@ contract Poker is GameController {
                 }
                 for (i = 0; i < 7; i++) {
                     if (
-                        int8(ranksArray[i]) != pairs[0] &&
-                        int8(ranksArray[i]) != pairs[1]
+                        int8(_ranks[i]) != pairs[0] &&
+                        int8(_ranks[i]) != pairs[1]
                     ) {
-                        retOrder[2] = int8(ranksArray[i]);
+                        retOrder[2] = int8(_ranks[i]);
                         break;
                     }
                 }
                 return (strongestHand, retOrder);
             }
-            // one pair
+            // One pair
             if (pairs[0] != -1) {
                 strongestHand = 1;
                 retOrder[0] = pairs[0];
                 uint8 cnt = 1;
                 for (i = 0; i < 7; i++) {
-                    if (int8(ranksArray[i]) != pairs[0]) {
-                        retOrder[cnt] = int8(ranksArray[i]);
+                    if (int8(_ranks[i]) != pairs[0]) {
+                        retOrder[cnt] = int8(_ranks[i]);
                         cnt++;
                     }
                     if (retOrder[3] != -1) {
@@ -688,7 +726,7 @@ contract Poker is GameController {
             } else {
                 strongestHand = 0;
                 for (i = 0; i < 5; i++) {
-                    retOrder[i] = int8(ranksArray[i]);
+                    retOrder[i] = int8(_ranks[i]);
                 }
                 return (strongestHand, retOrder);
             }
@@ -696,11 +734,58 @@ contract Poker is GameController {
         return (strongestHand, retOrder);
     }
 
+
+    /**
+     * @title Determines the winner of the game based on each player's hand
+     * @param playerHand Person's hand
+     * @param playerKickers Kicker cards of the person
+     * @computerHand Computer's hand
+     * @param computerKickers Kicker cards of the computer
+     * @return Game result: Win, Jackpot, Lose or Draw
+     */
+    function _getPokerResult(
+        uint8 playerHand,
+        int8[7] memory playerKickers,
+        uint8 computerHand,
+        int8[7] memory computerKickers
+    ) private pure returns (GameResult) {
+        // Player wins
+        if (playerHand > computerHand) {
+            // Players wins a jackpot
+            if (playerHand == 9) {
+                return GameResult.Jackpot;
+            }
+            return GameResult.Win;
+        }
+        if (playerHand == computerHand) {
+            // Use kickers to break ties
+            for (uint256 i; i < 7; i++) {
+                // Player wins
+                if (playerKickers[i] > computerKickers[i]) {
+                    return GameResult.Win;
+                }
+                // Computer wins
+                if (playerKickers[i] < computerKickers[i]) {
+                    return GameResult.Lose;
+                }
+            }
+            // If even kickers are the same - it's a draw
+            return GameResult.Draw;
+        }
+        // Computer wins
+        return GameResult.Lose;
+    }
+
+
+    /**
+     * @title Checks that bet amount is valid
+     * @param bet The amount of tokens at stake
+     */
     function _isValidBet(uint256 betValue) internal view {
         uint256 gasFee = _poolController.getOracleGasFee();
         require(
             betValue.mul(1000) > gasFee.mul(1015) && betValue <= _maxBet,
-            "p: Bet Is Invalid!"
+            "Poker: invalid bet amount!"
         );
     }
 }

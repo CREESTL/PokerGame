@@ -7,7 +7,7 @@ import "./interfaces/IGame.sol";
 
 /**
  * @title Provides random numbers to contracts. 
- *        TODO Requests cards to bit???
+ *        Converts array of cards into binary format
  */
 contract Oracle is IOracle, Ownable {
 
@@ -16,7 +16,7 @@ contract Oracle is IOracle, Ownable {
      */
     IGame internal _game;
 
-    // TODO not used
+    // TODO not used, delete it???
     /**
      * @dev Address of backend
      */
@@ -28,20 +28,20 @@ contract Oracle is IOracle, Ownable {
 
     /**
      * @dev Mapping from request ID to request status
-     * TODO not sure Status: true = pending, false = closed
+     *      Status: true = pending, false = closed
      */
     mapping(uint256 => bool) internal _pendingRequests;
 
-    // TODO not used
+    // TODO not used - emit it!
     event RandomNumberRequested(
         address indexed callerAddress,
-        uint256 indexed requestId
+        uint256 indexed gameId
     );
-    // TODO not used
+    // TODO not used - emit it!
     event RandomNumberEvent(
-        uint256 bitCards,
+        uint256 cardsBits,
         address indexed callerAddress,
-        uint256 indexed requestId
+        uint256 indexed gameId
     );
 
     /**
@@ -105,16 +105,16 @@ contract Oracle is IOracle, Ownable {
 
     /**
      * @notice Checks if a request is pending
-     * @param requestId The ID of the request to look for
+     * @param gameId The ID of the request to look for
      * @return True if request is pending. False if it is not
      */
-    function checkPending(uint256 requestId)
+    function checkPending(uint256 gameId)
         external
         view
         onlyOwner
         returns (bool)
     {
-        return _pendingRequests[requestId];
+        return _pendingRequests[gameId];
     }
 
     /** 
@@ -128,12 +128,12 @@ contract Oracle is IOracle, Ownable {
         returns (uint256)
     {   
         // ID gets initialized with 0 here
-        uint256 requestId;
+        uint256 gameId;
         /**
          * This cycle iterates at least once
-         * By default all _pendingRequests[requestId] are false, so the loop will break
-         * But if for any reason the _pendingRequests[requestId] is true, the loop will
-         * iterate and generate new random requestId unless _pendingRequests[requestId] is false
+         * By default all _pendingRequests[gameId] are false, so the loop will break
+         * But if for any reason the _pendingRequests[gameId] is true, the loop will
+         * iterate and generate new random gameId unless _pendingRequests[gameId] is false
          * and then break
          */
         do {
@@ -141,15 +141,15 @@ contract Oracle is IOracle, Ownable {
             _nonce++;
             // TODO Blockchain is a bad source of randomness. Find another one???
             // Now request gets a random value instead of 0
-            requestId = uint256(
+            gameId = uint256(
                 keccak256(
                     abi.encodePacked(block.timestamp, _msgSender(), _nonce)
                 )
             ); 
-        } while (_pendingRequests[requestId]);
-        // A request with every new not pending requestId becomes a pending request
-        _pendingRequests[requestId] = true;
-        return requestId;
+        } while (_pendingRequests[gameId]);
+        // A request with every new not pending gameId becomes a pending request
+        _pendingRequests[gameId] = true;
+        return gameId;
     }
 
     /**
@@ -157,12 +157,12 @@ contract Oracle is IOracle, Ownable {
      * @param cards The array of cards to convert to an array of bits
      * @return Binary representation of an array of cards
      */
-    function cardsToBinNum(uint8[] memory cards) public pure returns (uint256) {
-        uint256 bitCards;
+    function cardsToBits(uint8[] memory cards) public pure returns (uint256) {
+        uint256 cardsBits;
         for (uint256 i = 0; i < cards.length; i++) {
-            bitCards |= (uint256(cards[i]) << (6 * i));
+            cardsBits |= (uint256(cards[i]) << (6 * i));
         }
-        return bitCards;
+        return cardsBits;
     }
 
     /**

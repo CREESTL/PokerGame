@@ -40,8 +40,8 @@ describe("Poker", () => {
 
     it("checkPending should return storage value", async () => {
       await poker.play(0, 0, { value: 1000000000000 });
-      const requestId = await poker.getLastRequestId();
-      expect(await oracle.checkPending(requestId)).to.equal(true);
+      const gameId = await poker.getLastRequestId();
+      expect(await oracle.checkPending(gameId)).to.equal(true);
     });
 
     it("getGame should return storage value", async () => {

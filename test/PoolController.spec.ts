@@ -128,23 +128,23 @@ describe("Poker", () => {
     for (let i = 0; i < 10; i++) {
       // @ts-ignore
       await poker.play(0, 0, { value: 100000000 });
-      const requestId = await poker.getLastRequestId();
+      const gameId = await poker.getLastRequestId();
       const result = await poker.getPokerResult(winCards);
-      const winColor = await poker.getColorResult(requestId, evenWinColorCards);
+      const winColor = await poker.getColorResult(gameId, evenWinColorCards);
       const gameResults = await poker.calculateWinAmount(
-        requestId,
+        gameId,
         result,
         winColor
       );
 
-      const bitCards = await oracle.cardsToBinNum(winCards);
+      const cardsBits = await oracle.cardsToBits(winCards);
       await poker.setGameResult(
-        requestId,
+        gameId,
         gameResults[0].add(gameResults[1]),
         gameResults[2],
-        bitCards
+        cardsBits
       );
-      await poker.claimWinAmount(requestId);
+      await poker.claimWinAmount(gameId);
     }
     const refStats = await poolController.getReferralStats(other.address);
     expect(refStats[2]).to.equal(1983000000);
@@ -160,23 +160,23 @@ describe("Poker", () => {
     for (let i = 0; i < 10; i++) {
       // @ts-ignore
       await poker.play(100000000, 0, { value: 100000000 });
-      const requestId = await poker.getLastRequestId();
+      const gameId = await poker.getLastRequestId();
       const result = await poker.getPokerResult(winCards);
-      const winColor = await poker.getColorResult(requestId, evenWinColorCards);
+      const winColor = await poker.getColorResult(gameId, evenWinColorCards);
       const gameResults = await poker.calculateWinAmount(
-        requestId,
+        gameId,
         result,
         winColor
       );
 
-      const bitCards = await oracle.cardsToBinNum(winCards);
+      const cardsBits = await oracle.cardsToBits(winCards);
       await poker.setGameResult(
-        requestId,
+        gameId,
         gameResults[0].add(gameResults[1]),
         gameResults[2],
-        bitCards
+        cardsBits
       );
-      await poker.claimWinAmount(requestId);
+      await poker.claimWinAmount(gameId);
     }
     let refStats = await poolController.getReferralStats(other.address);
     expect(refStats[2]).to.equal(1985000000);
@@ -261,24 +261,24 @@ describe("Poker", () => {
   it("artificially lower jackpot limit and check logic if jackpot is higher than jackpot limit", async () => {
     await poolController.setJackpotLimit(1);
     await poker.play(0, 0, { value: 100000000000 });
-    const requestId = await poker.getLastRequestId();
+    const gameId = await poker.getLastRequestId();
 
     const result = await poker.getPokerResult(winJackpotCards);
-    const winColor = await poker.getColorResult(requestId, evenWinColorCards);
+    const winColor = await poker.getColorResult(gameId, evenWinColorCards);
     const gameResults = await poker.calculateWinAmount(
-      requestId,
+      gameId,
       result,
       winColor
     );
 
-    const bitCards = await oracle.cardsToBinNum(winJackpotCards);
+    const cardsBits = await oracle.cardsToBits(winJackpotCards);
 
     await poker.setGameResult(
-      requestId,
+      gameId,
       gameResults[0].add(gameResults[1]),
       gameResults[2],
-      bitCards
+      cardsBits
     );
-    await poker.claimWinAmount(requestId);
+    await poker.claimWinAmount(gameId);
   });
 });

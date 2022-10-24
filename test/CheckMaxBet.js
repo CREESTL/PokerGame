@@ -38,8 +38,8 @@
 //   it('checking maxBetCalc', async () => {
 //     for (let i = 0; i < 102; i++) {
 //       await this.poker.play(0, 0, { from: alice, callValue: 30000000 });
-//       const requestId = await this.poker.getLastRequestId();
-//       await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, requestId, { from: owner });
+//       const gameId = await this.poker.getLastRequestId();
+//       await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, gameId, { from: owner });
 //       console.log((await this.poker.getMaxBet()).toString(), 'iteration:', i);
 //     }
 //   })
