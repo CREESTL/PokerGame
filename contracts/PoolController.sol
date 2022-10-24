@@ -14,66 +14,125 @@ import "./interfaces/IGame.sol";
 contract PoolController is IPool, Context, Ownable {
     using SafeMath for uint256;
 
+    /**
+     * @dev The representation of the pool
+     */
     struct Pool {
-        IInternalToken internalToken; // internal token (xEth)
+        // TODO All ERC20 tokens can be added here
+        // The internal token of the pool
+        IInternalToken internalToken; 
+        // The amount of internal tokens in the pool
         uint256 amount;
+        // Gas fee for oracle services
         uint256 oracleGasFee;
-        uint256 oracleFeeAmount;
+        // Total amount of fees collected by the oracle
+        uint256 oracleTotalGasFee;
     }
 
+    /**
+     * The representation of the account taking part in the referral system
+     */
     struct RefAccount {
+        // The account who invited another account to the referral system
         address parent;
+        // The percent to be paid for referral system membership as a bonus
         uint256 bonusPercent;
+        // TODO what's the difference between the two?
+        // Total amount of tokens won while using referral program
         uint256 totalWinnings;
         uint256 referralEarningsBalance;
+        // The amount of referers of the referee
         uint256 referralCounter;
     }
+    /**
+     * @dev If `bonusPercent` is 5 and `_percentDivider` is 100, then house edge is 5 / 100 = 0.05%
+     */
+    uint256 private constant _percentDivider = 100;
 
+    /**
+     * @title Indicates that a new referer has been registered
+     */
     event RegisteredReferer(address referee, address referral);
+    
+    /**
+     * @title Indicates that a player won a jackpot
+     */
     event JackpotWin(address player, uint256 amount);
 
-    // referral system
+    /**
+     * @title Each milestone reached by the referee increases his bonus percent
+     * @dev {bonusPercentMilestones[i]} corresponds to {totalWinningsMilestones[i]} and vice versa
+     */
     uint256[7] public totalWinningsMilestones;
     uint256[7] public bonusPercentMilestones;
 
-    uint256 internal constant PERCENT100 = 10**6; // 100 %
+    // TODO why 10**6?
+    uint256 internal constant HUNDRED_PERCENT = 10**6; 
 
-    // jackpot
+    /**
+     * @title The total amount of tokens stored to be paid as jackpot
+     */
     uint256 public totalJackpot;
+    /**
+     * @title Amount of tokens freezed to be paid some time in the future
+     */
     uint256 public freezedJackpot;
+    /**
+     * @title The maximum amount of tokens to be stored for jackpot payments
+     */
     uint256 public jackpotLimit;
 
-    mapping(address => RefAccount) refAccounts;
+    /**
+     * @title All account taking part in the referral program
+     */
+    mapping(address => RefAccount) public refAccounts;
+    /**
+     * @title The list of addresses that can deposit funds into the pool
+     */
     mapping(address => bool) public whitelist;
 
+    /**
+     * @dev The address of the operator. Usually the backend address
+     */
     address private _oracleOperator;
+    /**
+     * @dev The game using this pool controller
+     */
     IGame private _game;
+    /**
+     * @dev The pool controlled by this pool controller
+     */
     Pool private pool;
 
+    /**
+     * @dev Checks that caller is the game using this pool controller
+     */
     modifier onlyGame() {
         require(
             _msgSender() == address(_game),
-            "pc: Caller Is Not a Game Owner!"
+            "PoolController: caller is not a game owner!"
         );
         _;
     }
-
+    /**
+     * @dev Checks that caller is the pool operator
+     */
     modifier onlyOracleOperator() {
         require(
             _msgSender() == _oracleOperator,
-            "pc: Caller Is Not an Operator!"
+            "PoolController: caller is not an operator!"
         );
         _;
     }
-
-    // TODO maybe take all of this as arguments for constructor
-    constructor(address xEthTokenAddress) {
-        IInternalToken xEthCandidate = IInternalToken(xEthTokenAddress);
+    constructor(address internalTokenAddress) {
+        IInternalToken internalCandidate = IInternalToken(internalTokenAddress);
         require(
-            xEthCandidate.supportsIInternalToken(),
+            internalCandidate.supportsIInternalToken(),
             "pc: Invalid xTRX Token Address!"
         );
-        pool.internalToken = xEthCandidate;
+
+        // TODO maybe take all of this as arguments for constructor
+        pool.internalToken = internalCandidate;
         pool.oracleGasFee = 3000000;
         whitelist[_msgSender()] = true;
         totalWinningsMilestones = [
@@ -86,10 +145,16 @@ contract PoolController is IPool, Context, Ownable {
             220000000000
         ];
         bonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
-        totalJackpot = 78000000000; // TODO: change to 78000000000 on deploy for test/prod
-        jackpotLimit = 1950000000000; // TODO: change to 1950000000000 on deploy for test/prod
+        // TODO: change to 78000000000 on deploy for test/prod
+        totalJackpot = 78000000000; 
+        // TODO: change to 1950000000000 on deploy for test/prod
+        jackpotLimit = 1950000000000; 
     }
 
+    /**
+     * @title Returns referral program winnings milestones
+     * @return Referral program winnings milestones
+     */
     function getTotalWinningsMilestones()
         external
         view
@@ -98,6 +163,10 @@ contract PoolController is IPool, Context, Ownable {
         return totalWinningsMilestones;
     }
 
+    /**
+     * @title Returns referral program bonus percent milestones
+     * @return Referral program bonus percent milestones
+     */
     function getBonusPercentMilestones()
         external
         view
@@ -106,16 +175,25 @@ contract PoolController is IPool, Context, Ownable {
         return bonusPercentMilestones;
     }
 
+    /**
+     * @title Returns the address of the game that is using this pool controller
+     * @return The address of the game that is using this pool controller 
+     */
     function getGame() external view returns (address) {
         return address(_game);
     }
 
+    /**
+     * @title Should be called by other contracts to check that the contract with the given
+     *        address supports the {IPool} interface
+     * @return Always True
+     */
     function supportsIPool() external pure returns (bool) {
         return true;
     }
 
     function canWithdraw(uint256 amount) external view returns (uint256) {
-        return amount.mul(_getPrice()).div(PERCENT100);
+        return amount.mul(_getPrice()).div(HUNDRED_PERCENT);
     }
 
     function getPoolInfo()
@@ -132,7 +210,7 @@ contract PoolController is IPool, Context, Ownable {
             address(pool.internalToken),
             pool.amount,
             pool.oracleGasFee,
-            pool.oracleFeeAmount
+            pool.oracleTotalGasFee
         );
     }
 
@@ -202,10 +280,10 @@ contract PoolController is IPool, Context, Ownable {
         totalJackpot = totalJackpot.add(amount);
     }
 
-    /**
-     * TODO why freeze it? what happens after?
-     */
+
     function freezeJackpot(uint256 amount) external onlyGame {
+        // TODO why isn't here `totalJackpot.sub(amount)`
+        // TODO aren't freezed tokens withdrawn from total jackpot?
         freezedJackpot = freezedJackpot.add(amount);
     }
 
@@ -240,7 +318,7 @@ contract PoolController is IPool, Context, Ownable {
 
         uint256 referralEarnings = betEdge
             .mul(refAccounts[parent].bonusPercent)
-            .div(100);
+            .div(_percentDivider);
         refAccounts[parent].referralEarningsBalance = refAccounts[parent]
             .referralEarningsBalance
             .add(referralEarnings);
@@ -249,7 +327,7 @@ contract PoolController is IPool, Context, Ownable {
     function addBetToPool(uint256 betAmount) external payable onlyGame {
         uint256 oracleGasFee = pool.oracleGasFee;
         pool.amount = pool.amount.add(betAmount).sub(oracleGasFee);
-        pool.oracleFeeAmount = pool.oracleFeeAmount.add(oracleGasFee);
+        pool.oracleTotalGasFee = pool.oracleTotalGasFee.add(oracleGasFee);
     }
 
     function rewardDistribution(address payable player, uint256 prize)
@@ -265,7 +343,6 @@ contract PoolController is IPool, Context, Ownable {
         _rewardDistribution(player, reward);
     }
 
-    // Anyone can deposit funds into the pool
     function deposit(address _to) external payable {
         require(
             whitelist[_msgSender()],
@@ -279,7 +356,7 @@ contract PoolController is IPool, Context, Ownable {
             pool.internalToken.balanceOf(_msgSender()) >= amount,
             "pc: Amount Exceeds Token Balance!"
         );
-        uint256 withdrawAmount = amount.mul(_getPrice()).div(PERCENT100);
+        uint256 withdrawAmount = amount.mul(_getPrice()).div(HUNDRED_PERCENT);
         pool.amount = pool.amount.sub(withdrawAmount);
         payable(_msgSender()).transfer(withdrawAmount);
         pool.internalToken.burnTokenFrom(_msgSender(), amount);
@@ -308,9 +385,9 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function takeOracleFee() external onlyOracleOperator {
-        uint256 oracleFeeAmount = pool.oracleFeeAmount;
-        pool.oracleFeeAmount = 0;
-        payable(_msgSender()).transfer(oracleFeeAmount);
+        uint256 oracleTotalGasFee = pool.oracleTotalGasFee;
+        pool.oracleTotalGasFee = 0;
+        payable(_msgSender()).transfer(oracleTotalGasFee);
     }
 
     function addRef(address parent, address son) external {
@@ -328,7 +405,7 @@ contract PoolController is IPool, Context, Ownable {
 
     //                      Utility internal functions                      //
     function _deposit(address staker, uint256 amount) internal {
-        uint256 tokenAmount = amount.mul(PERCENT100).div(_getPrice());
+        uint256 tokenAmount = amount.mul(HUNDRED_PERCENT).div(_getPrice());
         pool.amount = pool.amount.add(amount);
         pool.internalToken.mint(staker, tokenAmount);
     }
@@ -346,9 +423,10 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     function _getPrice() internal view returns (uint256) {
-        if (pool.internalToken.totalSupply() == 0) return PERCENT100;
-        return
-            (pool.amount).mul(PERCENT100).div(pool.internalToken.totalSupply());
+        if (pool.internalToken.totalSupply() == 0) {
+            return HUNDRED_PERCENT;
+        }
+        return (pool.amount).mul(HUNDRED_PERCENT).div(pool.internalToken.totalSupply());
     }
 
     function _rewardDistribution(address payable player, uint256 prize)

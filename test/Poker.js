@@ -240,13 +240,13 @@
 
 //     describe('checking takeOracleFee', async () => {
 //       it('takeOracleFee posititive', async () => {
-//         let oracleFeeAmount = (await this.poolController.getPoolInfo())[3].toString();
+//         let oracleTotalGasFee = (await this.poolController.getPoolInfo())[3].toString();
 //         // poker was played 5 time so, 5 * oracleFee
-//         assert.equal(oracleFeeAmount, 60000000);
+//         assert.equal(oracleTotalGasFee, 60000000);
 //         await this.poolController.setOracleOperator(owner, { from: owner });
 //         await this.poolController.takeOracleFee({ from: owner });
-//         oracleFeeAmount = (await this.poolController.getPoolInfo())[3].toString();
-//         assert.equal(oracleFeeAmount, 0);
+//         oracleTotalGasFee = (await this.poolController.getPoolInfo())[3].toString();
+//         assert.equal(oracleTotalGasFee, 0);
 //       })
 
 //       it('takeOracleFee negative', async () => {

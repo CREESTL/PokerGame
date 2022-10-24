@@ -79,9 +79,9 @@ contract Poker is GameController {
      */
     uint256 public houseEdge;
     /**
-     * If `houserEdge` is 15 and `percentDivider` is 1000, then house edge is 15 / 1000 = 0.015%
+     * If `houserEdge` is 15 and `_percentDivider` is 1000, then house edge is 15 / 1000 = 0.015%
      */
-    uint256 constant private percentDivider = 1000;
+    uint256 constant private _percentDivider = 1000;
     /**
      * @dev Bet amount gets multiplied by {jackpotFeeMultiplier} 
      *      if a player wins a jackpot
@@ -307,7 +307,7 @@ contract Poker is GameController {
         _poolController.addBetToPool(msgValue);
         // Jackpot amount gets calculated based on player's bet 
         _poolController.updateJackpot(
-            pokerBet.mul(jackpotFeeMultiplier).div(percentDivider)
+            pokerBet.mul(jackpotFeeMultiplier).div(_percentDivider)
         );
 
         // Create a new request for a random number
@@ -331,14 +331,14 @@ contract Poker is GameController {
     }
 
     /**
-     * @notice Calculates the amount of tokens to be payed for:
+     * @notice Calculates the amount of tokens to be paid for:
      *         - Poker win
      *         - Color bet win
      *         - Referral program membership
      * @param gameId The ID of the game 
      * @param result The result of the game with the provided ID
      * @param winColor True if a player won a color bet. False - if he lost
-     * @return The amount of tokens to be payed for:
+     * @return The amount of tokens to be paid for:
      *         - Poker win
      *         - Color bet win
      *         - Referral program membership
@@ -368,14 +368,14 @@ contract Poker is GameController {
         uint256 pokerBet = games[gameId].pokerBet;
         uint256 colorBet = games[gameId].colorBet;
 
-        uint256 pokerBetEdge = pokerBet.mul(houseEdge).div(percentDivider);
+        uint256 pokerBetEdge = pokerBet.mul(houseEdge).div(_percentDivider);
         uint256 colorBetEdge;
 
-        uint256 jackPotAdder = pokerBet.mul(jackpotFeeMultiplier).div(percentDivider);
+        uint256 jackPotAdder = pokerBet.mul(jackpotFeeMultiplier).div(_percentDivider);
 
         // User won a color bet
         if (winColor) {
-            colorBetEdge = colorBet.mul(houseEdge).div(percentDivider);
+            colorBetEdge = colorBet.mul(houseEdge).div(_percentDivider);
             referralBonus = referralBonus.add(colorBetEdge);
             winColorAmount = colorBet.mul(jackpotFeeMultiplier).sub(
                 colorBetEdge
