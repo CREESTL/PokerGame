@@ -13,9 +13,9 @@ interface IPool {
 
     function freezeJackpot(uint256 amount) external;
 
-    function updateJackpot(uint256 amount) external;
+    function addToJackpot(uint256 amount) external;
 
-    function updateReferralStats(
+    function updateRefereeStats(
         address player,
         uint256 amount,
         uint256 betEdge
@@ -23,9 +23,9 @@ interface IPool {
 
     function getOracleGasFee() external view returns (uint256);
 
-    function getPoolAmount() external view returns (uint256);
+    function getNativeTokensTotal() external view returns (uint256);
 
-    function jackpot() external view returns (uint256);
+    function getAvailableJackpot() external view returns (uint256);
 
     function totalJackpot() external view returns (uint256);
 

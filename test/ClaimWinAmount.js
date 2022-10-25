@@ -171,7 +171,7 @@ describe("Poker", function () {
         true,
         0
       );
-      expect(await poolController.jackpot()).to.be.equal(
+      expect(await poolController.getAvailableJackpot()).to.be.equal(
         jackpotFunds.sub(jackpotFunds.div(10))
       );
     });

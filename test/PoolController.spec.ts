@@ -58,14 +58,14 @@ describe("Poker", () => {
       expect(await poolController.getGame()).to.equal(poker.address);
     });
 
-    it("canWithdraw should return storage value", async () => {
-      expect(await poolController.canWithdraw(100000000000)).to.equal(
+    it("getWithDrawableNatives should return storage value", async () => {
+      expect(await poolController.getWithDrawableNatives(100000000000)).to.equal(
         100000000000
       );
     });
 
-    it("getPoolAmount should return storage value", async () => {
-      expect(await poolController.getPoolAmount()).to.equal(100000000000);
+    it("getNativeTokensTotal should return storage value", async () => {
+      expect(await poolController.getNativeTokensTotal()).to.equal(100000000000);
     });
 
     it("getOracleOperator should return storage value", async () => {
@@ -122,7 +122,7 @@ describe("Poker", () => {
   it("check referral program, poker wins only", async () => {
     let refsCounter = (await poolController.getReferralStats(other.address))[4];
     expect(refsCounter).to.equal(0);
-    await poolController.addRef(other.address, wallet.address);
+    await poolController.addReferer(other.address, wallet.address);
     refsCounter = (await poolController.getReferralStats(other.address))[4];
     expect(refsCounter).to.equal(1);
     for (let i = 0; i < 10; i++) {
@@ -154,7 +154,7 @@ describe("Poker", () => {
   it("check referral program, color wins only", async () => {
     let refsCounter = (await poolController.getReferralStats(other.address))[4];
     expect(refsCounter).to.equal(0);
-    await poolController.addRef(other.address, wallet.address);
+    await poolController.addReferer(other.address, wallet.address);
     refsCounter = (await poolController.getReferralStats(other.address))[4];
     expect(refsCounter).to.equal(1);
     for (let i = 0; i < 10; i++) {
@@ -189,10 +189,10 @@ describe("Poker", () => {
   });
 
   it("check referral program reverts", async () => {
-    await poolController.addRef(wallet.address, other.address);
-    await expect(poolController.addRef(wallet.address, other.address)).to.be
+    await poolController.addReferer(wallet.address, other.address);
+    await expect(poolController.addReferer(wallet.address, other.address)).to.be
       .reverted;
-    await expect(poolController.addRef(wallet.address, wallet.address)).to.be
+    await expect(poolController.addReferer(wallet.address, wallet.address)).to.be
       .reverted;
   });
 

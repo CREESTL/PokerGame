@@ -7,7 +7,7 @@ import "./interfaces/IGame.sol";
 import "./interfaces/IOracle.sol";
 
 /**
- * @title Controls game request state
+ * @title Controls game state
  */
 contract GameController is IGame, Ownable {
 

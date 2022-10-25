@@ -267,7 +267,7 @@ contract Poker is GameController {
             !games[gameId].isWinAmountClaimed,
             "p: win already claimed!"
         );
-        /
+        
         address payable player = games[gameId].player;
         uint256 winAmount = games[gameId].winAmount;
         uint256 refAmount = games[gameId].refAmount;
@@ -275,11 +275,11 @@ contract Poker is GameController {
         // Mark that this game win amount was claimed
         games[gameId].isWinAmountClaimed = true;
 
-        // TODO comment on this...
-        _poolController.updateReferralStats(player, winAmount, refAmount);
+        // Update referers stats according to the win amount
+        _poolController.updateRefereeStats(player, winAmount, refAmount);
 
         if (games[gameId].isJackpot) {
-            // If a player won a jackpot, disctribute tokens in one way
+            // If a player won a jackpot, distribute tokens in one way
             _poolController.jackpotDistribution(player, winAmount);
         } else {
             // If a player simply won (no jackpot), distribute tokens in another way
@@ -292,7 +292,7 @@ contract Poker is GameController {
     /**
      * @notice User pays tokens, makes bets and starts a game
      * @param colorBet The amount of tokens at stake for a chosen color
-     * @chosenColor The color a player chose
+     * @param chosenColor The color a player chose
      */
     function play(uint256 colorBet, uint256 chosenColor) external payable {
         uint256 msgValue = msg.value;
@@ -306,7 +306,7 @@ contract Poker is GameController {
         // Tokens from each bet get added to the total pool
         _poolController.addBetToPool(msgValue);
         // Jackpot amount gets calculated based on player's bet 
-        _poolController.updateJackpot(
+        _poolController.addToJackpot(
             pokerBet.mul(jackpotFeeMultiplier).div(_percentDivider)
         );
 
@@ -396,9 +396,9 @@ contract Poker is GameController {
 
         // User won and it's a jackpot
         if (result == GameResult.Jackpot) {
-            winPokerAmount = _poolController.jackpot() <=
+            winPokerAmount = _poolController.getAvailableJackpot() <=
                 _poolController.jackpotLimit()
-                ? _poolController.jackpot()
+                ? _poolController.getAvailableJackpot()
                 : _poolController.jackpotLimit();
         }
 
@@ -406,7 +406,7 @@ contract Poker is GameController {
     }
 
     /**
-     * @title Distributes cards between a player and a computer, compares their hands and determines the winner
+     * @notice Distributes cards between a player and a computer, compares their hands and determines the winner
      * @param _cards The array of cards to play
      * TODO          Does it have the length of 7 or 8?
      * @return Game result: Win, Jackpot, Lose or Draw
@@ -458,7 +458,7 @@ contract Poker is GameController {
     }
 
     /**
-     * @title Checks if player guessed the dominant color correctly
+     * @notice Checks if player guessed the dominant color correctly
      * @param gameId The ID of the game
      * @param cardColors Colors of cards
      * @return True if player guessed the dominant color. False - if he did not
@@ -487,7 +487,7 @@ contract Poker is GameController {
         IPool poolCandidate = IPool(poolAddress);
         require(
             poolCandidate.supportsIPool(),
-            "p: Contract with poolAddress Does Not Implement IPool Interface!"
+            "Poker: contract with IPoolAddress does not implement IPool interface!"
         );
         _poolController = poolCandidate;
     }
@@ -548,7 +548,7 @@ contract Poker is GameController {
     }
 
     /**
-     * @title Check all card combinations of the player and return the strongest hand
+     * @notice Check all card combinations of the player and return the strongest hand
      * @param _cards The array of cards to check
      * @param _ranks The array of ranks of cards
      * @return The strongest hand and card order
@@ -736,10 +736,10 @@ contract Poker is GameController {
 
 
     /**
-     * @title Determines the winner of the game based on each player's hand
+     * @notice Determines the winner of the game based on each player's hand
      * @param playerHand Person's hand
      * @param playerKickers Kicker cards of the person
-     * @computerHand Computer's hand
+     * @param computerHand Computer's hand
      * @param computerKickers Kicker cards of the computer
      * @return Game result: Win, Jackpot, Lose or Draw
      */
@@ -778,8 +778,8 @@ contract Poker is GameController {
 
 
     /**
-     * @title Checks that bet amount is valid
-     * @param bet The amount of tokens at stake
+     * @notice Checks that bet amount is valid
+     * @param betValue The amount of tokens at stake
      */
     function _isValidBet(uint256 betValue) internal view {
         uint256 gasFee = _poolController.getOracleGasFee();

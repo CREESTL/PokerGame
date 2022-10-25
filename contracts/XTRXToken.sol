@@ -16,37 +16,52 @@ import "./interfaces/IPool.sol";
 contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     using SafeMath for uint256;
 
-    /// @dev Only some addresses can burn tokens
+    /**
+     * @dev The list of addresses that can burn tokens
+     */
     mapping(address => bool) internal _burnerAddresses;
+    /**
+     * @dev The address of the game pool controller
+     */
     address internal _poolController;
 
-    /// @dev Checks if caller controls the pool
+    /**
+     * @dev Checks if caller controls the pool
+     */
     modifier onlyPoolController() {
         require(
             _msgSender() == _poolController,
-            "xt: Caller is Not a Pool Controller!"
+            "XTRXToken: caller is not a pool controller!"
         );
         _;
     }
 
-    /// @dev Create a new token
-    /// @dev Add the caller of constructor to the list of burners
-    /// @dev Default `decimals` is 18
+    /**
+     * @dev Create a new token
+     * @dev Add the caller of constructor to the list of burners
+     * @dev Default `decimals` is 18
+     */
     constructor() ERC20("xEthereum", "xTRX") {
         _burnerAddresses[_msgSender()] = true;
     }
 
-    /// @dev Checks if this contract supports interface
+    /**
+     *  @dev Checks if this contract supports interface
+     */
     function supportsIInternalToken() external pure returns (bool) {
         return true;
     }
 
-    /// @dev Getter for a pool controller address
+    /**
+     * @dev Getter for a pool controller address
+     */
     function getPoolController() external view returns (address) {
         return _poolController;
     }
 
-    /// @dev Setter for a pool controller address
+    /**
+     * @dev Setter for a pool controller address
+     */
     function setPoolController(address poolControllerAddress)
         external
         onlyOwner
@@ -54,12 +69,14 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
         IPool iPoolCandidate = IPool(poolControllerAddress);
         require(
             iPoolCandidate.supportsIPool(),
-            "xt: Contract Does Not Implement IPool Interface!"
+            "XTRXToken: contract does not implement IPool interface!"
         );
         _poolController = poolControllerAddress;
     }
 
-    /// @dev Pool controller can mint tokens to anyone
+    /**
+     * @dev Pool controller can mint tokens to anyone
+     */
     function mint(address recipient, uint256 amount)
         external
         onlyPoolController
@@ -67,7 +84,9 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
         _mint(recipient, amount);
     }
 
-    /// @dev Pool controller can burn anyone's tokens
+    /**
+     * @dev Pool controller can burn anyone's tokens
+     */
     function burnTokenFrom(address account, uint256 amount)
         external
         onlyPoolController

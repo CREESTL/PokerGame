@@ -181,9 +181,9 @@
 //       it('checking referral program adding referrals', async () => {
 //         let refsCounter = (await this.poolController.getReferralStats(owner))[4];
 //         assert.equal(refsCounter, 0);
-//         await this.poolController.addRef(owner, alice, { from: alice });
-//         await this.poolController.addRef(owner, bob, { from: bob });
-//         simpleExpectRevert(this.poolController.addRef(bob, alice, { from: bob }), "Already a referral");
+//         await this.poolController.addReferer(owner, alice, { from: alice });
+//         await this.poolController.addReferer(owner, bob, { from: bob });
+//         simpleExpectRevert(this.poolController.addReferer(bob, alice, { from: bob }), "Already a referral");
 //         refsCounter = (await this.poolController.getReferralStats(owner))[4];
 //         assert.equal(refsCounter, 2);
 //         assert.equal((await this.poolController.getReferralStats(alice))[0], getHexAddress(owner));
@@ -193,31 +193,31 @@
 //       it('checking referral program adding referral bonus', async () => {
 //         let refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());
 //         let bonusPercent = refStats[1];
-//         let totalWinnings = refStats[2];
+//         let referersTotalWinnings = refStats[2];
 //         let referralEarningsBalance = refStats[3];
 //         assert.equal(bonusPercent, 0);
-//         assert.equal(totalWinnings, 0);
+//         assert.equal(referersTotalWinnings, 0);
 //         assert.equal(referralEarningsBalance, 0);
 //         await this.poker.play(0, 0, { from: alice, callValue: 100000000 });
 //         let gameId = await this.poker.getLastRequestId();
 //         await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, gameId, { from: owner });
 //         refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());
 //         bonusPercent = refStats[1];
-//         totalWinnings = refStats[2];
+//         referersTotalWinnings = refStats[2];
 //         referralEarningsBalance = refStats[3];
 //         /// updated to level 1
 //         assert.equal(bonusPercent, 1);
-//         assert.equal(totalWinnings, 198300000);
+//         assert.equal(referersTotalWinnings, 198300000);
 //         assert.equal(referralEarningsBalance, 15000);
 //         await this.poker.play(100000000, 0, { from: bob, callValue: 200000000 });
 //         gameId = await this.poker.getLastRequestId();
 //         await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, gameId, { from: owner });
 //         refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());
 //         bonusPercent = refStats[1];
-//         totalWinnings = refStats[2];
+//         referersTotalWinnings = refStats[2];
 //         referralEarningsBalance = refStats[3];
 //         assert.equal(bonusPercent, 1);
-//         assert.equal(totalWinnings, 396600000);
+//         assert.equal(referersTotalWinnings, 396600000);
 //         assert.equal(referralEarningsBalance, 30000);
 //       });
 

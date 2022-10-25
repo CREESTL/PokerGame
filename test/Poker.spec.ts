@@ -398,12 +398,12 @@ describe("Poker", () => {
 
     it("check jackpot increasing", async () => {
       // this is mock init jackpot value testing
-      expect(await poolController.jackpot()).to.equal(500000000000);
+      expect(await poolController.getAvailableJackpot()).to.equal(500000000000);
       // every bet adds 200 000 to jackpot, so +20 000 000 after 100 games
       for (let i = 0; i < 100; i++) {
         await poker.play(0, 0, { value: 100000000 });
       }
-      expect(await poolController.jackpot()).to.equal(500020000000);
+      expect(await poolController.getAvailableJackpot()).to.equal(500020000000);
     });
   });
 });

@@ -176,7 +176,7 @@ contract Oracle is IOracle, Ownable {
         IGame iGameCandidate = IGame(gameAddress);
         require(
             iGameCandidate.supportsIGame(),
-            "GameController: contract does not implement IGame interface!"
+            "Oracle: contract does not implement IGame interface!"
         );
         _game = iGameCandidate;
     }
@@ -185,7 +185,7 @@ contract Oracle is IOracle, Ownable {
      * @notice Sets a new operator. See {setOperator}
      */
     function _setOperator(address operatorAddress) internal {
-        require(operatorAddress != address(0), "o: Invalid Operator Address!");
+        require(operatorAddress != address(0), "Oracle: invalid operator address!");
         _operator = operatorAddress;
     }
 }
