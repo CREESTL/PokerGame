@@ -55,7 +55,9 @@ describe("Poker", () => {
   });
 
   it("cardsToBits func should convert array of cards to correct binary num", async () => {
-    expect(await oracle.cardsToBits(checkingToBitArr)).to.equal(checkingToBitInt);
+    expect(await oracle.cardsToBits(checkingToBitArr)).to.equal(
+      checkingToBitInt
+    );
   });
 
   // setter and getters
@@ -131,8 +133,8 @@ describe("Poker", () => {
       await poker.play(10000000, 0, { value: 100000000 });
       const gameId = await poker.getLastRequestId();
       // @ts-ignore
-      await expect(poker.setGameResult(gameId, 100, { from: other.address }))
-        .to.be.reverted;
+      await expect(poker.setGameResult(gameId, 100, { from: other.address })).to
+        .be.reverted;
     });
 
     it("sendFundsToPool should fail", async () => {
@@ -145,8 +147,8 @@ describe("Poker", () => {
       await poker.play(10000000, 0, { value: 100000000 });
       const gameId = await poker.getLastRequestId();
       // @ts-ignore
-      await expect(poker.claimWinAmount(gameId, { from: other.address })).to
-        .be.reverted;
+      await expect(poker.claimWinAmount(gameId, { from: other.address })).to.be
+        .reverted;
     });
   });
 
@@ -175,8 +177,8 @@ describe("Poker", () => {
         await poker.play(0, 0, { value: 100000000 });
         const gameId = await poker.getLastRequestId();
         // @ts-ignore
-        await expect(poker.claimWinAmount(gameId, { from: other.address }))
-          .to.be.reverted;
+        await expect(poker.claimWinAmount(gameId, { from: other.address })).to
+          .be.reverted;
       });
     });
   });

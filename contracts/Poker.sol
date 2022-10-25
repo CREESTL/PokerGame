@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IPool.sol";
 import "./GameController.sol";
 
-
 /**
  * @title Main Texas Hold`em game logic
  */
@@ -30,7 +29,7 @@ contract Poker is GameController {
     uint256 public _maxBet;
 
     /**
-     * @dev The address of the operator capable 
+     * @dev The address of the operator capable
      *      of calling specific functions
      */
     address public _operator;
@@ -52,7 +51,7 @@ contract Poker is GameController {
     /**
      * @dev Game from the point of view of a single player
      *      If 2 players take part in one game round, each of them
-     *      has his own {Game} 
+     *      has his own {Game}
      */
     struct Game {
         // The amount of tokens a player bet on the color
@@ -81,9 +80,9 @@ contract Poker is GameController {
     /**
      * If `houserEdge` is 15 and `_percentDivider` is 1000, then house edge is 15 / 1000 = 0.015%
      */
-    uint256 constant private _percentDivider = 1000;
+    uint256 private constant _percentDivider = 1000;
     /**
-     * @dev Bet amount gets multiplied by {jackpotFeeMultiplier} 
+     * @dev Bet amount gets multiplied by {jackpotFeeMultiplier}
      *      if a player wins a jackpot
      */
     uint256 public jackpotFeeMultiplier;
@@ -155,7 +154,6 @@ contract Poker is GameController {
      */
     function getPoolController() external view returns (address) {
         return address(_poolController);
-
     }
 
     /**
@@ -183,8 +181,7 @@ contract Poker is GameController {
      */
     function setMaxBet(uint256 maxBet) external onlyOperator {
         _maxBet = maxBet;
-    }  
-
+    }
 
     /**
      * @notice Changes the house edge of the game
@@ -263,11 +260,8 @@ contract Poker is GameController {
             games[gameId].winAmount > 0 || games[gameId].refAmount > 0,
             "Poker: Invalid Amount!"
         );
-        require(
-            !games[gameId].isWinAmountClaimed,
-            "p: win already claimed!"
-        );
-        
+        require(!games[gameId].isWinAmountClaimed, "p: win already claimed!");
+
         address payable player = games[gameId].player;
         uint256 winAmount = games[gameId].winAmount;
         uint256 refAmount = games[gameId].refAmount;
@@ -305,7 +299,7 @@ contract Poker is GameController {
 
         // Tokens from each bet get added to the total pool
         _poolController.addBetToPool(msgValue);
-        // Jackpot amount gets calculated based on player's bet 
+        // Jackpot amount gets calculated based on player's bet
         _poolController.addToJackpot(
             pokerBet.mul(jackpotFeeMultiplier).div(_percentDivider)
         );
@@ -335,7 +329,7 @@ contract Poker is GameController {
      *         - Poker win
      *         - Color bet win
      *         - Referral program membership
-     * @param gameId The ID of the game 
+     * @param gameId The ID of the game
      * @param result The result of the game with the provided ID
      * @param winColor True if a player won a color bet. False - if he lost
      * @return The amount of tokens to be paid for:
@@ -355,7 +349,7 @@ contract Poker is GameController {
             uint256,
             uint256
         )
-    {   
+    {
         // How many tokens to pay to the winner of poker game
         uint256 winPokerAmount;
         // How many tokens to pay to the winner of color bet
@@ -371,7 +365,9 @@ contract Poker is GameController {
         uint256 pokerBetEdge = pokerBet.mul(houseEdge).div(_percentDivider);
         uint256 colorBetEdge;
 
-        uint256 jackPotAdder = pokerBet.mul(jackpotFeeMultiplier).div(_percentDivider);
+        uint256 jackPotAdder = pokerBet.mul(jackpotFeeMultiplier).div(
+            _percentDivider
+        );
 
         // User won a color bet
         if (winColor) {
@@ -543,7 +539,6 @@ contract Poker is GameController {
             if (i < right) {
                 _quickSort(array, i, right);
             }
-
         }
     }
 
@@ -553,10 +548,11 @@ contract Poker is GameController {
      * @param _ranks The array of ranks of cards
      * @return The strongest hand and card order
      */
-   function _evaluateHand(
-        uint8[7] memory _cards,
-        uint8[7] memory _ranks
-    ) private pure returns (uint8, int8[7] memory) {
+    function _evaluateHand(uint8[7] memory _cards, uint8[7] memory _ranks)
+        private
+        pure
+        returns (uint8, int8[7] memory)
+    {
         uint8 strongestHand;
         // Get kickers.
         int8[7] memory retOrder = [-1, -1, -1, -1, -1, -1, -1];
@@ -734,7 +730,6 @@ contract Poker is GameController {
         return (strongestHand, retOrder);
     }
 
-
     /**
      * @notice Determines the winner of the game based on each player's hand
      * @param playerHand Person's hand
@@ -775,7 +770,6 @@ contract Poker is GameController {
         // Computer wins
         return GameResult.Lose;
     }
-
 
     /**
      * @notice Checks that bet amount is valid

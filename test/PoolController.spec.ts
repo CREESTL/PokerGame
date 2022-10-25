@@ -59,13 +59,15 @@ describe("Poker", () => {
     });
 
     it("getWithDrawableNatives should return storage value", async () => {
-      expect(await poolController.getWithDrawableNatives(100000000000)).to.equal(
-        100000000000
-      );
+      expect(
+        await poolController.getWithDrawableNatives(100000000000)
+      ).to.equal(100000000000);
     });
 
     it("getNativeTokensTotal should return storage value", async () => {
-      expect(await poolController.getNativeTokensTotal()).to.equal(100000000000);
+      expect(await poolController.getNativeTokensTotal()).to.equal(
+        100000000000
+      );
     });
 
     it("getOracleOperator should return storage value", async () => {
@@ -192,8 +194,8 @@ describe("Poker", () => {
     await poolController.addReferer(wallet.address, other.address);
     await expect(poolController.addReferer(wallet.address, other.address)).to.be
       .reverted;
-    await expect(poolController.addReferer(wallet.address, wallet.address)).to.be
-      .reverted;
+    await expect(poolController.addReferer(wallet.address, wallet.address)).to
+      .be.reverted;
   });
 
   it("takeOracleFee should work", async () => {

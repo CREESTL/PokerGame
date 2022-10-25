@@ -10,7 +10,6 @@ import "./interfaces/IOracle.sol";
  * @title Controls game state
  */
 contract GameController is IGame, Ownable {
-
     /**
      * @dev Status of request
      */
@@ -21,10 +20,10 @@ contract GameController is IGame, Ownable {
     }
 
     /**
-     * @dev Request for a single game. 
+     * @dev Request for a single game.
      *      Gets opened when game is started.
      *      Gets closed when game is finished.
-     */     
+     */
     struct Request {
         // Binary representation of array of cards
         uint64 result;
@@ -38,7 +37,7 @@ contract GameController is IGame, Ownable {
      * @dev This time should pass after the request was closed
      *      to be able to update the request status
      */
-    uint256 private constant WAIT_SINCE_CLOSED = 7 * 86400; 
+    uint256 private constant WAIT_SINCE_CLOSED = 7 * 86400;
 
     /**
      * @dev Oracle used for random numbers generation
@@ -53,7 +52,6 @@ contract GameController is IGame, Ownable {
      * @dev Mapping from request IDs to requests
      */
     mapping(uint256 => Request) internal _requests;
-
 
     /**
      * @dev Constructor. Sets oracle address
@@ -95,7 +93,6 @@ contract GameController is IGame, Ownable {
         return _lastRequestId;
     }
 
-
     /**
      * @notice Returns the request with the provided ID
      * @param gameId The ID of the request to look for
@@ -126,7 +123,10 @@ contract GameController is IGame, Ownable {
     function _closeRequest(uint64 cardsBits, uint256 gameId) internal {
         Request storage request = _requests[gameId];
         request.closedTime = uint64(block.timestamp);
-        require(request.status != Status.Closed, "GameController: request is already closed!");
+        require(
+            request.status != Status.Closed,
+            "GameController: request is already closed!"
+        );
         request.status = Status.Closed;
         request.result = cardsBits;
     }
@@ -141,8 +141,7 @@ contract GameController is IGame, Ownable {
         Request storage request = _requests[gameId];
         // Check that chosen request was closed not too long ago
         require(
-            request.closedTime <=
-                (uint64(block.timestamp) - WAIT_SINCE_CLOSED),
+            request.closedTime <= (uint64(block.timestamp) - WAIT_SINCE_CLOSED),
             "GameController: minimum time since the request was closed have not passed yet!"
         );
         // Change request's status to Pending

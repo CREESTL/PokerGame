@@ -6,11 +6,10 @@ import "./interfaces/IOracle.sol";
 import "./interfaces/IGame.sol";
 
 /**
- * @title Provides random numbers to contracts. 
+ * @title Provides random numbers to contracts.
  *        Converts array of cards into binary format
  */
 contract Oracle is IOracle, Ownable {
-
     /**
      * @dev Poker contract calling this oracle contract
      */
@@ -49,7 +48,10 @@ contract Oracle is IOracle, Ownable {
      * @param sender The address of caller
      */
     modifier onlyGame(address sender) {
-        require(sender == address(_game), "Oracle: caller is not a poker contract!");
+        require(
+            sender == address(_game),
+            "Oracle: caller is not a poker contract!"
+        );
         _;
     }
 
@@ -117,7 +119,7 @@ contract Oracle is IOracle, Ownable {
         return _pendingRequests[gameId];
     }
 
-    /** 
+    /**
      * @notice Creates a request for random number generation
      *         which is then handled by the backend
      * @return The ID of the created request
@@ -126,7 +128,7 @@ contract Oracle is IOracle, Ownable {
         external
         onlyGame(_msgSender())
         returns (uint256)
-    {   
+    {
         // ID gets initialized with 0 here
         uint256 gameId;
         /**
@@ -145,7 +147,7 @@ contract Oracle is IOracle, Ownable {
                 keccak256(
                     abi.encodePacked(block.timestamp, _msgSender(), _nonce)
                 )
-            ); 
+            );
         } while (_pendingRequests[gameId]);
         // A request with every new not pending gameId becomes a pending request
         _pendingRequests[gameId] = true;
@@ -185,7 +187,10 @@ contract Oracle is IOracle, Ownable {
      * @notice Sets a new operator. See {setOperator}
      */
     function _setOperator(address operatorAddress) internal {
-        require(operatorAddress != address(0), "Oracle: invalid operator address!");
+        require(
+            operatorAddress != address(0),
+            "Oracle: invalid operator address!"
+        );
         _operator = operatorAddress;
     }
 }

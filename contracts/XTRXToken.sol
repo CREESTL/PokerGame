@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./interfaces/IInternalToken.sol";
 import "./interfaces/IPool.sol";
 
-
 /**
  * TODO Only used for tests? Delete it?
  */

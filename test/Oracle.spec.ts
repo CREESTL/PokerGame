@@ -33,8 +33,7 @@ describe("Poker", () => {
     it("getOperator and setOperator should change/return storage value", async () => {
       expect(await oracle.getOperator()).to.equal(wallet.address);
       await oracle.setOperator(other.address);
-      await expect(oracle.setOperator(constants.AddressZero)).to.be
-        .reverted;
+      await expect(oracle.setOperator(constants.AddressZero)).to.be.reverted;
       expect(await oracle.getOperator()).to.equal(other.address);
     });
 
