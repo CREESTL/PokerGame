@@ -4,5 +4,5 @@ pragma solidity ^0.8.9;
 interface IOracle {
     function supportsIOracle() external view returns (bool);
 
-    function createRandomNumberRequest() external returns (uint256);
+    function generateRandomGameId() external returns (uint256);
 }

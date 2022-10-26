@@ -136,7 +136,7 @@
 //       assert.equal((await this.xTRX.balanceOf(owner, { from: owner })).toString(), 1000000000);
 //       let poolInfo = await this.poolController.getPoolInfo();
 //       assert.equal(poolInfo[1].toString(), 1000000000);
-//       await this.poker.play(0, 0, { from: alice, callValue: 50000000 });
+//       await this.poker.startGame(0, 0, { from: alice, callValue: 50000000 });
 //       poolInfo = await this.poolController.getPoolInfo();
 //       // depostited + bet - energy fee
 //       assert.equal(poolInfo[1].toString(), 1038000000);
@@ -147,7 +147,7 @@
 //       assert.equal(poolInfo[1].toString(), 938850000);
 //     });
 //     it('checking getGameInfo', async () => {
-//       await this.poker.play(10000000, 1, { from: bob, callValue: 50000000 });
+//       await this.poker.startGame(10000000, 1, { from: bob, callValue: 50000000 });
 //       const gameId = await this.poker.getLastRequestId();
 //       const gameInfo = await this.poker.getGameInfo(gameId, { from: bob });
 //       assert.equal(gameInfo[0].toString(), 10000000);
@@ -171,7 +171,7 @@
 //     });
 
 //     it('checking jackpot increasing', async () => {
-//       await this.poker.play(10000000, 1, { from: owner, callValue: 50000000 });
+//       await this.poker.startGame(10000000, 1, { from: owner, callValue: 50000000 });
 //       const gameId = await this.poker.getLastRequestId();
 //       await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, gameId, { from: owner });
 //       assert.equal((await this.poolController.getJackpot()).toString(), 80000);
@@ -198,7 +198,7 @@
 //         assert.equal(bonusPercent, 0);
 //         assert.equal(referersTotalWinnings, 0);
 //         assert.equal(referralEarningsBalance, 0);
-//         await this.poker.play(0, 0, { from: alice, callValue: 100000000 });
+//         await this.poker.startGame(0, 0, { from: alice, callValue: 100000000 });
 //         let gameId = await this.poker.getLastRequestId();
 //         await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, gameId, { from: owner });
 //         refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());
@@ -209,7 +209,7 @@
 //         assert.equal(bonusPercent, 1);
 //         assert.equal(referersTotalWinnings, 198300000);
 //         assert.equal(referralEarningsBalance, 15000);
-//         await this.poker.play(100000000, 0, { from: bob, callValue: 200000000 });
+//         await this.poker.startGame(100000000, 0, { from: bob, callValue: 200000000 });
 //         gameId = await this.poker.getLastRequestId();
 //         await this.oracle.publishRandomNumber(userWinsCards, this.poker.address, gameId, { from: owner });
 //         refStats = (await this.poolController.getReferralStats(owner)).map(item => item.toString());

@@ -129,12 +129,12 @@ describe("Poker", () => {
         .reverted;
     });
 
-    it("setGameResult should fail", async () => {
-      await poker.play(10000000, 0, { value: 100000000 });
+    it("endGame should fail", async () => {
+      await poker.startGame(10000000, 0, { value: 100000000 });
       const gameId = await poker.getLastRequestId();
       // @ts-ignore
-      await expect(poker.setGameResult(gameId, 100, { from: other.address })).to
-        .be.reverted;
+      await expect(poker.endGame(gameId, 100, { from: other.address })).to.be
+        .reverted;
     });
 
     it("sendFundsToPool should fail", async () => {
@@ -144,7 +144,7 @@ describe("Poker", () => {
     });
 
     it("claimWinAmount should fail", async () => {
-      await poker.play(10000000, 0, { value: 100000000 });
+      await poker.startGame(10000000, 0, { value: 100000000 });
       const gameId = await poker.getLastRequestId();
       // @ts-ignore
       await expect(poker.claimWinAmount(gameId, { from: other.address })).to.be
@@ -155,7 +155,7 @@ describe("Poker", () => {
   describe("misc functions", async () => {
     describe("check sendFundsToPool", async () => {
       it("sendFundsToPool to pool should work", async () => {
-        await poker.play(0, 0, { value: 100000000 });
+        await poker.startGame(0, 0, { value: 100000000 });
         await poker.sendFundsToPool();
       });
 
@@ -168,13 +168,13 @@ describe("Poker", () => {
 
     describe("check claimWinAmount", async () => {
       it("claimWinAmount should work", async () => {
-        await poker.play(0, 0, { value: 100000000 });
+        await poker.startGame(0, 0, { value: 100000000 });
         const gameId = await poker.getLastRequestId();
         await poker.claimWinAmount(gameId);
       });
 
       it("claimWinAmount should fail", async () => {
-        await poker.play(0, 0, { value: 100000000 });
+        await poker.startGame(0, 0, { value: 100000000 });
         const gameId = await poker.getLastRequestId();
         // @ts-ignore
         await expect(poker.claimWinAmount(gameId, { from: other.address })).to
@@ -189,7 +189,7 @@ describe("Poker", () => {
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
-      await poker.play(0, 0, { from: wallet.address, value: 100000000 });
+      await poker.startGame(0, 0, { from: wallet.address, value: 100000000 });
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const gameId = await poker.getLastRequestId();
@@ -207,7 +207,7 @@ describe("Poker", () => {
 
       const cardsBits = await oracle.cardsToBits(winCards);
 
-      await poker.setGameResult(
+      await poker.endGame(
         gameId,
         gameResults[0].add(gameResults[1]),
         gameResults[2],
@@ -232,7 +232,10 @@ describe("Poker", () => {
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
-      await poker.play(10000000, 0, { from: wallet.address, value: 100000000 });
+      await poker.startGame(10000000, 0, {
+        from: wallet.address,
+        value: 100000000,
+      });
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const gameId = await poker.getLastRequestId();
@@ -250,7 +253,7 @@ describe("Poker", () => {
 
       const cardsBits = await oracle.cardsToBits(computerWinsCards);
 
-      await poker.setGameResult(
+      await poker.endGame(
         gameId,
         gameResults[0].add(gameResults[1]),
         gameResults[2],
@@ -276,7 +279,10 @@ describe("Poker", () => {
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
-      await poker.play(10000000, 0, { from: wallet.address, value: 100000000 });
+      await poker.startGame(10000000, 0, {
+        from: wallet.address,
+        value: 100000000,
+      });
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const gameId = await poker.getLastRequestId();
@@ -294,7 +300,7 @@ describe("Poker", () => {
 
       const cardsBits = await oracle.cardsToBits(computerWinsCards);
 
-      await poker.setGameResult(
+      await poker.endGame(
         gameId,
         gameResults[0].add(gameResults[1]),
         gameResults[2],
@@ -320,7 +326,10 @@ describe("Poker", () => {
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
-      await poker.play(10000000, 0, { from: wallet.address, value: 100000000 });
+      await poker.startGame(10000000, 0, {
+        from: wallet.address,
+        value: 100000000,
+      });
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const gameId = await poker.getLastRequestId();
@@ -338,7 +347,7 @@ describe("Poker", () => {
 
       const cardsBits = await oracle.cardsToBits(drawCards);
 
-      await poker.setGameResult(
+      await poker.endGame(
         gameId,
         gameResults[0].add(gameResults[1]),
         gameResults[2],
@@ -364,7 +373,10 @@ describe("Poker", () => {
       let poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100000000000);
       // @ts-ignore
-      await poker.play(10000000, 0, { from: wallet.address, value: 100000000 });
+      await poker.startGame(10000000, 0, {
+        from: wallet.address,
+        value: 100000000,
+      });
       poolInfo = await poolController.getPoolInfo();
       expect(poolInfo[1]).to.equal(100097000000);
       const gameId = await poker.getLastRequestId();
@@ -383,7 +395,7 @@ describe("Poker", () => {
 
       const cardsBits = await oracle.cardsToBits(winJackpotCards);
 
-      await poker.setGameResult(
+      await poker.endGame(
         gameId,
         gameResults[0].add(gameResults[1]),
         gameResults[2],
@@ -403,7 +415,7 @@ describe("Poker", () => {
       expect(await poolController.getAvailableJackpot()).to.equal(500000000000);
       // every bet adds 200 000 to jackpot, so +20 000 000 after 100 games
       for (let i = 0; i < 100; i++) {
-        await poker.play(0, 0, { value: 100000000 });
+        await poker.startGame(0, 0, { value: 100000000 });
       }
       expect(await poolController.getAvailableJackpot()).to.equal(500020000000);
     });

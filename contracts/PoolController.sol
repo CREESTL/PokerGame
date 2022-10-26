@@ -61,10 +61,10 @@ contract PoolController is IPool, Context, Ownable {
 
     /**
      * @notice Each milestone reached by the referee increases his bonus percent
-     * @dev {bonusPercentMilestones[i]} corresponds to {referersTotalWinningsMilestones[i]} and vice versa
+     * @dev {refereesBonusPercentMilestones[i]} corresponds to {referersTotalWinningsMilestones[i]} and vice versa
      */
     uint256[7] public referersTotalWinningsMilestones;
-    uint256[7] public bonusPercentMilestones;
+    uint256[7] public refereesBonusPercentMilestones;
 
     /**
      * @dev Equivalent between native token and internal tokens
@@ -149,7 +149,7 @@ contract PoolController is IPool, Context, Ownable {
             180000000000,
             220000000000
         ];
-        bonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
+        refereesBonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
         // TODO: change to 78000000000 on deploy for test/prod
         totalJackpot = 78000000000;
         // TODO: change to 1950000000000 on deploy for test/prod
@@ -177,7 +177,7 @@ contract PoolController is IPool, Context, Ownable {
         view
         returns (uint256[7] memory)
     {
-        return bonusPercentMilestones;
+        return refereesBonusPercentMilestones;
     }
 
     /**
@@ -323,7 +323,7 @@ contract PoolController is IPool, Context, Ownable {
         onlyOwner
     {
         for (uint256 i = 0; i < 7; i++) {
-            bonusPercentMilestones[i] = newBonusPercents[i];
+            refereesBonusPercentMilestones[i] = newBonusPercents[i];
         }
     }
 
@@ -331,7 +331,7 @@ contract PoolController is IPool, Context, Ownable {
      * @notice Changes the jackpot amount of the game
      * @param jackpot The new jackpot
      */
-    function setJackpot(uint256 jackpot) external onlyOwner {
+    function setTotalJackpot(uint256 jackpot) external onlyOwner {
         totalJackpot = jackpot;
     }
 
@@ -472,7 +472,7 @@ contract PoolController is IPool, Context, Ownable {
      * @notice Withdraws the amount of native tokens from the pool equal to the provided amount of internal tokens of the pool
      * @param internalTokensAmount The amount of internal tokens used to calculate the amount of native tokens to be withdrawn
      */
-    function withdraw(uint256 internalTokensAmount) external {
+    function withdrawNativeForInternal(uint256 internalTokensAmount) external {
         require(
             pool.internalToken.balanceOf(_msgSender()) >= internalTokensAmount,
             "PoolController: amount exceeds token balance!"
@@ -593,7 +593,7 @@ contract PoolController is IPool, Context, Ownable {
                 referersTotalWinningsMilestones[i] <
                 refAccounts[parent].referersTotalWinnings
             ) {
-                currentBonusPercent = bonusPercentMilestones[i];
+                currentBonusPercent = refereesBonusPercentMilestones[i];
             }
         }
         refAccounts[parent].bonusPercent = currentBonusPercent;

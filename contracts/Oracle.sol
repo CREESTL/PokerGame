@@ -124,7 +124,7 @@ contract Oracle is IOracle, Ownable {
      *         which is then handled by the backend
      * @return The ID of the created request
      */
-    function createRandomNumberRequest()
+    function generateRandomGameId()
         external
         onlyGame(_msgSender())
         returns (uint256)
@@ -151,7 +151,9 @@ contract Oracle is IOracle, Ownable {
         } while (_pendingRequests[gameId]);
         // A request with every new not pending gameId becomes a pending request
         _pendingRequests[gameId] = true;
+        // Game ID is essentially a random number request ID
         return gameId;
+        // TODO emit `RandomNumberRequested` here
     }
 
     /**

@@ -25,7 +25,7 @@ contract GameController is IGame, Ownable {
      *      Gets closed when game is finished.
      */
     struct Request {
-        // Binary representation of array of cards
+        // Binary representation of array of cards used in the game
         uint64 result;
         // Last time when any changes were made in the request
         uint64 closedTime;
@@ -45,11 +45,12 @@ contract GameController is IGame, Ownable {
     IOracle internal _oracle;
     /**
      * @dev The ID of the last closed request
+     * NOTE: Request ID is the ID of the game from {Poker}. It's explicitly shown through the variable name here.
      */
-    uint256 internal _lastRequestId;
+    uint256 internal _lastGameId;
 
     /**
-     * @dev Mapping from request IDs to requests
+     * @dev Mapping from game IDs to requests
      */
     mapping(uint256 => Request) internal _requests;
 
@@ -90,7 +91,7 @@ contract GameController is IGame, Ownable {
      * @return The ID of the last closed request
      */
     function getLastRequestId() external view onlyOwner returns (uint256) {
-        return _lastRequestId;
+        return _lastGameId;
     }
 
     /**
@@ -132,12 +133,12 @@ contract GameController is IGame, Ownable {
     }
 
     /**
-     * @notice Updates one random request status and marks it as the one
-     *         being processed
+     * @notice Picks a random game request and marks it as the pending one. That means that
+     *         the game with the same ID as the request has will be started soon
      */
-    function _updateRandomRequest() internal {
+    function _requestNewGame() internal {
         // Request ID is a random number
-        uint256 gameId = _oracle.createRandomNumberRequest();
+        uint256 gameId = _oracle.generateRandomGameId();
         Request storage request = _requests[gameId];
         // Check that chosen request was closed not too long ago
         require(
@@ -147,7 +148,7 @@ contract GameController is IGame, Ownable {
         // Change request's status to Pending
         request.status = Status.Pending;
         // Update the ID of the last processed request
-        _lastRequestId = gameId;
+        _lastGameId = gameId;
     }
 
     /**

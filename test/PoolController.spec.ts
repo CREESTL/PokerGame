@@ -111,8 +111,8 @@ describe("Poker", () => {
       );
     });
 
-    it("setJackpot, setJackpotLimit", async () => {
-      await poolController.setJackpot(100);
+    it("setTotalJackpot, setJackpotLimit", async () => {
+      await poolController.setTotalJackpot(100);
       await poolController.setJackpotLimit(100);
     });
 
@@ -129,7 +129,7 @@ describe("Poker", () => {
     expect(refsCounter).to.equal(1);
     for (let i = 0; i < 10; i++) {
       // @ts-ignore
-      await poker.play(0, 0, { value: 100000000 });
+      await poker.startGame(0, 0, { value: 100000000 });
       const gameId = await poker.getLastRequestId();
       const result = await poker.getPokerResult(winCards);
       const winColor = await poker.getColorResult(gameId, evenWinColorCards);
@@ -140,7 +140,7 @@ describe("Poker", () => {
       );
 
       const cardsBits = await oracle.cardsToBits(winCards);
-      await poker.setGameResult(
+      await poker.endGame(
         gameId,
         gameResults[0].add(gameResults[1]),
         gameResults[2],
@@ -161,7 +161,7 @@ describe("Poker", () => {
     expect(refsCounter).to.equal(1);
     for (let i = 0; i < 10; i++) {
       // @ts-ignore
-      await poker.play(100000000, 0, { value: 100000000 });
+      await poker.startGame(100000000, 0, { value: 100000000 });
       const gameId = await poker.getLastRequestId();
       const result = await poker.getPokerResult(winCards);
       const winColor = await poker.getColorResult(gameId, evenWinColorCards);
@@ -172,7 +172,7 @@ describe("Poker", () => {
       );
 
       const cardsBits = await oracle.cardsToBits(winCards);
-      await poker.setGameResult(
+      await poker.endGame(
         gameId,
         gameResults[0].add(gameResults[1]),
         gameResults[2],
@@ -204,7 +204,7 @@ describe("Poker", () => {
     expect(poolInfo[3]).to.equal(0);
     for (let i = 0; i < 10; i++) {
       // @ts-ignore
-      await poker.play(100000000, 0, { value: 100000000 });
+      await poker.startGame(100000000, 0, { value: 100000000 });
     }
     poolInfo = await poolController.getPoolInfo();
     expect(poolInfo[3]).to.equal(30000000);
@@ -214,13 +214,14 @@ describe("Poker", () => {
   });
 
   it("withdraw should work", async () => {
-    await poolController.withdraw(100000000000);
+    await poolController.withdrawNativeForInternal(100000000000);
     const poolInfo = await poolController.getPoolInfo();
     expect(poolInfo[1]).to.equal(0);
   });
 
   it("withdraw should fail", async () => {
-    await expect(poolController.withdraw(10000000000000)).to.be.reverted;
+    await expect(poolController.withdrawNativeForInternal(10000000000000)).to.be
+      .reverted;
   });
 
   describe("check whitelist logic", async () => {
@@ -262,7 +263,7 @@ describe("Poker", () => {
 
   it("artificially lower jackpot limit and check logic if jackpot is higher than jackpot limit", async () => {
     await poolController.setJackpotLimit(1);
-    await poker.play(0, 0, { value: 100000000000 });
+    await poker.startGame(0, 0, { value: 100000000000 });
     const gameId = await poker.getLastRequestId();
 
     const result = await poker.getPokerResult(winJackpotCards);
@@ -275,7 +276,7 @@ describe("Poker", () => {
 
     const cardsBits = await oracle.cardsToBits(winJackpotCards);
 
-    await poker.setGameResult(
+    await poker.endGame(
       gameId,
       gameResults[0].add(gameResults[1]),
       gameResults[2],

@@ -69,13 +69,13 @@ describe("Poker", function () {
       // colorBet = 1000 wei (random)
       // chosenColor = 2000 wei (random)
       // Add 10_000_000_000 - 3_000_000 (oracle fee) =  9_997_000_000 wei to the pool amount
-      await poker.play(1000, 2000, { value: 10_000_000_000 });
+      await poker.startGame(1000, 2000, { value: 10_000_000_000 });
       // Get the last request id
       let lastReqId = await poker.getLastRequestId();
       // Cheat: set jackpot
       // winAmount = 200_000 wei (random)
       // refAmount = 100_000 wei (random)
-      await poker.setGameResult(lastReqId, 200_000, 100_000, true, 0);
+      await poker.endGame(lastReqId, 200_000, 100_000, true, 0);
       // Try to claim the winAmount
       // This should work
       await poker.claimWinAmount(lastReqId);
@@ -87,13 +87,13 @@ describe("Poker", function () {
       // colorBet = 1000 wei (random)
       // chosenColor = 2000 wei (random)
       // Add 10_000_000_000 - 3_000_000 (oracle fee) =  9_997_000_000 wei to the pool amount
-      await poker.play(1000, 2000, { value: 10_000_000_000 });
+      await poker.startGame(1000, 2000, { value: 10_000_000_000 });
       // Get the last request id
       let lastReqId = await poker.getLastRequestId();
       // Cheat: set jackpot
       // winAmount = 9_997_000_001 wei (greater than pool balance)
       // refAmount = 100_000 wei (random)
-      await poker.setGameResult(lastReqId, 9_997_000_001, 100_000, true, 0);
+      await poker.endGame(lastReqId, 9_997_000_001, 100_000, true, 0);
       // Try to claim the winAmount
       // This should fail
       await expect(poker.claimWinAmount(lastReqId)).to.revertedWith(
@@ -107,13 +107,13 @@ describe("Poker", function () {
       // colorBet = 1000 wei (random)
       // chosenColor = 2000 wei (random)
       // Add 10_000_000_000_000 - 3_000_000 (oracle fee) =  9_999_997_000_000 wei to the pool amount
-      await poker.play(1000, 2000, { value: 10_000_000_000_000 });
+      await poker.startGame(1000, 2000, { value: 10_000_000_000_000 });
       // Get the last request id
       let lastReqId = await poker.getLastRequestId();
       // Cheat: set jackpot
       // winAmount = 0 wei ()
       // refAmount = 0 wei (random)
-      await poker.setGameResult(lastReqId, 0, 0, true, 0);
+      await poker.endGame(lastReqId, 0, 0, true, 0);
       // Try to claim the winAmount
       // It should fail because neither winAmount nor refAmount was set
       await expect(poker.claimWinAmount(lastReqId)).to.be.revertedWith(
@@ -127,13 +127,13 @@ describe("Poker", function () {
       // colorBet = 1000 wei (random)
       // chosenColor = 2000 wei (random)
       // Add 10_000_000_000_000 - 3_000_000 (oracle fee) =  9_999_997_000_000 wei to the pool amount
-      await poker.play(1000, 2000, { value: 10_000_000_000_000 });
+      await poker.startGame(1000, 2000, { value: 10_000_000_000_000 });
       // Get the last request id
       let lastReqId = await poker.getLastRequestId();
       // Cheat: set jackpot
       // winAmount = 200_000 wei (random)
       // refAmount = 100_000 wei (random)
-      await poker.setGameResult(lastReqId, 200_000, 100_000, true, 0);
+      await poker.endGame(lastReqId, 200_000, 100_000, true, 0);
       // Try to claim the winAmount
       await poker.claimWinAmount(lastReqId);
       // And try that again
@@ -143,34 +143,28 @@ describe("Poker", function () {
     });
 
     it("Should fail if jackpot is greater then jackpot funds", async () => {
-      await poker.play(1000, 2000, { value: 10_000_000_000_000 });
+      await poker.startGame(1000, 2000, { value: 10_000_000_000_000 });
       let lastReqId = await poker.getLastRequestId();
       let jackpotFunds = await poolController.totalJackpot();
       await expect(
-        poker.setGameResult(lastReqId, jackpotFunds.add(1), 100_000, true, 0)
+        poker.endGame(lastReqId, jackpotFunds.add(1), 100_000, true, 0)
       ).to.be.revertedWith("pc: not enough funds for jackpot");
     });
 
     it("Should fail if jackpot is greater then jackpot limit", async () => {
-      await poker.play(1000, 2000, { value: 10_000_000_000_000 });
+      await poker.startGame(1000, 2000, { value: 10_000_000_000_000 });
       let lastReqId = await poker.getLastRequestId();
       let jackpotLimit = await poolController.jackpotLimit();
       await expect(
-        poker.setGameResult(lastReqId, jackpotLimit.add(1), 100_000, true, 0)
+        poker.endGame(lastReqId, jackpotLimit.add(1), 100_000, true, 0)
       ).to.be.revertedWith("pc: jackpot is greater than limit");
     });
 
     it("Should decrease available for jackpot funds when not claimed", async () => {
-      await poker.play(1000, 2000, { value: 10_000_000_000_000 });
+      await poker.startGame(1000, 2000, { value: 10_000_000_000_000 });
       let lastReqId = await poker.getLastRequestId();
       let jackpotFunds = await poolController.totalJackpot();
-      await poker.setGameResult(
-        lastReqId,
-        jackpotFunds.div(10),
-        100_000,
-        true,
-        0
-      );
+      await poker.endGame(lastReqId, jackpotFunds.div(10), 100_000, true, 0);
       expect(await poolController.getAvailableJackpot()).to.be.equal(
         jackpotFunds.sub(jackpotFunds.div(10))
       );

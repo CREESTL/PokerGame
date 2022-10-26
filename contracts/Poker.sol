@@ -58,7 +58,8 @@ contract Poker is GameController {
         uint128 colorBet;
         // The amount of tokens a player bet on the poker game itself
         uint128 pokerBet;
-        // The amount of tokens to be given to the winner of the game
+        // The amount of tokens to be given to the winner of the game.
+        // It is the sum of the prize for the game and the prize for guessing the dominant color
         uint256 winAmount;
         // The amount of tokens to be given to the members of referral program
         uint128 refAmount;
@@ -203,92 +204,11 @@ contract Poker is GameController {
     }
 
     /**
-     * @notice Called by the backend to set the game result
-     * @param gameId The ID of the game
-     * @param winAmount The amount that will be given to the winner
-     * @param refAmount The amount that will be given to the member of referral program
-     * @param isJackpot True if one of the players won a jackpot
-     * @param cardsBits Binary number representing an array of cards
-     */
-    function setGameResult(
-        uint256 gameId,
-        uint256 winAmount,
-        uint128 refAmount,
-        bool isJackpot,
-        uint64 cardsBits
-    ) external onlyOperator {
-        // Values from backend are assigned to the game
-        games[gameId].winAmount = winAmount;
-        games[gameId].refAmount = refAmount;
-        games[gameId].isJackpot = isJackpot;
-
-        if (isJackpot) {
-            require(
-                winAmount <= _poolController.jackpotLimit(),
-                "Poker: jackpot is greater than limit!"
-            );
-            require(
-                winAmount <= _poolController.totalJackpot(),
-                "Poker: not enough funds for jackpot!"
-            );
-            // TODO freeze jackpot??? comment on that...
-            _poolController.freezeJackpot(winAmount);
-        }
-
-        // Finish work with current game request
-        _closeRequest(cardsBits, gameId);
-    }
-
-    /**
-     * @notice Sends tokens from the game to the pool controller
-     */
-    function sendFundsToPool() external onlyOperator {
-        _poolController.receiveFundsFromGame{value: address(this).balance}();
-    }
-
-    /**
-     * @notice Allows player to claim tokens he won in the game
-     * @param gameId The ID of the game request
-     */
-    function claimWinAmount(uint256 gameId) external {
-        require(
-            games[gameId].player == _msgSender(),
-            "Poker: caller is not a player!"
-        );
-        // Either player of referee should win.
-        require(
-            games[gameId].winAmount > 0 || games[gameId].refAmount > 0,
-            "Poker: Invalid Amount!"
-        );
-        require(!games[gameId].isWinAmountClaimed, "p: win already claimed!");
-
-        address payable player = games[gameId].player;
-        uint256 winAmount = games[gameId].winAmount;
-        uint256 refAmount = games[gameId].refAmount;
-
-        // Mark that this game win amount was claimed
-        games[gameId].isWinAmountClaimed = true;
-
-        // Update referers stats according to the win amount
-        _poolController.updateRefereeStats(player, winAmount, refAmount);
-
-        if (games[gameId].isJackpot) {
-            // If a player won a jackpot, distribute tokens in one way
-            _poolController.jackpotDistribution(player, winAmount);
-        } else {
-            // If a player simply won (no jackpot), distribute tokens in another way
-            _poolController.rewardDistribution(player, winAmount);
-        }
-
-        emit WinAmountClaimed(gameId);
-    }
-
-    /**
      * @notice User pays tokens, makes bets and starts a game
      * @param colorBet The amount of tokens at stake for a chosen color
      * @param chosenColor The color a player chose
      */
-    function play(uint256 colorBet, uint256 chosenColor) external payable {
+    function startGame(uint256 colorBet, uint256 chosenColor) external payable {
         uint256 msgValue = msg.value;
 
         // What's left of players tokens after he bet on the color
@@ -305,14 +225,15 @@ contract Poker is GameController {
         );
 
         // Create a new request for a random number
-        // This updates {_lastRequestId}
-        super._updateRandomRequest();
+        // This updates {_lastGameId} ( internal variable inhereted from {GameController} )
+        // TODO why use `super` here?
+        super._requestNewGame();
 
         address payable player = payable(_msgSender());
 
         // Get a random game from all games
         // It is "empty" at first
-        Game storage game = games[_lastRequestId];
+        Game storage game = games[_lastGameId];
         // Initialize it with new values
         game.colorBet = uint128(colorBet);
         game.pokerBet = uint128(pokerBet);
@@ -321,7 +242,81 @@ contract Poker is GameController {
         }
         game.player = player;
 
-        emit GameStart(_lastRequestId);
+        emit GameStart(_lastGameId);
+    }
+
+    /**
+     * @notice Distributes cards between a player and a computer, compares their hands and determines the winner
+     * @param _cards The array of cards to play
+     * TODO          Does it have the length of 7 or 8?
+     * @return Game result for the *person*: Win, Jackpot, Lose or Draw
+     */
+    function getPokerResult(uint8[] memory _cards)
+        public
+        pure
+        returns (GameResult)
+    {
+        Hand memory player;
+        Hand memory computer;
+        for (uint256 i; i < _cards.length; i++) {
+            if (i < 7) {
+                // First 7 cards of the player are copied from _cards
+                player.cards[i] = _cards[i];
+                player.ranks[i] = _cards[i] % 13;
+            }
+            if (i > 1) {
+                // Cards from index 2 to index 8 are copied to computer's hand
+                // So cards 2 - 6 (5 in total) are the same for computer and the player
+                computer.cards[i - 2] = _cards[i];
+                computer.ranks[i - 2] = _cards[i] % 13;
+            }
+        }
+        // Sort both players' cards and card ranks
+        _quickSort(player.ranks, 0, 6);
+        _quickSort(player.cards, 0, 6);
+        _quickSort(computer.ranks, 0, 6);
+        _quickSort(computer.cards, 0, 6);
+
+        // Check hands of both players and return the strongest hands for both
+        (player.hand, player.kickers) = _evaluateHand(
+            player.cards,
+            player.ranks
+        );
+        (computer.hand, computer.kickers) = _evaluateHand(
+            computer.cards,
+            computer.ranks
+        );
+
+        // Determine the winner of the game based on each player's hand
+        return
+            _getPokerResult(
+                player.hand,
+                player.kickers,
+                computer.hand,
+                computer.kickers
+            );
+    }
+
+    /**
+     * @notice Checks if player guessed the dominant color correctly
+     * @param gameId The ID of the game
+     * @param cardColors Colors of cards
+     * @return True if player guessed the dominant color. False - if he did not
+     */
+    function getColorResult(uint256 gameId, uint8[] memory cardColors)
+        public
+        view
+        returns (bool)
+    {
+        uint256 colorCounter;
+        uint256 chosenColor = games[gameId].chosenColor;
+        for (uint256 i; i < cardColors.length; i++) {
+            if ((cardColors[i] / 13) % 2 == chosenColor) {
+                colorCounter++;
+            }
+            if (colorCounter >= 2) return true;
+        }
+        return false;
     }
 
     /**
@@ -402,77 +397,87 @@ contract Poker is GameController {
     }
 
     /**
-     * @notice Distributes cards between a player and a computer, compares their hands and determines the winner
-     * @param _cards The array of cards to play
-     * TODO          Does it have the length of 7 or 8?
-     * @return Game result: Win, Jackpot, Lose or Draw
+     * @notice Called by the backend to set the game result
+     * @param gameId The ID of the game
+     * @param winAmount The amount that will be given to the winner (for winning the game and guessing the color)
+     * @param refAmount The amount that will be given to the member of referral program
+     * @param isJackpot True if one of the players won a jackpot
+     * @param cardsBits Binary number representing an array of cards
      */
-    function getPokerResult(uint8[] memory _cards)
-        public
-        pure
-        returns (GameResult)
-    {
-        Hand memory player;
-        Hand memory computer;
-        for (uint256 i; i < _cards.length; i++) {
-            if (i < 7) {
-                // First 7 cards of the player are copied from _cards
-                player.cards[i] = _cards[i];
-                player.ranks[i] = _cards[i] % 13;
-            }
-            if (i > 1) {
-                // Cards from index 2 to index 8 are copied to computer's hand
-                // So cards 2 - 6 (5 in total) are the same for computer and the player
-                computer.cards[i - 2] = _cards[i];
-                computer.ranks[i - 2] = _cards[i] % 13;
-            }
-        }
-        // Sort both players' cards and card ranks
-        _quickSort(player.ranks, 0, 6);
-        _quickSort(player.cards, 0, 6);
-        _quickSort(computer.ranks, 0, 6);
-        _quickSort(computer.cards, 0, 6);
+    function endGame(
+        uint256 gameId,
+        uint256 winAmount,
+        uint128 refAmount,
+        bool isJackpot,
+        uint64 cardsBits
+    ) external onlyOperator {
+        // Values from backend are assigned to the game
+        games[gameId].winAmount = winAmount;
+        games[gameId].refAmount = refAmount;
+        games[gameId].isJackpot = isJackpot;
 
-        // Check hands of both players and return the strongest hands for both
-        (player.hand, player.kickers) = _evaluateHand(
-            player.cards,
-            player.ranks
-        );
-        (computer.hand, computer.kickers) = _evaluateHand(
-            computer.cards,
-            computer.ranks
-        );
-
-        // Determine the winner of the game based on each player's hand
-        return
-            _getPokerResult(
-                player.hand,
-                player.kickers,
-                computer.hand,
-                computer.kickers
+        if (isJackpot) {
+            require(
+                winAmount <= _poolController.jackpotLimit(),
+                "Poker: jackpot is greater than limit!"
             );
+            require(
+                winAmount <= _poolController.totalJackpot(),
+                "Poker: not enough funds for jackpot!"
+            );
+            // TODO freeze jackpot??? comment on that...
+            _poolController.freezeJackpot(winAmount);
+        }
+
+        // Finish work with current game request
+        _closeRequest(cardsBits, gameId);
     }
 
     /**
-     * @notice Checks if player guessed the dominant color correctly
-     * @param gameId The ID of the game
-     * @param cardColors Colors of cards
-     * @return True if player guessed the dominant color. False - if he did not
+     * @notice Allows player to claim tokens he won in the game
+     * @param gameId The ID of the game request
      */
-    function getColorResult(uint256 gameId, uint8[] memory cardColors)
-        public
-        view
-        returns (bool)
-    {
-        uint256 colorCounter;
-        uint256 chosenColor = games[gameId].chosenColor;
-        for (uint256 i; i < cardColors.length; i++) {
-            if ((cardColors[i] / 13) % 2 == chosenColor) {
-                colorCounter++;
-            }
-            if (colorCounter >= 2) return true;
+    function claimWinAmount(uint256 gameId) external {
+        require(
+            games[gameId].player == _msgSender(),
+            "Poker: caller is not a player!"
+        );
+        // Either player of referee should win.
+        require(
+            games[gameId].winAmount > 0 || games[gameId].refAmount > 0,
+            "Poker: invalid amount!"
+        );
+        require(
+            !games[gameId].isWinAmountClaimed,
+            "Poker: prize already claimed!"
+        );
+
+        address payable player = games[gameId].player;
+        uint256 winAmount = games[gameId].winAmount;
+        uint256 refAmount = games[gameId].refAmount;
+
+        // Mark that this game win amount was claimed
+        games[gameId].isWinAmountClaimed = true;
+
+        // Update referers stats according to the win amount
+        _poolController.updateRefereeStats(player, winAmount, refAmount);
+
+        if (games[gameId].isJackpot) {
+            // If a player won a jackpot, distribute tokens in one way
+            _poolController.jackpotDistribution(player, winAmount);
+        } else {
+            // If a player simply won (no jackpot), distribute tokens in another way
+            _poolController.rewardDistribution(player, winAmount);
         }
-        return false;
+
+        emit WinAmountClaimed(gameId);
+    }
+
+    /**
+     * @notice Sends tokens from the game to the pool controller
+     */
+    function sendFundsToPool() external onlyOperator {
+        _poolController.receiveFundsFromGame{value: address(this).balance}();
     }
 
     /**
@@ -736,7 +741,7 @@ contract Poker is GameController {
      * @param playerKickers Kicker cards of the person
      * @param computerHand Computer's hand
      * @param computerKickers Kicker cards of the computer
-     * @return Game result: Win, Jackpot, Lose or Draw
+     * @return Game result for the *person*: Win, Jackpot, Lose or Draw
      */
     function _getPokerResult(
         uint8 playerHand,

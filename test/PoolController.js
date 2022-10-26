@@ -69,9 +69,9 @@
 //       assert.equal(dumbArrayToString(await this.poolController.getBonusPercentMilestones()) , dumbArrayToString(changedBonusPercentMilestones));
 //     });
 
-//     it('setJackpot should change storage value', async () => {
+//     it('setTotalJackpot should change storage value', async () => {
 //       assert.equal(await this.poolController.getJackpot(), initJackpot);
-//       await this.poolController.setJackpot(changedJackPot, { from: owner });
+//       await this.poolController.setTotalJackpot(changedJackPot, { from: owner });
 //       assert.equal(await this.poolController.getJackpot(), changedJackPot);
 //     });
 
@@ -98,15 +98,15 @@
 //       it('checking withdraw function', async () => {
 
 //         assert.equal(await this.xTRX.balanceOf(owner), 2000);
-//         await this.poolController.withdraw(1000, { from: owner });
+//         await this.poolController.withdrawNativeForInternal(1000, { from: owner });
 //         assert.equal(await this.xTRX.balanceOf(owner, { from: owner }), 1000);
 //       });
 
 //       it('failing withdraw function', async () => {
 //         assert.equal(await this.xTRX.balanceOf(owner, { from: owner }), 2000);
-//         simpleExpectRevert(this.poolController.withdraw(3000, { from: owner }), 'not enough funds');
-//         await this.poolController.withdraw(1000, { from: owner });
-//         simpleExpectRevert(this.poolController.withdraw(1001, { from: owner }), 'not enough funds');
+//         simpleExpectRevert(this.poolController.withdrawNativeForInternal(3000, { from: owner }), 'not enough funds');
+//         await this.poolController.withdrawNativeForInternal(1000, { from: owner });
+//         simpleExpectRevert(this.poolController.withdrawNativeForInternal(1001, { from: owner }), 'not enough funds');
 //         assert.equal(await this.xTRX.balanceOf(owner, { from: owner }), 1000);
 //       });
 //     });

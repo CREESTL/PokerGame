@@ -118,7 +118,7 @@
 //   describe('functions with random number', async () => {
 
 //     it('should create random number request if caller is IGame contract', async () => {
-//       await this.fakeGameController.createRandomNumberRequest();
+//       await this.fakeGameController.generateRandomGameId();
 //       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
 //       assert.isTrue(await this.oracle.checkPending(gameId.toString()), { from: owner });
 //     });
@@ -127,12 +127,12 @@
 //       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
 //       assert.isTrue(await this.oracle.checkPending(gameId.toString()), { from: owner });
 //        // will fail
-//       const fakeRequestId = await this.oracle.createRandomNumberRequest({ from: owner });
+//       const fakeRequestId = await this.oracle.generateRandomGameId({ from: owner });
 //       assert.equal(await this.fakeGameController.getLastRequestId({ from: owner }), gameId.toString());
 //     });
 
 //     it('should accept random number request if caller is IGame contract', async () => {
-//       await this.fakeGameController.createRandomNumberRequest();
+//       await this.fakeGameController.generateRandomGameId();
 //       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
 //       const receipt = await this.fakeGameController.acceptRandomNumberRequest(gameId.toString());
 //       // try {
@@ -147,13 +147,13 @@
 //     });
 
 //     it('should not accept random number request if caller is not IGame contract', async () => {
-//       await this.fakeGameController.createRandomNumberRequest();
+//       await this.fakeGameController.generateRandomGameId();
 //       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
 //       simpleExpectRevert(this.oracle.acceptRandomNumberRequest(gameId, { from: owner }), 'address is not a game');
 //     });
 
 //     it('should publish result if caller is the operator', async () => {
-//       await this.fakeGameController.createRandomNumberRequest();
+//       await this.fakeGameController.generateRandomGameId();
 //       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
 //       await this.fakeGameController.acceptRandomNumberRequest(gameId, { from: owner });
 //       const RANDOM_NUMBER = 10;
@@ -175,7 +175,7 @@
 //     });
 
 //     it('should not publish result if caller is not operator', async () => {
-//       await this.fakeGameController.createRandomNumberRequest();
+//       await this.fakeGameController.generateRandomGameId();
 //       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
 //       await this.fakeGameController.acceptRandomNumberRequest(gameId, { from: alice });
 //       const RANDOM_NUMBER = 10;
@@ -184,7 +184,7 @@
 //     });
 
 //     it('should not publish result if call func with wrong params', async () => {
-//       await this.fakeGameController.createRandomNumberRequest();
+//       await this.fakeGameController.generateRandomGameId();
 //       const gameId = await this.fakeGameController.getLastRequestId({ from: owner });
 //       await this.fakeGameController.acceptRandomNumberRequest(gameId, { from: owner });
 //       const RANDOM_NUMBER = 10;

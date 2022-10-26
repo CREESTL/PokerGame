@@ -86,7 +86,7 @@
 
 // // 102 games imitation
 // for (let i = 0; i < 102; i +=1) {
-//   play(BET);
+//   startGame(BET);
 //   finishGame(BET);
 //   console.log('POOL_AMOUNT:', poolBalance, 'ITERATION:', i, 'GAMES_COUNTER:', _gamesCounter, 'MAX_BET:', _maxBet)
 //   BET += 2;

@@ -38,7 +38,7 @@ describe("Poker", () => {
     });
 
     it("checkPending should return storage value", async () => {
-      await poker.play(0, 0, { value: 1000000000000 });
+      await poker.startGame(0, 0, { value: 1000000000000 });
       const gameId = await poker.getLastRequestId();
       expect(await oracle.checkPending(gameId)).to.equal(true);
     });
@@ -47,8 +47,8 @@ describe("Poker", () => {
       expect(await oracle.getGame()).to.equal(poker.address);
     });
 
-    it("createRandomNumberRequest should fail", async () => {
-      await expect(oracle.createRandomNumberRequest()).to.be.reverted;
+    it("generateRandomGameId should fail", async () => {
+      await expect(oracle.generateRandomGameId()).to.be.reverted;
     });
   });
 });
