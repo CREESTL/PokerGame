@@ -2,20 +2,20 @@
   "networks": {
     "donau": {
       "XTRXToken": {
-        "address": "0xbC528aa98765339737D7d85F2C7493149D7ec0aA"
+        "address": "0xbd7f0e5F3423600be68A822613c26ED5945e120e"
       },
       "Oracle": {
-        "address": "0xAeFc5D8608da92fE4D59e3FAcad84287C303BaBE",
-        "oracleOperatorAddress": "0x95bf2Fc3c2421573cf445907a7C885d6aB2bd45e",
-        "oracleOperatorPrivateKey": "0x4d07d30af697b3463f6b56ce90e4b9698500caecbd118cdfafaa1d88a00c2317"
+        "address": "0x59b1e837F54CC3d0631EB0D3cC31Fcc336461623",
+        "oracleOperatorAddress": "0xdAEa854c3306946c638Fe2Bfa86E2a9426130F1C",
+        "oracleOperatorPrivateKey": "0x8b33053ef4287231e9d7bcd5c95e17bd69514ee3579e0f55f3310cef4d84bf03"
       },
       "PoolController": {
-        "address": "0xb4C1B29169C88C219a312CF712B98f3d6C1Bdd3a"
+        "address": "0xA3169db0C1eEbBec7c229D1dF56ac4d6bC1911ce"
       },
       "Poker": {
-        "address": "0x1df0Bc6Eaea540AC707e822Cd0233377d67d21C9",
-        "pokerOperatorAddress": "0xD46d4e63D61277C49390E5aeC7F2AAc34f733b9A",
-        "pokerOperatorPrivateKey": "0xb3b77e029f200f0a7733d5a76e5735220726617b29ab4ade076487145c7f02d4"
+        "address": "0xDb7DbEFe367b7e16c860562ff7E103175CadE9D0",
+        "pokerOperatorAddress": "0xBFC0040c130EA1938AC0261d2b6678bff9A5bC80",
+        "pokerOperatorPrivateKey": "0x316f5b3784435ef619438c267e90d5b79243de860bc9d883f1e53b3903e3ae7a"
       }
     },
     "mainnet": {
