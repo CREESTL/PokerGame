@@ -21,7 +21,6 @@ function createWallets(numberWallets) {
 }
 
 // Create 2 new wallets
-// Use them in Oracle and Poker constructors
 let [oracleOperator, pokerOperator] = createWallets(2);
 
 let contractName;
@@ -30,21 +29,41 @@ let oracle;
 let gameController;
 let poolController;
 let poker;
-let migrations;
-let interfaces;
 
 async function main() {
+  console.log(`[NOTICE!] Chain of deployment: ${network.name}`);
 
-  // Contract #1: XTRXToken
+  // ===============Contract #1: XTRXToken===============
   contractName = "XTRXToken";
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
   contractDeployTx = await _contractProto.deploy();
   token = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
-  OUTPUT_DEPLOY.networks[network.name][contractName].address = token.address;
+  OUTPUT_DEPLOY[network.name][contractName].address = token.address;
 
-  // Contract #2: Oracle
+  // Verify
+  console.log(`[${contractName}]: Start of Verification...`);
+
+  await delay(90000);
+
+  if (network.name === "polygon_mainnet") {
+    url = "https://polygonscan.com/address/" + token.address + "#code";
+  } else if (network.name === "polygon_testnet") {
+    url = "https://mumbai.polygonscan.com/address/" + token.address + "#code";
+  }
+  OUTPUT_DEPLOY[network.name][contractName].verification = url;
+
+  try {
+    await hre.run("verify:verify", {
+      address: token.address,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+  console.log(`[${contractName}]: Verification Finished!`);
+
+  // ===============Contract #2: Oracle===============
   contractName = "Oracle";
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
@@ -52,13 +71,35 @@ async function main() {
   contractDeployTx = await _contractProto.deploy(oracleOperator.address);
   oracle = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
-  OUTPUT_DEPLOY.networks[network.name][contractName].address = oracle.address;
-  OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorAddress =
+  OUTPUT_DEPLOY[network.name][contractName].address = oracle.address;
+  OUTPUT_DEPLOY[network.name][contractName].oracleOperatorAddress =
     oracleOperator.address;
-  OUTPUT_DEPLOY.networks[network.name][contractName].oracleOperatorPrivateKey =
+  OUTPUT_DEPLOY[network.name][contractName].oracleOperatorPrivateKey =
     oracleOperator.privateKey;
 
-  // Contract #3: PoolController
+  // Verify
+  console.log(`[${contractName}]: Start of Verification...`);
+
+  await delay(90000);
+
+  if (network.name === "polygon_mainnet") {
+    url = "https://polygonscan.com/address/" + oracle.address + "#code";
+  } else if (network.name === "polygon_testnet") {
+    url = "https://mumbai.polygonscan.com/address/" + oracle.address + "#code";
+  }
+  OUTPUT_DEPLOY[network.name][contractName].verification = url;
+
+  try {
+    await hre.run("verify:verify", {
+      address: oracle.address,
+      constructorArguments: [oracleOperator.address],
+    });
+  } catch (error) {
+    console.error(error);
+  }
+  console.log(`[${contractName}]: Verification Finished!`);
+
+  // ===============Contract #3: PoolController===============
   contractName = "PoolController";
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
@@ -66,10 +107,34 @@ async function main() {
   contractDeployTx = await _contractProto.deploy(token.address);
   poolController = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
-  OUTPUT_DEPLOY.networks[network.name][contractName].address =
-    poolController.address;
+  OUTPUT_DEPLOY[network.name][contractName].address = poolController.address;
 
-  // Contract #4: Poker
+  // Verify
+  console.log(`[${contractName}]: Start of Verification...`);
+
+  await delay(90000);
+
+  if (network.name === "polygon_mainnet") {
+    url = "https://polygonscan.com/address/" + poolController.address + "#code";
+  } else if (network.name === "polygon_testnet") {
+    url =
+      "https://mumbai.polygonscan.com/address/" +
+      poolController.address +
+      "#code";
+  }
+  OUTPUT_DEPLOY[network.name][contractName].verification = url;
+
+  try {
+    await hre.run("verify:verify", {
+      address: poolController.address,
+      constructorArguments: [token.address],
+    });
+  } catch (error) {
+    console.error(error);
+  }
+  console.log(`[${contractName}]: Verification Finished!`);
+
+  // ===============Contract #4: Poker===============
   contractName = "Poker";
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
@@ -81,16 +146,81 @@ async function main() {
   );
   poker = await contractDeployTx.deployed();
   // Set the maximum bet of the poker
+
   // TODO how much should the max bet be?
+
   poker.connect(pokerOperator).setMaxBet(ethers.utils.parseEther("1"));
   console.log(`[${contractName}]: Deployment Finished!`);
-  OUTPUT_DEPLOY.networks[network.name][contractName].address = poker.address;
-  OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorAddress =
+  OUTPUT_DEPLOY[network.name][contractName].address = poker.address;
+  OUTPUT_DEPLOY[network.name][contractName].pokerOperatorAddress =
     pokerOperator.address;
-  OUTPUT_DEPLOY.networks[network.name][contractName].pokerOperatorPrivateKey =
+  OUTPUT_DEPLOY[network.name][contractName].pokerOperatorPrivateKey =
     pokerOperator.privateKey;
 
-  console.log(`See Results in "${__dirname + "/deployOutput.json"}" File`);
+  // Verify
+  console.log(`[${contractName}]: Start of Verification...`);
+
+  await delay(90000);
+
+  if (network.name === "polygon_mainnet") {
+    url = "https://polygonscan.com/address/" + poker.address + "#code";
+  } else if (network.name === "polygon_testnet") {
+    url = "https://mumbai.polygonscan.com/address/" + poker.address + "#code";
+  }
+  OUTPUT_DEPLOY[network.name][contractName].verification = url;
+
+  try {
+    await hre.run("verify:verify", {
+      address: poker.address,
+      constructorArguments: [
+        oracle.address,
+        poolController.address,
+        pokerOperator.address,
+      ],
+    });
+  } catch (error) {
+    console.error(error);
+  }
+  console.log(`[${contractName}]: Verification Finished!`);
+
+  // ===============Contract #5: GameController===============
+  contractName = "GameController";
+  console.log(`[${contractName}]: Start of Deployment...`);
+  _contractProto = await ethers.getContractFactory(contractName);
+  // Provide the game with oracle, pool controller, poker operator addresses
+  contractDeployTx = await _contractProto.deploy(oracle.address);
+  gameController = await contractDeployTx.deployed();
+  console.log(`[${contractName}]: Deployment Finished!`);
+  OUTPUT_DEPLOY[network.name][contractName].address = gameController.address;
+
+  // Verify
+  console.log(`[${contractName}]: Start of Verification...`);
+
+  await delay(90000);
+
+  if (network.name === "polygon_mainnet") {
+    url = "https://polygonscan.com/address/" + gameController.address + "#code";
+  } else if (network.name === "polygon_testnet") {
+    url =
+      "https://mumbai.polygonscan.com/address/" +
+      gameController.address +
+      "#code";
+  }
+  OUTPUT_DEPLOY[network.name][contractName].verification = url;
+
+  try {
+    await hre.run("verify:verify", {
+      address: gameController.address,
+      constructorArguments: [oracle.address],
+    });
+  } catch (error) {
+    console.error(error);
+  }
+  console.log(`[${contractName}]: Verification Finished!`);
+
+  console.log(
+    `\n\n--See Results in "${__dirname + "/deployOutput.json"}" File--`
+  );
 
   fs.writeFileSync(
     path.resolve(__dirname, "./deployOutput.json"),
