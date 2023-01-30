@@ -4,26 +4,23 @@ const { ethers } = require("ethers");
 require("@nomicfoundation/hardhat-toolbox");
 
 // Add some .env individual variables
-const BTTC_PRIVATE_KEY = process.env.BTTC_PRIVATE_KEY;
-const BTTC_SCAN_KEY = process.env.BTTC_SCAN_KEY;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY;
 
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
-    // a.k.a localhost
     hardhat: {
       gas: 2100000,
       gasPrice: 8000000000,
     },
-    // BTTC Donau testnet
-    donau: {
-      url: "https://pre-rpc.bt.io/",
-      accounts: [BTTC_PRIVATE_KEY],
+    polygon_mainnet: {
+      url: `https://rpc-mainnet.maticvigil.com/`,
+      accounts: [PRIVATE_KEY],
     },
-    // BTTC mainnet
-    bttc: {
-      url: "https://rpc.bt.io/",
-      accounts: [BTTC_PRIVATE_KEY],
+    polygon_testnet: {
+      url: `https://matic-testnet-archive-rpc.bwarelabs.com`,
+      accounts: [PRIVATE_KEY],
     },
   },
   solidity: {
@@ -45,16 +42,9 @@ module.exports = {
     timeout: 20000000000,
   },
   etherscan: {
-    apiKey: BTTC_SCAN_KEY,
-    customChains: [
-      {
-        network: "donau",
-        chainId: 1029,
-        urls: {
-          apiURL: "https://api-testnet.bttcscan.com/api",
-          browserURL: "https://testnet.bttcscan.com/",
-        },
-      },
-    ],
+    apiKey: {
+      polygon: POLYGONSCAN_API_KEY,
+      polygonMumbai: POLYGONSCAN_API_KEY,
+    },
   },
 };
