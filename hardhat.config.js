@@ -2,6 +2,7 @@
 require("dotenv").config();
 const { ethers } = require("ethers");
 require("@nomicfoundation/hardhat-toolbox");
+require("@primitivefi/hardhat-dodoc");
 
 // Add some .env individual variables
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
@@ -40,6 +41,12 @@ module.exports = {
   },
   mocha: {
     timeout: 20000000000,
+  },
+  dodoc: {
+    include: [],
+    runOnCompile: false,
+    freshOutput: true,
+    outputDir: "./docs/contracts",
   },
   etherscan: {
     apiKey: {
