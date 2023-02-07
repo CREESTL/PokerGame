@@ -271,11 +271,8 @@ contract Poker is GameController {
                 computer.ranks[i - 2] = _cards[i] % 13;
             }
         }
-        // Sort both players' cards and card ranks
-        _quickSort(player.ranks, 0, 6);
-        _quickSort(player.cards, 0, 6);
-        _quickSort(computer.ranks, 0, 6);
-        _quickSort(computer.cards, 0, 6);
+        _sort(player.ranks, player.cards, 0, 6);
+        _sort(computer.ranks, computer.cards, 0, 6);
 
         // Check hands of both players and return the strongest hands for both
         (player.hand, player.kickers) = _evaluateHand(
@@ -493,57 +490,42 @@ contract Poker is GameController {
         _poolController = poolCandidate;
     }
 
+
     /**
-     * @notice Quick Sort algorithm for an array of numbers
-     * @param array The array of numbers to sort
-     * @param left The index of the array to start the sorting at
-     * @param right The index of the array to stop the sorting at
-     *        (sorting takes place between `left` and `right` elements)
+     * @notice Sort algorithm for an array of numbers
+     * @param dataRanks The array of ranks
+     * @param dataCards The array of cards
+     * @param low The left border of sort
+     * @param high The right border of sort
      */
-    function _quickSort(
-        uint8[7] memory array,
-        uint256 left,
-        uint256 right
+    function _sort(
+        uint8[7] memory dataRanks,
+        uint8[7] memory dataCards,
+        uint256 low,
+        uint256 high
     ) private pure {
-        require(left < right, "Poker: invalid boundaries for sorting!");
-        if (left < right) {
-            // Pivot is chosen as the value in the middle between left and right
-            uint256 pivot = array[(left + right) / 2];
-            uint256 i = left;
-            uint256 j = right;
-            // This loop moves all elements of the array less than the pivot, to the left from the pivot
-            // and all alements of the array greater than the pivot - to the right from the pivot
-            while (i <= j) {
-                // If the element to the left from the pivot is less than the pivot, just move on to the next one.
-                // Because all elements to the left from the pivot are supposed to be less than the pivot.
-                while (array[i] < pivot) {
-                    i += 1;
-                }
-                // If the element to the right from the pivot is greater than the pivot, just move on to the next one.
-                // Because all elements to the right from the pivot are supposed to be greater than the pivot.
-                while (pivot < array[j]) {
-                    j -= 1;
-                }
-                // - If either the element to the left from the pivot is greater than the pivot
-                // OR
-                // - If the element to the right from the pivot is less than the pivot
-                // OR
-                // - Both
-                // Then swap elements' places
-                // This is the base case
-                if (i <= j) {
-                    (array[i], array[j]) = (array[j], array[i]);
-                    i += 1;
-                    j -= 1;
-                }
+        if (low < high) {
+            uint256 pivotVal = dataRanks[(low + high) / 2];
+            uint256 low1 = low;
+            uint256 high1 = high;
+            for (;;) {
+                while (dataRanks[low1] > pivotVal) low1++;
+                while (dataRanks[high1] < pivotVal) high1--;
+                if (low1 >= high1) break;
+                (dataRanks[low1], dataRanks[high1]) = (
+                    dataRanks[high1],
+                    dataRanks[low1]
+                );
+                (dataCards[low1], dataCards[high1]) = (
+                    dataCards[high1],
+                    dataCards[low1]
+                );
+                low1++;
+                high1--;
             }
-            // Now when the array is "separated" in 2 parts, use quicksort to each part again
-            if (left < j) {
-                _quickSort(array, left, j);
-            }
-            if (i < right) {
-                _quickSort(array, i, right);
-            }
+            if (low < high1) _sort(dataRanks, dataCards, low, high1);
+            high1++;
+            if (high1 < high) _sort(dataRanks, dataCards, high1, high);
         }
     }
 

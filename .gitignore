@@ -17,3 +17,5 @@ build/
 package-lock.json
 
 flat/
+
+yank.lock
