@@ -1,28 +1,28 @@
 {
   "polygon_testnet": {
     "XTRXToken": {
-      "address": "0xbe6689222b3c467A9c1f7e3e65Fc0d20990bC23e",
-      "verification": "https://mumbai.polygonscan.com/address/0xbe6689222b3c467A9c1f7e3e65Fc0d20990bC23e#code"
+      "address": "0x27aC3ade0414eb23705865E8eDE7b32Be6d150BC",
+      "verification": "https://mumbai.polygonscan.com/address/0x27aC3ade0414eb23705865E8eDE7b32Be6d150BC#code"
     },
     "Oracle": {
-      "address": "0x2f7b26EC0018EA806E8E657390229A3579A3434d",
-      "oracleOperatorAddress": "0x39B24AE497fBafCc81619fD57eCbfD2e32081d33",
-      "oracleOperatorPrivateKey": "0xe8e222ac59df1647eb65068f94ca6efceb204fbf2b6b03d7e5c2f4b116ed3f44",
-      "verification": "https://mumbai.polygonscan.com/address/0x2f7b26EC0018EA806E8E657390229A3579A3434d#code"
+      "address": "0x635bB5240c76e74Ab8441c8a4b05EEe5401707e1",
+      "oracleOperatorAddress": "0xDe1D63E56aA6F696C5d0847ac9A21EABf19f6920",
+      "oracleOperatorPrivateKey": "0x69776c3ce094a09dae2f36bfe39a6b00f375f863606a2aed583df318d2aa51f1",
+      "verification": "https://mumbai.polygonscan.com/address/0x635bB5240c76e74Ab8441c8a4b05EEe5401707e1#code"
     },
     "PoolController": {
-      "address": "0xf513d92A4F197B4eC52D2061f1B106966C0e86A3",
-      "verification": "https://mumbai.polygonscan.com/address/0xf513d92A4F197B4eC52D2061f1B106966C0e86A3#code"
+      "address": "0x633D3Cd396a7f11dCc8f801B633211dd00F040B6",
+      "verification": "https://mumbai.polygonscan.com/address/0x633D3Cd396a7f11dCc8f801B633211dd00F040B6#code"
     },
     "Poker": {
-      "address": "0xB905Ab4e2644cCa87d5c2319156Bc6172e38F37C",
-      "pokerOperatorAddress": "0x164abAfad2CD8669470CBf67f795B729Be72c04e",
-      "pokerOperatorPrivateKey": "0x4105b3fccaa019c54e0576c0fbe31d347bc594de75446bac0306c1b947655b79",
-      "verification": "https://mumbai.polygonscan.com/address/0xB905Ab4e2644cCa87d5c2319156Bc6172e38F37C#code"
+      "address": "0xA634DFA93fFE5F9A653C0F5C389Ab989C17d6681",
+      "pokerOperatorAddress": "0x3aD2d22374b9C17296c1F6F5dcC37E0520a6c12d",
+      "pokerOperatorPrivateKey": "0x4e02627d40509577bbb22540be4da00984c5149c4b9e05a5850bb30d8155c4a5",
+      "verification": "https://mumbai.polygonscan.com/address/0xA634DFA93fFE5F9A653C0F5C389Ab989C17d6681#code"
     },
     "GameController": {
-      "address": "0x7c8b3a06999858CcF2d01e1345D7AE82Ab7C92bF",
-      "verification": "https://mumbai.polygonscan.com/address/0x7c8b3a06999858CcF2d01e1345D7AE82Ab7C92bF#code"
+      "address": "0xCf8f4970c126B1b69236d983632764d24999d37B",
+      "verification": "https://mumbai.polygonscan.com/address/0xCf8f4970c126B1b69236d983632764d24999d37B#code"
     }
   },
   "polygon_mainnet": {
