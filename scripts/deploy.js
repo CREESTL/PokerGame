@@ -145,11 +145,7 @@ async function main() {
     pokerOperator.address
   );
   poker = await contractDeployTx.deployed();
-  // Set the maximum bet of the poker
 
-  // TODO how much should the max bet be?
-
-  poker.connect(pokerOperator).setMaxBet(ethers.utils.parseEther("1"));
   console.log(`[${contractName}]: Deployment Finished!`);
   OUTPUT_DEPLOY[network.name][contractName].address = poker.address;
   OUTPUT_DEPLOY[network.name][contractName].pokerOperatorAddress =
