@@ -21,7 +21,7 @@ function createWallets(numberWallets) {
 }
 
 // Create 2 new wallets
-let pokerOperator = createWallets(1);
+let [pokerOperator] = createWallets(1);
 
 let contractName;
 let token;
