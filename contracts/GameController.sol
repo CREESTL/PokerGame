@@ -99,16 +99,9 @@ contract GameController is IGame, Ownable {
      * @param gameId The ID of the request to look for
      * @return Full info about the request
      */
-    function getRequest(uint256 gameId)
-        public
-        view
-        onlyOwner
-        returns (
-            uint64,
-            uint64,
-            Status
-        )
-    {
+    function getRequest(
+        uint256 gameId
+    ) public view onlyOwner returns (uint64, uint64, Status) {
         return (
             _requests[gameId].result,
             _requests[gameId].closedTime,

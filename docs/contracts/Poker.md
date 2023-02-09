@@ -206,7 +206,7 @@ Distributes cards between a player and a computer, compares their hands and dete
 
 | Name | Type | Description |
 |---|---|---|
-| _cards | uint8[] | The array of cards to play TODO          Does it have the length of 7 or 8? |
+| _cards | uint8[] | The array of cards to play. Length of 8 |
 
 #### Returns
 
@@ -481,10 +481,10 @@ function transferOwnership(address newOwner) external nonpayable
 ### GameFinished
 
 ```solidity
-event GameFinished(uint256 winAmount, bool winColor, enum Poker.GameResult result, uint256 gameId, uint256 cards, address player)
+event GameFinished(uint256 gameId, uint256 winAmount, uint256 cardsBits, bool isJackpot)
 ```
 
-TODO not used - emit it!
+
 
 *Indicates that the game has finished      Shows the result of a single game*
 
@@ -492,12 +492,10 @@ TODO not used - emit it!
 
 | Name | Type | Description |
 |---|---|---|
-| winAmount  | uint256 | undefined |
-| winColor  | bool | undefined |
-| result  | enum Poker.GameResult | undefined |
 | gameId  | uint256 | undefined |
-| cards  | uint256 | undefined |
-| player  | address | undefined |
+| winAmount  | uint256 | undefined |
+| cardsBits  | uint256 | undefined |
+| isJackpot  | bool | undefined |
 
 ### GameStart
 

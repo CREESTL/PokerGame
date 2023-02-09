@@ -25,51 +25,49 @@ const changedHouseEdge = 20;
 const initJackpotMultiplier = 2;
 const changedJackpotMultiplier = 5;
 
-
 describe("Poker", () => {
-    let token;
-    let poolController;
-    let oracle;
-    let poker;
-    let zeroAddress = ethers.constants.AddressZero;
-    let randomAddress = "0xEd24551e059304BE771ac6CF8B654271ec156Ba0";
-    let parseEther = ethers.utils.parseEther;
+  let token;
+  let poolController;
+  let oracle;
+  let poker;
+  let zeroAddress = ethers.constants.AddressZero;
+  let randomAddress = "0xEd24551e059304BE771ac6CF8B654271ec156Ba0";
+  let parseEther = ethers.utils.parseEther;
 
-    // Deploy all contracts before each test suite
-    beforeEach(async () => {
-        [ownerAcc, clientAcc1, clientAcc2, clientAcc3] =
-            await ethers.getSigners();
+  // Deploy all contracts before each test suite
+  beforeEach(async () => {
+    [ownerAcc, clientAcc1, clientAcc2, clientAcc3] = await ethers.getSigners();
 
-        let tokenTx = await ethers.getContractFactory("XTRXToken");
-        token = await tokenTx.deploy();
-        await token.deployed();
+    let tokenTx = await ethers.getContractFactory("XTRXToken");
+    token = await tokenTx.deploy();
+    await token.deployed();
 
-        let poolControllerTx = await ethers.getContractFactory("PoolController");
-        poolController = await poolControllerTx.deploy(token.address);
-        await poolController.deployed();
+    let poolControllerTx = await ethers.getContractFactory("PoolController");
+    poolController = await poolControllerTx.deploy(token.address);
+    await poolController.deployed();
 
-        let oracleTx = await ethers.getContractFactory("Oracle");
-        // Make owner the operator of oracle
-        oracle = await oracleTx.deploy(ownerAcc.address);
-        await oracle.deployed();
+    let oracleTx = await ethers.getContractFactory("Oracle");
+    // Make owner the operator of oracle
+    oracle = await oracleTx.deploy(ownerAcc.address);
+    await oracle.deployed();
 
-        let pokerTx = await ethers.getContractFactory("Poker");
-        // Make owner the operator of poker
-        poker = await pokerTx.deploy(oracle.address, poolController.address, ownerAcc.address);
-        await poker.deployed();
+    let pokerTx = await ethers.getContractFactory("Poker");
+    // Make owner the operator of poker
+    poker = await pokerTx.deploy(
+      oracle.address,
+      poolController.address,
+      ownerAcc.address
+    );
+    await poker.deployed();
 
-        await poker.connect(ownerAcc).setMaxBet(parseEther("1"));
+    await poker.connect(ownerAcc).setMaxBet(parseEther("1"));
+  });
 
-
+  describe("Poker result", () => {
+    it("Should get poker result", async () => {
+      expect(await poker.getPokerResult(computerWinsCards)).to.equal(0);
+      expect(await poker.getPokerResult(playerWinsCards)).to.equal(2);
+      expect(await poker.getPokerResult(drawCards)).to.equal(1);
     });
-
-    describe("Poker result", () => {
-        it("Should get poker result", async () => {
-            expect(await poker.getPokerResult(computerWinsCards)).to.equal(0);
-            expect(await poker.getPokerResult(playerWinsCards)).to.equal(2);
-            expect(await poker.getPokerResult(drawCards)).to.equal(1);
-        });
-
-    });
-
+  });
 });

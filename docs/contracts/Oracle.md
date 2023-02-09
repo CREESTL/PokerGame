@@ -88,23 +88,6 @@ Returns the address of the current game that is using the oracle
 |---|---|---|
 | _0 | address | The address of the game contract |
 
-### getOperator
-
-```solidity
-function getOperator() external view returns (address)
-```
-
-Returns the address of current operator
-
-
-
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | The address of current operator |
-
 ### owner
 
 ```solidity
@@ -148,22 +131,6 @@ Sets the address of the poker game for this oracle         to provide random num
 | Name | Type | Description |
 |---|---|---|
 | gameAddress | address | The address of the game contract |
-
-### setOperator
-
-```solidity
-function setOperator(address operatorAddress) external nonpayable
-```
-
-Sets a new operator
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| operatorAddress | address | The address of a new operator |
 
 ### supportsIOracle
 
@@ -218,24 +185,6 @@ event OwnershipTransferred(address indexed previousOwner, address indexed newOwn
 |---|---|---|
 | previousOwner `indexed` | address | undefined |
 | newOwner `indexed` | address | undefined |
-
-### RandomNumberEvent
-
-```solidity
-event RandomNumberEvent(uint256 cardsBits, address indexed callerAddress, uint256 indexed gameId)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| cardsBits  | uint256 | undefined |
-| callerAddress `indexed` | address | undefined |
-| gameId `indexed` | uint256 | undefined |
 
 ### RandomNumberRequested
 

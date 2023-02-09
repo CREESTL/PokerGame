@@ -21,7 +21,7 @@ function createWallets(numberWallets) {
 }
 
 // Create 2 new wallets
-let [oracleOperator, pokerOperator] = createWallets(2);
+let pokerOperator = createWallets(1);
 
 let contractName;
 let token;
@@ -68,14 +68,10 @@ async function main() {
   console.log(`[${contractName}]: Start of Deployment...`);
   _contractProto = await ethers.getContractFactory(contractName);
   // Provide the oracle with operator address.
-  contractDeployTx = await _contractProto.deploy(oracleOperator.address);
+  contractDeployTx = await _contractProto.deploy();
   oracle = await contractDeployTx.deployed();
   console.log(`[${contractName}]: Deployment Finished!`);
   OUTPUT_DEPLOY[network.name][contractName].address = oracle.address;
-  OUTPUT_DEPLOY[network.name][contractName].oracleOperatorAddress =
-    oracleOperator.address;
-  OUTPUT_DEPLOY[network.name][contractName].oracleOperatorPrivateKey =
-    oracleOperator.privateKey;
 
   // Verify
   console.log(`[${contractName}]: Start of Verification...`);
@@ -92,7 +88,6 @@ async function main() {
   try {
     await hre.run("verify:verify", {
       address: oracle.address,
-      constructorArguments: [oracleOperator.address],
     });
   } catch (error) {
     console.error(error);

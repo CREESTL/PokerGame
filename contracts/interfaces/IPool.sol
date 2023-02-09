@@ -6,8 +6,10 @@ interface IPool {
 
     function addBetToPool(uint256 betAmount) external payable;
 
-    function jackpotDistribution(address payable player, uint256 prize)
-        external;
+    function jackpotDistribution(
+        address payable player,
+        uint256 prize
+    ) external;
 
     function rewardDistribution(address payable player, uint256 prize) external;
 
