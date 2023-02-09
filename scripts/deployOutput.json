@@ -6,8 +6,6 @@
     },
     "Oracle": {
       "address": "0xC5520840ad08b9E26e2B77897CDDA276cD6561b6",
-      "oracleOperatorAddress": "0xDe1D63E56aA6F696C5d0847ac9A21EABf19f6920",
-      "oracleOperatorPrivateKey": "0x69776c3ce094a09dae2f36bfe39a6b00f375f863606a2aed583df318d2aa51f1",
       "verification": "https://mumbai.polygonscan.com/address/0xC5520840ad08b9E26e2B77897CDDA276cD6561b6#code"
     },
     "PoolController": {
@@ -27,21 +25,26 @@
   },
   "polygon_mainnet": {
     "XTRXToken": {
-      "address": ""
+      "address": "",
+      "verification": ""
     },
     "Oracle": {
       "address": "",
-      "oracleOperatorAddress": ""
+      "verification": ""
     },
     "PoolController": {
-      "address": ""
+      "address": "",
+      "verification": ""
     },
     "Poker": {
       "address": "",
-      "pokerOperatorAddress": ""
+      "pokerOperatorAddress": "",
+      "pokerOperatorPrivateKey": "",
+      "verification": ""
     },
     "GameController": {
-      "address": ""
+      "address": "",
+      "verification": ""
     }
   }
 }
