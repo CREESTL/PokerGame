@@ -29,7 +29,7 @@ Adds bet to the pool and pays oracle for services
 ### addReferer
 
 ```solidity
-function addReferer(address parent, address son) external nonpayable
+function addReferer(address parent, address child) external nonpayable
 ```
 
 Adds a new referer to the referee in the referral program
@@ -41,7 +41,7 @@ Adds a new referer to the referee in the referral program
 | Name | Type | Description |
 |---|---|---|
 | parent | address | The address of the referee |
-| son | address | The address of the referer TODO rename args to &quot;referee&quot; and &quot;referer&quot; |
+| child | address | The address of the referer |
 
 ### addToJackpot
 
@@ -97,7 +97,7 @@ Deposits the provided amount of native tokens to the pool
 function freezeJackpot(uint256 amount) external nonpayable
 ```
 
-TODOLocks a part of jackpot to be paid to the player later in the future
+Locks a part of jackpot to be paid to the player later in the future
 
 
 
@@ -266,7 +266,7 @@ Shows information about the referral program referee
 
 | Name | Type | Description |
 |---|---|---|
-| _0 | address | - The address of the referee&#39;s parent         - The bonus percent for the referee TODO what&#39;s the difference between the two?         - The total amount of tokens won while using referral program         - The ??? |
+| _0 | address | - The address of the referee&#39;s parent         - The bonus percent for the referee         - The total amount of tokens won while using referral program         - The amount of referers of the referee |
 | _1 | uint256 | undefined |
 | _2 | uint256 | undefined |
 | _3 | uint256 | undefined |
@@ -739,7 +739,7 @@ Withdraws the amount of native tokens from the pool equal to the provided amount
 function withdrawReferralEarnings(address payable player) external nonpayable
 ```
 
-TODO Shouldn&#39;t it have any modifiers?STransfers referral earnings of the referee to the provided player
+Transfers referral earnings of the referee to the provided player
 
 
 

@@ -2,9 +2,9 @@
 
 
 
+> Token stored inside the game pool
 
 
-TODO Only used for tests? Delete it?
 
 
 

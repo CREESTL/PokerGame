@@ -94,17 +94,14 @@ contract Poker is GameController {
     event GameStart(uint256 gameId);
 
     /**
-     * TODO not used - emit it!
      * @dev Indicates that the game has finished
      *      Shows the result of a single game
      */
     event GameFinished(
-        uint256 winAmount,
-        bool winColor,
-        GameResult result,
         uint256 gameId,
-        uint256 cards,
-        address player
+        uint256 winAmount,
+        uint256 cardsBits,
+        bool isJackpot
     );
 
     /**
@@ -161,10 +158,9 @@ contract Poker is GameController {
      * @notice Changes the address of the pool controller
      * @param  poolControllerAddress A new address of the pool controller
      */
-    function setPoolController(address poolControllerAddress)
-        external
-        onlyOwner
-    {
+    function setPoolController(
+        address poolControllerAddress
+    ) external onlyOwner {
         _setPoolController(poolControllerAddress);
     }
 
@@ -196,10 +192,9 @@ contract Poker is GameController {
      * @notice Changes the current jackpot multiplier
      * @param _jackpotFeeMultiplier A new jackpot multiplier to use
      */
-    function setJackpotFeeMultiplier(uint256 _jackpotFeeMultiplier)
-        external
-        onlyOwner
-    {
+    function setJackpotFeeMultiplier(
+        uint256 _jackpotFeeMultiplier
+    ) external onlyOwner {
         jackpotFeeMultiplier = _jackpotFeeMultiplier;
     }
 
@@ -226,7 +221,6 @@ contract Poker is GameController {
 
         // Create a new request for a random number
         // This updates {_lastGameId} ( internal variable inhereted from {GameController} )
-        // TODO why use `super` here?
         super._requestNewGame();
 
         address payable player = payable(_msgSender());
@@ -247,15 +241,12 @@ contract Poker is GameController {
 
     /**
      * @notice Distributes cards between a player and a computer, compares their hands and determines the winner
-     * @param _cards The array of cards to play
-     * TODO          Does it have the length of 7 or 8?
+     * @param _cards The array of cards to play. Length of 8
      * @return Game result for the *person*: Win, Jackpot, Lose or Draw
      */
-    function getPokerResult(uint8[] memory _cards)
-        public
-        pure
-        returns (GameResult)
-    {
+    function getPokerResult(
+        uint8[] memory _cards
+    ) public pure returns (GameResult) {
         Hand memory player;
         Hand memory computer;
         for (uint256 i; i < _cards.length; i++) {
@@ -300,11 +291,10 @@ contract Poker is GameController {
      * @param cardColors Colors of cards
      * @return True if player guessed the dominant color. False - if he did not
      */
-    function getColorResult(uint256 gameId, uint8[] memory cardColors)
-        public
-        view
-        returns (bool)
-    {
+    function getColorResult(
+        uint256 gameId,
+        uint8[] memory cardColors
+    ) public view returns (bool) {
         uint256 colorCounter;
         uint256 chosenColor = games[gameId].chosenColor;
         for (uint256 i; i < cardColors.length; i++) {
@@ -333,15 +323,7 @@ contract Poker is GameController {
         uint256 gameId,
         GameResult result,
         bool winColor
-    )
-        external
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256
-        )
-    {
+    ) external view returns (uint256, uint256, uint256) {
         // How many tokens to pay to the winner of poker game
         uint256 winPokerAmount;
         // How many tokens to pay to the winner of color bet
@@ -378,7 +360,6 @@ contract Poker is GameController {
         // User won a game
         if (result == GameResult.Win) {
             referralBonus = referralBonus.add(pokerBetEdge);
-            // TODO why multiply only by 2, not {jackpotFeeMultiplier}???
             winPokerAmount = pokerBet.mul(2).sub(pokerBetEdge + jackPotAdder);
         }
 
@@ -422,9 +403,10 @@ contract Poker is GameController {
                 winAmount <= _poolController.totalJackpot(),
                 "Poker: not enough funds for jackpot!"
             );
-            // TODO freeze jackpot??? comment on that...
             _poolController.freezeJackpot(winAmount);
         }
+
+        emit GameFinished(gameId, winAmount, cardsBits, isJackpot);
 
         // Finish work with current game request
         _closeRequest(cardsBits, gameId);
@@ -490,7 +472,6 @@ contract Poker is GameController {
         _poolController = poolCandidate;
     }
 
-
     /**
      * @notice Sort algorithm for an array of numbers
      * @param dataRanks The array of ranks
@@ -535,11 +516,10 @@ contract Poker is GameController {
      * @param _ranks The array of ranks of cards
      * @return The strongest hand and card order
      */
-    function _evaluateHand(uint8[7] memory _cards, uint8[7] memory _ranks)
-        private
-        pure
-        returns (uint8, int8[7] memory)
-    {
+    function _evaluateHand(
+        uint8[7] memory _cards,
+        uint8[7] memory _ranks
+    ) private pure returns (uint8, int8[7] memory) {
         uint8 strongestHand;
         // Get kickers.
         int8[7] memory retOrder = [-1, -1, -1, -1, -1, -1, -1];

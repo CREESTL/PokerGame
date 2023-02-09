@@ -15,11 +15,6 @@ contract Oracle is IOracle, Ownable {
      */
     IGame internal _game;
 
-    // TODO not used, delete it???
-    /**
-     * @dev Address of backend
-     */
-    address internal _operator;
     /**
      * @dev Nonce of each request for random number generation
      */
@@ -31,14 +26,7 @@ contract Oracle is IOracle, Ownable {
      */
     mapping(uint256 => bool) internal _pendingRequests;
 
-    // TODO not used - emit it!
     event RandomNumberRequested(
-        address indexed callerAddress,
-        uint256 indexed gameId
-    );
-    // TODO not used - emit it!
-    event RandomNumberEvent(
-        uint256 cardsBits,
         address indexed callerAddress,
         uint256 indexed gameId
     );
@@ -56,12 +44,10 @@ contract Oracle is IOracle, Ownable {
     }
 
     /**
-     * @dev Constuctor initializes the nonce and the operator
-     * @param operatorAddress The address of the operator to use
+     * @dev Constuctor initializes the nonce
      */
-    constructor(address operatorAddress) {
+    constructor() {
         _nonce = 0;
-        _setOperator(operatorAddress);
     }
 
     /**
@@ -70,22 +56,6 @@ contract Oracle is IOracle, Ownable {
      */
     function supportsIOracle() external pure returns (bool) {
         return true;
-    }
-
-    /**
-     * @notice Returns the address of current operator
-     * @return The address of current operator
-     */
-    function getOperator() external view onlyOwner returns (address) {
-        return _operator;
-    }
-
-    /**
-     * @notice Sets a new operator
-     * @param operatorAddress The address of a new operator
-     */
-    function setOperator(address operatorAddress) external onlyOwner {
-        _setOperator(operatorAddress);
     }
 
     /**
@@ -110,12 +80,9 @@ contract Oracle is IOracle, Ownable {
      * @param gameId The ID of the request to look for
      * @return True if request is pending. False if it is not
      */
-    function checkPending(uint256 gameId)
-        external
-        view
-        onlyOwner
-        returns (bool)
-    {
+    function checkPending(
+        uint256 gameId
+    ) external view onlyOwner returns (bool) {
         return _pendingRequests[gameId];
     }
 
@@ -141,7 +108,6 @@ contract Oracle is IOracle, Ownable {
         do {
             // Each request gets a unique increasing nonce
             _nonce++;
-            // TODO Blockchain is a bad source of randomness. Find another one???
             // Now request gets a random value instead of 0
             gameId = uint256(
                 keccak256(
@@ -151,9 +117,11 @@ contract Oracle is IOracle, Ownable {
         } while (_pendingRequests[gameId]);
         // A request with every new not pending gameId becomes a pending request
         _pendingRequests[gameId] = true;
+
+        emit RandomNumberRequested(_msgSender(), gameId);
+
         // Game ID is essentially a random number request ID
         return gameId;
-        // TODO emit `RandomNumberRequested` here
     }
 
     /**
@@ -183,16 +151,5 @@ contract Oracle is IOracle, Ownable {
             "Oracle: contract does not implement IGame interface!"
         );
         _game = iGameCandidate;
-    }
-
-    /**
-     * @notice Sets a new operator. See {setOperator}
-     */
-    function _setOperator(address operatorAddress) internal {
-        require(
-            operatorAddress != address(0),
-            "Oracle: invalid operator address!"
-        );
-        _operator = operatorAddress;
     }
 }

@@ -10,7 +10,7 @@ import "./interfaces/IInternalToken.sol";
 import "./interfaces/IPool.sol";
 
 /**
- * TODO Only used for tests? Delete it?
+ * @title Token stored inside the game pool
  */
 contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     using SafeMath for uint256;
@@ -61,10 +61,9 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     /**
      * @dev Setter for a pool controller address
      */
-    function setPoolController(address poolControllerAddress)
-        external
-        onlyOwner
-    {
+    function setPoolController(
+        address poolControllerAddress
+    ) external onlyOwner {
         IPool iPoolCandidate = IPool(poolControllerAddress);
         require(
             iPoolCandidate.supportsIPool(),
@@ -76,20 +75,20 @@ contract XTRXToken is IERC20Metadata, ERC20Burnable, IInternalToken, Ownable {
     /**
      * @dev Pool controller can mint tokens to anyone
      */
-    function mint(address recipient, uint256 amount)
-        external
-        onlyPoolController
-    {
+    function mint(
+        address recipient,
+        uint256 amount
+    ) external onlyPoolController {
         _mint(recipient, amount);
     }
 
     /**
      * @dev Pool controller can burn anyone's tokens
      */
-    function burnTokenFrom(address account, uint256 amount)
-        external
-        onlyPoolController
-    {
+    function burnTokenFrom(
+        address account,
+        uint256 amount
+    ) external onlyPoolController {
         _burn(account, amount);
     }
 }

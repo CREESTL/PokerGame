@@ -18,7 +18,6 @@ contract PoolController is IPool, Context, Ownable {
      * @dev The representation of the pool
      */
     struct Pool {
-        // TODO All ERC20 tokens can be added here
         // The internal token of the pool
         IInternalToken internalToken;
         // The amount of native tokens paid to mint internal tokens into the pool
@@ -71,7 +70,7 @@ contract PoolController is IPool, Context, Ownable {
      *      e.g. 1 ETH (native) = 1_000_000 xETH (internal)
      * NOTE: This is NOT a price. Price is not constant.
      */
-    uint256 internal constant INTERNALS_FOR_NATIVE = 10**6;
+    uint256 internal constant INTERNALS_FOR_NATIVE = 10 ** 6;
 
     /**
      * @notice The total amount of tokens stored to be paid as jackpot
@@ -136,7 +135,6 @@ contract PoolController is IPool, Context, Ownable {
             "PoolController: invalid xTRX token address!"
         );
 
-        // TODO maybe take all of this as arguments for constructor
         pool.internalToken = internalCandidate;
         pool.oracleGasFee = 3000000;
         whitelist[_msgSender()] = true;
@@ -150,9 +148,7 @@ contract PoolController is IPool, Context, Ownable {
             220000000000
         ];
         refereesBonusPercentMilestones = [1, 2, 4, 6, 8, 10, 12];
-        // TODO: change to 78000000000 on deploy for test/prod
         totalJackpot = 78000000000;
-        // TODO: change to 1950000000000 on deploy for test/prod
         jackpotLimit = 1950000000000;
     }
 
@@ -203,11 +199,9 @@ contract PoolController is IPool, Context, Ownable {
      * @param internalTokensAmount The amount of internal tokens used to calculate the withdrawable amount of native tokens
      * @return The withdrawable amount of native tokens
      */
-    function getWithDrawableNatives(uint256 internalTokensAmount)
-        external
-        view
-        returns (uint256)
-    {
+    function getWithDrawableNatives(
+        uint256 internalTokensAmount
+    ) external view returns (uint256) {
         // 1. internalTokensAmount.div(INTERNALS_FOR_NATIVE) - The equivalent of how many native tokens was provided as internal tokens in the parameter
         // 2. (1).mul(_realNativePrice()) - Calibrate the amount on native tokens based on the real price of the native tokens
         return
@@ -226,12 +220,7 @@ contract PoolController is IPool, Context, Ownable {
     function getPoolInfo()
         external
         view
-        returns (
-            address,
-            uint256,
-            uint256,
-            uint256
-        )
+        returns (address, uint256, uint256, uint256)
     {
         return (
             address(pool.internalToken),
@@ -278,21 +267,12 @@ contract PoolController is IPool, Context, Ownable {
      * @param referee The address of the referee to check
      * @return - The address of the referee's parent
      *         - The bonus percent for the referee
-     * TODO what's the difference between the two?
      *         - The total amount of tokens won while using referral program
-     *         - The ???
+     *         - The amount of referers of the referee
      */
-    function getReferralStats(address referee)
-        external
-        view
-        returns (
-            address,
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
-    {
+    function getReferralStats(
+        address referee
+    ) external view returns (address, uint256, uint256, uint256, uint256) {
         return (
             refAccounts[referee].parent,
             refAccounts[referee].bonusPercent,
@@ -318,10 +298,9 @@ contract PoolController is IPool, Context, Ownable {
      * @notice Sets new milestones for bonus percents of the referral program winnings
      * @param newBonusPercents New milestones to be set
      */
-    function setBonusPercentMilestones(uint256[] calldata newBonusPercents)
-        external
-        onlyOwner
-    {
+    function setBonusPercentMilestones(
+        uint256[] calldata newBonusPercents
+    ) external onlyOwner {
         for (uint256 i = 0; i < 7; i++) {
             refereesBonusPercentMilestones[i] = newBonusPercents[i];
         }
@@ -352,13 +331,10 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     /**
-     * TODO
      * @notice Locks a part of jackpot to be paid to the player later in the future
      * @param amount The amount of tokens to lock
      */
     function freezeJackpot(uint256 amount) external onlyGame {
-        // TODO why isn't here `totalJackpot.sub(amount)`
-        // TODO aren't freezed tokens withdrawn from total jackpot?
         freezedJackpot = freezedJackpot.add(amount);
     }
 
@@ -373,21 +349,19 @@ contract PoolController is IPool, Context, Ownable {
     /**
      * @notice Receives tokens from game and stores them on the contract's balance
      */
-    // TODO why there's no `onlyGame` here?
-    function receiveFundsFromGame() external payable {}
+    function receiveFundsFromGame() external payable onlyGame {}
 
     /**
      * @notice Pays the prize to the jackpot winner
      * @param player The jackpot winner address
      * @param prize The prize to pay
      */
-    function jackpotDistribution(address payable player, uint256 prize)
-        external
-        onlyGame
-    {
+    function jackpotDistribution(
+        address payable player,
+        uint256 prize
+    ) external onlyGame {
         // Prize to be paid is subtracted from the total jackpot
         totalJackpot = totalJackpot.sub(prize);
-        // TODO Shouldn't `freezedJackpot` be a part of `totalJackpot`?
         // Prize to be paid is subtracted from the freezed jackpot
         freezedJackpot = freezedJackpot.sub(prize);
         _rewardDistribution(player, prize);
@@ -438,15 +412,14 @@ contract PoolController is IPool, Context, Ownable {
      * @param player The player receiving the prize
      * @param prize The prize to be paid
      */
-    function rewardDistribution(address payable player, uint256 prize)
-        public
-        onlyGame
-    {
+    function rewardDistribution(
+        address payable player,
+        uint256 prize
+    ) public onlyGame {
         _rewardDistribution(player, prize);
     }
 
     /**
-     * TODO Shouldn't it have any modifiers?S
      * @notice Transfers referral earnings of the referee to the provided player
      * @param player The receiver of withdrawn referral earnings
      */
@@ -545,23 +518,22 @@ contract PoolController is IPool, Context, Ownable {
     /**
      * @notice Adds a new referer to the referee in the referral program
      * @param parent The address of the referee
-     * @param son The address of the referer
-     * TODO rename args to "referee" and "referer"
+     * @param child The address of the referer
      */
-    function addReferer(address parent, address son) external {
+    function addReferer(address parent, address child) external {
         require(
-            refAccounts[son].parent == address(0),
+            refAccounts[child].parent == address(0),
             "PoolController: this address is already a referer!"
         );
         require(
-            parent != son,
+            parent != child,
             "PoolController: referee and referer can not have the same address!"
         );
-        refAccounts[son].parent = parent;
+        refAccounts[child].parent = parent;
         refAccounts[parent].referralCounter = refAccounts[parent]
             .referralCounter
             .add(1);
-        emit RegisteredReferer(parent, son);
+        emit RegisteredReferer(parent, child);
     }
 
     /**
@@ -622,9 +594,10 @@ contract PoolController is IPool, Context, Ownable {
      * @param player The player to pay the prize to
      * @param prize The prize to pay
      */
-    function _rewardDistribution(address payable player, uint256 prize)
-        internal
-    {
+    function _rewardDistribution(
+        address payable player,
+        uint256 prize
+    ) internal {
         require(
             prize <= address(this).balance,
             "PoolControoller: not enough funds to pay the reward!"
