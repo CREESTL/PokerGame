@@ -1,26 +1,26 @@
 {
   "polygon_testnet": {
     "XTRXToken": {
-      "address": "0xd2D5F9eDE9cA2596275056425F43019Fb167D0EA",
-      "verification": "https://mumbai.polygonscan.com/address/0xd2D5F9eDE9cA2596275056425F43019Fb167D0EA#code"
+      "address": "0xca8D207fA8fF0275b48dF6ddB2452A0D307c8aab",
+      "verification": "https://mumbai.polygonscan.com/address/0xca8D207fA8fF0275b48dF6ddB2452A0D307c8aab#code"
     },
     "Oracle": {
-      "address": "0xC5520840ad08b9E26e2B77897CDDA276cD6561b6",
-      "verification": "https://mumbai.polygonscan.com/address/0xC5520840ad08b9E26e2B77897CDDA276cD6561b6#code"
+      "address": "0x6C45948aA1143c8ae6e0e49098c88181A44964B3",
+      "verification": "https://mumbai.polygonscan.com/address/0x6C45948aA1143c8ae6e0e49098c88181A44964B3#code"
     },
     "PoolController": {
-      "address": "0xD254259d42668CA1Ee087Ab9F603b15Ac5D47636",
-      "verification": "https://mumbai.polygonscan.com/address/0xD254259d42668CA1Ee087Ab9F603b15Ac5D47636#code"
+      "address": "0xb6B990E3A5007DBa0C527acF7A0F889742B22AF0",
+      "verification": "https://mumbai.polygonscan.com/address/0xb6B990E3A5007DBa0C527acF7A0F889742B22AF0#code"
     },
     "Poker": {
-      "address": "0x75C1B8f0705d7f9f99f470938673ab92bdbE5F97",
-      "pokerOperatorAddress": "0x3f0Df337e07886104D721c56C34723f58894f66F",
-      "pokerOperatorPrivateKey": "0x33bd003527f1252a85c42430e353eee408ec0fc2028b9544dbe15ed643c22429",
-      "verification": "https://mumbai.polygonscan.com/address/0x75C1B8f0705d7f9f99f470938673ab92bdbE5F97#code"
+      "address": "0xACB4D778aE7e533f2E8b71BdEE33Df29645265ef",
+      "pokerOperatorAddress": "0x2c449E7AFA5C0f17478b63BC4183C95f95A4B2d8",
+      "pokerOperatorPrivateKey": "0x2adbe3e4fb59df06d176f262e4b2567b81727caa6e6e58d5201a1ec300d4765b",
+      "verification": "https://mumbai.polygonscan.com/address/0xACB4D778aE7e533f2E8b71BdEE33Df29645265ef#code"
     },
     "GameController": {
-      "address": "0x1a817742493CE97C37e9f0B1A2663c4502B54cd0",
-      "verification": "https://mumbai.polygonscan.com/address/0x1a817742493CE97C37e9f0B1A2663c4502B54cd0#code"
+      "address": "0x38424Bb8133aAC4c2e20C74F4dd1e970b01DAFFb",
+      "verification": "https://mumbai.polygonscan.com/address/0x38424Bb8133aAC4c2e20C74F4dd1e970b01DAFFb#code"
     }
   },
   "polygon_mainnet": {
