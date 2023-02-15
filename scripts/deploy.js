@@ -144,8 +144,9 @@ async function main() {
   );
   poker = await contractDeployTx.deployed();
 
-    // Set the address of the poker contract to be able to manage the game pool
+    // Set the address of the poker contract to other contracts
     await poolController.connect(owner).setGame(poker.address);
+    await oracle.connect(owner).setGame(poker.address);
 
   console.log(`[${contractName}]: Deployment Finished!`);
   OUTPUT_DEPLOY[network.name][contractName].address = poker.address;
