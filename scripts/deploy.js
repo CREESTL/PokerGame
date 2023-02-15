@@ -31,6 +31,9 @@ let poolController;
 let poker;
 
 async function main() {
+
+    let [owner] = await ethers.getSigners();
+
   console.log(`[NOTICE!] Chain of deployment: ${network.name}`);
 
   // ===============Contract #1: XTRXToken===============
@@ -140,6 +143,9 @@ async function main() {
     pokerOperator.address
   );
   poker = await contractDeployTx.deployed();
+
+    // Set the address of the poker contract to be able to manage the game pool
+    await poolController.connect(owner).setGame(poker.address);
 
   console.log(`[${contractName}]: Deployment Finished!`);
   OUTPUT_DEPLOY[network.name][contractName].address = poker.address;
