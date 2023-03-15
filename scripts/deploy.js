@@ -144,9 +144,12 @@ async function main() {
   );
   poker = await contractDeployTx.deployed();
 
+
+  console.log(`[${contractName}]: Setting poker address for PoolController and Oracle...`);
     // Set the address of the poker contract to other contracts
     await poolController.connect(owner).setGame(poker.address);
     await oracle.connect(owner).setGame(poker.address);
+  console.log(`[${contractName}]: Poker address is set!`);
 
   console.log(`[${contractName}]: Deployment Finished!`);
   OUTPUT_DEPLOY[network.name][contractName].address = poker.address;
