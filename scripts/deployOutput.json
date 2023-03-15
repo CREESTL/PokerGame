@@ -25,26 +25,26 @@
   },
   "polygon_mainnet": {
     "XTRXToken": {
-      "address": "",
-      "verification": ""
+      "address": "0x5eF9DCa31981E3b5F097A255876E77eE4e0b29C7",
+      "verification": "https://polygonscan.com/address/0x5eF9DCa31981E3b5F097A255876E77eE4e0b29C7#code"
     },
     "Oracle": {
-      "address": "",
-      "verification": ""
+      "address": "0x1c4d0731bc95Df8b7E33581DdE2e3980cEfBE94f",
+      "verification": "https://polygonscan.com/address/0x1c4d0731bc95Df8b7E33581DdE2e3980cEfBE94f#code"
     },
     "PoolController": {
-      "address": "",
-      "verification": ""
+      "address": "0x832b97235d699c3C2bFca36DAa3d794c59a9FBaB",
+      "verification": "https://polygonscan.com/address/0x832b97235d699c3C2bFca36DAa3d794c59a9FBaB#code"
     },
     "Poker": {
-      "address": "",
-      "pokerOperatorAddress": "",
-      "pokerOperatorPrivateKey": "",
-      "verification": ""
+      "address": "0x1f6bFD8b33566d82D9235b134bDbAA43372bCa32",
+      "pokerOperatorAddress": "0x9D4fC4ADc7AaB65a8a9BB5abc5446dfCCCD96325",
+      "pokerOperatorPrivateKey": "0xfadff102eb886e200e662a7255c6cea7bc6362e716c3a9b8289623b8da05388c",
+      "verification": "https://polygonscan.com/address/0x1f6bFD8b33566d82D9235b134bDbAA43372bCa32#code"
     },
     "GameController": {
-      "address": "",
-      "verification": ""
+      "address": "0xbe6689222b3c467A9c1f7e3e65Fc0d20990bC23e",
+      "verification": "https://polygonscan.com/address/0xbe6689222b3c467A9c1f7e3e65Fc0d20990bC23e#code"
     }
   }
 }
