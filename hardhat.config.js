@@ -15,14 +15,14 @@ module.exports = {
       gas: 2100000,
       gasPrice: 8000000000,
     },
-    polygon_mainnet: {
-      url: `https://rpc-mainnet.maticvigil.com/`,
-      accounts: [PRIVATE_KEY],
-    },
-    polygon_testnet: {
-      url: `https://matic-testnet-archive-rpc.bwarelabs.com`,
-      accounts: [PRIVATE_KEY],
-    },
+      polygon_mainnet: {
+          url: `https://rpc-mainnet.maticvigil.com/`,
+          accounts: [PRIVATE_KEY],
+      },
+      polygon_testnet: {
+          url: `https://matic-mumbai.chainstacklabs.com`,
+          accounts: [PRIVATE_KEY],
+      },
   },
   solidity: {
     version: "0.8.9",
