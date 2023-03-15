@@ -16,7 +16,7 @@ module.exports = {
       gasPrice: 8000000000,
     },
       polygon_mainnet: {
-          url: `https://rpc-mainnet.maticvigil.com/`,
+          url: `https://polygon-rpc.com`,
           accounts: [PRIVATE_KEY],
       },
       polygon_testnet: {
