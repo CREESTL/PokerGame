@@ -153,7 +153,11 @@ contract PoolController is IPool, Context, Ownable {
     }
 
     /**
-     * @notice Returns referral program winnings milestones
+     * @notice Allows anyone to add funds into the pool
+     */
+    receive() external payable {}
+
+    /** @notice Returns referral program winnings milestones
      * @return Referral program winnings milestones
      */
     function getTotalWinningsMilestones()
